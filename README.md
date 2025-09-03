@@ -1,12 +1,64 @@
-# React + Vite
+# 🧠 Recall - Flashcards Inteligentes com IA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <strong>Estude menos, memorize mais. IA + repetição espaçada.</strong>
+</p>
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Info Rápida
 
-## Expanding the ESLint configuration
+- **Usuários**: Estudantes e professores  
+- **Linguagens**: JS (Vanilla), HTML, CSS, Node.js  
+- **Banco de dados**: PostgreSQL (via Supabase)  
+- **IA**: Cohere  
+- **Cache/Queue**: Redis + BullMQ  
+- **Upload**: txt, md, pdf  
+- **Frontend**: Chart.js, Toastify.js, Feather Icons  
+- **Backend**: Express.js, Zod, Multer, youtube-transcript, pdf-parse  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## ✨ Funcionalidades
+
+- Gerar flashcards de qualquer conteúdo (texto, arquivo, YouTube)  
+- Repetição espaçada inteligente (SM-2)  
+- Gamificação (pontos, streaks, gráficos)  
+- Explicações da IA para erros  
+- Edição e compartilhamento de baralhos  
+
+### 🔥 Steak 1: Flashcard Quiz
+O Recall gera:
+- [ ] Resumos  
+- [x] Flashcards  
+- [ ] Slides  
+- [ ] Artigos  
+
+---
+
+## 🚀 Como Funciona
+
+1. Adicione conteúdo  
+2. IA gera flashcards  
+3. Estude com repetição espaçada  
+
+### 🔥 Steak 2: Conteúdo Aceito
+- [x] Texto, arquivo, link de vídeo  
+- [ ] Apenas PDF  
+- [ ] Apenas YouTube  
+- [ ] Somente texto  
+
+---
+
+## 🛠️ Setup Local
+
+```bash
+# Backend
+cd backend
+npm install
+# .env: PORT, SUPABASE_URL/KEYS, COHERE_API_KEY, REDIS_URL
+npm start
+npm run worker
+
+# Frontend
+abrir index.html ou via Live Server

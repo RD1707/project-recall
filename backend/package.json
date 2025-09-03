@@ -1,0 +1,33 @@
+{
+  "name": "recall-backend",
+  "version": "1.0.0",
+  "description": "API para a plataforma de estudos com IA Recall, responsável por gerenciar usuários, baralhos, flashcards e integração com serviços externos.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "worker": "node src/worker.js",
+    "dev": "concurrently \"npm start\" \"npm run worker\""
+  },
+  "author": "simple",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.44.4",
+    "bullmq": "^5.8.2",
+    "cohere-ai": "^7.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "mammoth": "^1.7.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "tesseract.js": "^5.0.5",
+    "winston": "^3.13.0",
+    "youtube-transcript": "^1.0.6",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

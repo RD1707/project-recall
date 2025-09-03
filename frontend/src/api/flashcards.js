@@ -8,7 +8,16 @@ const handleApiError = (error, context) => {
   throw new Error(errorMessage);
 };
 
-// FUNÇÃO EXISTENTE (sem alterações)
+const getAuthHeader = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Sessão inválida. Por favor, faça login novamente.");
+      window.location.href = '/login';
+      throw new Error("Usuário não autenticado");
+    }
+    return `Bearer ${session.access_token}`;
+}
+
 export const createFlashcard = async (deckId, flashcardData) => {
     try {
         const { data, error } = await supabase
@@ -23,7 +32,6 @@ export const createFlashcard = async (deckId, flashcardData) => {
     }
 }
 
-// NOVO: Adicione estas funções
 export const updateFlashcard = async (cardId, flashcardData) => {
     try {
         const { data, error } = await supabase
@@ -63,13 +71,13 @@ export const generateFlashcardsFromText = async (deckId, params) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabase.auth.getSession().data.session.access_token}`
+                'Authorization': await getAuthHeader()
             },
             body: JSON.stringify(body)
         });
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao gerar flashcards');
+            throw new Error(errorData.message || 'Falha ao gerar flashcards a partir de texto');
         }
         return await response.json();
     } catch (error) {
@@ -82,7 +90,7 @@ export const generateFlashcardsFromFile = async (deckId, formData) => {
         const response = await fetch(`/api/decks/${deckId}/generate-from-file`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${supabase.auth.getSession().data.session.access_token}`
+                'Authorization': await getAuthHeader()
             },
             body: formData
         });
@@ -107,7 +115,7 @@ export const generateFlashcardsFromYouTube = async (deckId, params) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabase.auth.getSession().data.session.access_token}`
+                'Authorization': await getAuthHeader()
             },
             body: JSON.stringify(body)
         });
@@ -123,21 +131,14 @@ export const generateFlashcardsFromYouTube = async (deckId, params) => {
 
 export const fetchReviewCards = async (deckId) => {
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error('Utilizador não autenticado');
-
-        const today = new Date().toISOString();
-        
-        const { data, error } = await supabase
-            .from('flashcards')
-            .select('*')
-            .eq('deck_id', deckId)
-            .or(`due_date.lte.${today},due_date.is.null`)
-            .limit(20); 
-
-        if (error) throw error;
-        return data;
-
+        const response = await fetch(`/api/decks/${deckId}/review`, {
+            headers: { 'Authorization': await getAuthHeader() }
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao buscar cards para revisão');
+        }
+        return await response.json();
     } catch (error) {
         return handleApiError(error, 'fetchReviewCards');
     }
@@ -145,14 +146,11 @@ export const fetchReviewCards = async (deckId) => {
 
 export const submitReview = async (cardId, quality) => {
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error('Utilizador não autenticado');
-        
         const response = await fetch(`/api/flashcards/${cardId}/review`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
+                'Authorization': await getAuthHeader()
             },
             body: JSON.stringify({ quality })
         });
