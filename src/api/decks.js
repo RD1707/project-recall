@@ -79,3 +79,35 @@ export const deleteDeck = async (deckId) => {
     return handleApiError(error, 'deleteDeck');
   }
 };
+
+export const fetchDeckById = async (deckId) => {
+  try {
+    const { data, error } = await supabase
+      .from('decks')
+      .select('*, flashcards(count)')
+      .eq('id', deckId)
+      .single(); 
+
+    if (error) throw error;
+
+    return { ...data, card_count: data.flashcards[0]?.count || 0 };
+  } catch (error) {
+    return handleApiError(error, 'fetchDeckById');
+  }
+};
+
+export const fetchFlashcardsByDeckId = async (deckId) => {
+  try {
+    const { data, error } = await supabase
+      .from('flashcards')
+      .select('*')
+      .eq('deck_id', deckId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    return handleApiError(error, 'fetchFlashcardsByDeckId');
+  }
+};
