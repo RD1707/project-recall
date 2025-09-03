@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Dashboard.jsx
+import React, { useState, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
 
 import Header from '../components/common/Header';
 import DeckCard from '../components/decks/DeckCard';
-import Modal from '../components/common/Modal'; 
+import Modal from '../components/common/Modal';
 
 import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
 
@@ -14,11 +15,15 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [isFilterMenuVisible, setFilterMenuVisible] = useState(false);
+
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [deckToEdit, setDeckToEdit] = useState(null); 
-  
-  const [formData, setFormData] = useState({ title: '', description: '' });
+  const [deckToEdit, setDeckToEdit] = useState(null);
+
+  const [formData, setFormData] = useState({ title: '', description: '', color: '#4f46e5' });
 
   useEffect(() => {
     const loadDecks = async () => {
@@ -34,15 +39,15 @@ function Dashboard() {
     };
     loadDecks();
   }, []);
-  
+
   const openCreateModal = () => {
-    setFormData({ title: '', description: '' });
+    setFormData({ title: '', description: '', color: '#4f46e5' });
     setCreateModalOpen(true);
   };
-  
+
   const openEditModal = (deck) => {
     setDeckToEdit(deck);
-    setFormData({ title: deck.title, description: deck.description || '' });
+    setFormData({ title: deck.title, description: deck.description || '', color: deck.color || '#4f46e5' });
     setEditModalOpen(true);
   };
 
@@ -60,7 +65,7 @@ function Dashboard() {
     }
     try {
       const newDeck = await createDeck(formData);
-      setDecks([newDeck, ...decks]); 
+      setDecks([newDeck, ...decks]);
       toast.success('Baralho criado com sucesso!');
       closeModal();
     } catch (error) {
@@ -88,7 +93,7 @@ function Dashboard() {
     }
     try {
       await deleteDeck(deckToEdit.id);
-      setDecks(decks.filter(d => d.id !== deckToEdit.id)); 
+      setDecks(decks.filter(d => d.id !== deckToEdit.id));
       toast.success('Baralho excluído.');
       closeModal();
     } catch (error) {
@@ -100,6 +105,26 @@ function Dashboard() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
+  const filteredDecks = useMemo(() => {
+    let decksToRender = [...decks];
+
+    if (searchTerm) {
+      decksToRender = decksToRender.filter(deck =>
+        deck.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (deck.description && deck.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    if (activeFilter === 'recent') {
+      decksToRender.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } else if (activeFilter === 'oldest') {
+      decksToRender.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+
+    return decksToRender;
+  }, [decks, searchTerm, activeFilter]);
+
+
   const renderContent = () => {
     if (isLoading) return <div className="loading-state">A carregar baralhos...</div>;
     if (error) return <div className="error-state">{error}</div>;
@@ -107,19 +132,28 @@ function Dashboard() {
       return (
         <div id="empty-state" className="empty-state">
           <h3>Nenhum baralho encontrado</h3>
+          <p>Comece criando seu primeiro baralho de flashcards</p>
           <button onClick={openCreateModal} className="btn btn-primary">Criar Primeiro Baralho</button>
         </div>
       );
     }
+    if (filteredDecks.length === 0) {
+      return (
+          <div className="empty-state">
+              <h3>Nenhum baralho corresponde à sua busca.</h3>
+              <p>Tente um termo diferente ou ajuste os filtros.</p>
+          </div>
+      );
+    }
     return (
       <div id="decks-grid" className="decks-grid">
-        {decks.map(deck => (
+        {filteredDecks.map(deck => (
           <DeckCard key={deck.id} deck={deck} onEdit={() => openEditModal(deck)} />
         ))}
       </div>
     );
   };
-  
+
   return (
     <>
       <Header />
@@ -127,6 +161,26 @@ function Dashboard() {
         <div className="content-header">
           <h2>Meus Baralhos</h2>
           <div className="header-actions">
+            <div className="search-box">
+              <i className="fas fa-search"></i>
+              <input 
+                type="text" 
+                id="deck-search" 
+                placeholder="Buscar baralhos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="filter-dropdown">
+              <button className="btn" id="filter-btn" onClick={() => setFilterMenuVisible(!isFilterMenuVisible)}>
+                <i className="fas fa-filter"></i> Filtrar
+              </button>
+              <div className={`dropdown-menu filter-menu ${isFilterMenuVisible ? 'visible' : ''}`}>
+                <button className={`dropdown-item ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => { setActiveFilter('all'); setFilterMenuVisible(false); }}>Todos</button>
+                <button className={`dropdown-item ${activeFilter === 'recent' ? 'active' : ''}`} onClick={() => { setActiveFilter('recent'); setFilterMenuVisible(false); }}>Mais Recentes</button>
+                <button className={`dropdown-item ${activeFilter === 'oldest' ? 'active' : ''}`} onClick={() => { setActiveFilter('oldest'); setFilterMenuVisible(false); }}>Mais Antigos</button>
+              </div>
+            </div>
             <button onClick={openCreateModal} id="create-deck-btn" className="btn btn-primary">
               <i className="fas fa-plus"></i> Novo Baralho
             </button>
@@ -135,9 +189,9 @@ function Dashboard() {
         <div className="decks-container">{renderContent()}</div>
       </main>
 
-      <Modal 
-        isOpen={isCreateModalOpen} 
-        onClose={closeModal} 
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={closeModal}
         title="Criar Novo Baralho"
         footer={
           <>
@@ -158,9 +212,9 @@ function Dashboard() {
         </form>
       </Modal>
 
-      <Modal 
-        isOpen={isEditModalOpen} 
-        onClose={closeModal} 
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={closeModal}
         title="Editar Baralho"
         footer={
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>

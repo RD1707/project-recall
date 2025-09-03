@@ -111,3 +111,16 @@ export const fetchFlashcardsByDeckId = async (deckId) => {
     return handleApiError(error, 'fetchFlashcardsByDeckId');
   }
 };
+
+export const shareDeck = async (deckId) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Usuário não autenticado');
+    
+    const shareableLink = `${window.location.origin}/shared-deck/${deckId}`;
+    return { shareableLink };
+    
+  } catch (error) {
+    return handleApiError(error, 'shareDeck');
+  }
+}

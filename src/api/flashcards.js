@@ -8,6 +8,7 @@ const handleApiError = (error, context) => {
   throw new Error(errorMessage);
 };
 
+// FUNÇÃO EXISTENTE (sem alterações)
 export const createFlashcard = async (deckId, flashcardData) => {
     try {
         const { data, error } = await supabase
@@ -19,6 +20,35 @@ export const createFlashcard = async (deckId, flashcardData) => {
         return data;
     } catch (error) {
         return handleApiError(error, 'createFlashcard');
+    }
+}
+
+// NOVO: Adicione estas funções
+export const updateFlashcard = async (cardId, flashcardData) => {
+    try {
+        const { data, error } = await supabase
+            .from('flashcards')
+            .update(flashcardData)
+            .eq('id', cardId)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        return handleApiError(error, 'updateFlashcard');
+    }
+}
+
+export const deleteFlashcard = async (cardId) => {
+    try {
+        const { error } = await supabase
+            .from('flashcards')
+            .delete()
+            .eq('id', cardId);
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        return handleApiError(error, 'deleteFlashcard');
     }
 }
 
