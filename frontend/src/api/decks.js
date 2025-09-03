@@ -117,10 +117,34 @@ export const shareDeck = async (deckId) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Usuário não autenticado');
     
-    const shareableLink = `${window.location.origin}/shared-deck/${deckId}`;
+    const response = await fetch(`/api/decks/${deckId}/share`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${session.access_token}`
+        }
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Falha ao compartilhar o baralho.");
+    
+    const shareableLink = `${window.location.origin}/shared-deck/${data.shareableId}`;
     return { shareableLink };
     
   } catch (error) {
     return handleApiError(error, 'shareDeck');
   }
 }
+
+export const fetchSharedDeck = async (shareableId) => {
+    try {
+        const response = await fetch(`/api/shared/${shareableId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Não foi possível encontrar o baralho.');
+        }
+        return data;
+    } catch (error) {
+        console.error(`Erro ao buscar baralho compartilhado:`, error);
+        throw error;
+    }
+};
