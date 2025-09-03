@@ -1,0 +1,225 @@
+.auth-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.auth-promo-panel {
+    background-color: var(--color-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-2xl);
+}
+
+.promo-content {
+    max-width: 450px;
+    text-align: center;
+}
+
+.promo-logo {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-dark-900);
+    text-decoration: none;
+    font-family: var(--font-family-heading);
+    margin-bottom: var(--space-lg);
+    display: inline-block;
+}
+
+.promo-title {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-md);
+}
+
+.promo-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-form-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-2xl) var(--space-lg);
+    background-color: var(--color-surface);
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.form-header h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-xs);
+}
+
+.form-header p {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-base);
+}
+
+.social-logins {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.btn-social {
+    width: 100%;
+    background-color: var(--color-surface);
+    color: var(--color-text-default);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+.btn-social:hover {
+    background-color: var(--color-background);
+}
+.btn-social .icon {
+    width: 20px;
+    height: 20px;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--color-border);
+    margin: var(--space-xl) 0;
+}
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--color-border);
+}
+.separator span {
+    padding: 0 var(--space-md);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.input-group {
+    position: relative;
+}
+.input-group .icon {
+    position: absolute;
+    left: var(--space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+.input-group .form-control {
+    padding-left: 2.75rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+.password-toggle:hover {
+    color: var(--color-dark-800);
+}
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-md);
+}
+
+.forgot-password {
+    font-size: var(--font-size-sm);
+    color: var(--color-primary-500);
+    text-decoration: none;
+}
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.error-message {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: var(--border-radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    margin-top: var(--space-md);
+}
+
+.toggle-panel {
+    text-align: center;
+    margin-top: var(--space-xl);
+    font-size: var(--font-size-sm);
+}
+.toggle-panel a {
+    font-weight: 600;
+    text-decoration: none;
+}
+.toggle-panel a:hover {
+    text-decoration: underline;
+}
+
+.back-to-login {
+    font-weight: 600;
+    text-decoration: none;
+}
+.back-to-login:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para campos com erro */
+.form-control.error {
+    border-color: var(--color-error, #ef4444);
+    box-shadow: 0 0 0 1px var(--color-error, #ef4444);
+}
+
+.field-error {
+    color: var(--color-error, #ef4444);
+    font-size: var(--font-size-sm, 0.875rem);
+    margin-top: var(--space-xs, 0.25rem);
+    display: block;
+    font-weight: 500;
+}
+
+@media (max-width: 992px) {
+    .auth-layout {
+        grid-template-columns: 1fr;
+    }
+    .auth-promo-panel {
+        display: none; 
+    }
+    .auth-form-panel {
+        align-items: flex-start;
+        padding-top: 5vh;
+    }
+}
