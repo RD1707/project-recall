@@ -1,9 +1,5 @@
 # Recall - Flashcards Inteligentes com React e IA
 
-\<p align="center"\>
-\<strong\>Projeto `recall` migrado para React. Estude menos, memorize mais. IA + repetição espaçada.\</strong\>
-\</p\>
-
 -----
 
 ##  Sobre o Projeto
