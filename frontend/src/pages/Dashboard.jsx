@@ -1,14 +1,26 @@
-// src/pages/Dashboard.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 import Header from '../components/common/Header';
 import DeckCard from '../components/decks/DeckCard';
+import CreateDeckCard from '../components/decks/CreateDeckCard'; 
 import Modal from '../components/common/Modal';
 
 import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
 
 import '../assets/css/dashboard.css';
+
+const ActionCard = ({ onClick }) => (
+    <div className="action-card">
+        <h2>Continue sua jornada de aprendizado</h2>
+        <p>Crie um novo baralho para explorar outros tópicos ou aprofundar seus conhecimentos atuais.</p>
+        <button className="btn" onClick={onClick}>
+            <i className="fas fa-plus"></i> Criar Novo Baralho
+        </button>
+    </div>
+);
+
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
@@ -24,6 +36,8 @@ function Dashboard() {
   const [deckToEdit, setDeckToEdit] = useState(null);
 
   const [formData, setFormData] = useState({ title: '', description: '', color: '#4f46e5' });
+  
+  const filterMenuRef = useRef(null);
 
   useEffect(() => {
     const loadDecks = async () => {
@@ -38,6 +52,16 @@ function Dashboard() {
       }
     };
     loadDecks();
+  }, []);
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+            setFilterMenuVisible(false);
+        }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const openCreateModal = () => {
@@ -64,11 +88,12 @@ function Dashboard() {
       return;
     }
     try {
-      const newDeck = await createDeck(formData);
-      setDecks([newDeck, ...decks]);
+      const { deck: newDeck } = await createDeck(formData);
+      setDecks(prevDecks => [newDeck, ...prevDecks]);
       toast.success('Baralho criado com sucesso!');
       closeModal();
     } catch (error) {
+       toast.error('Não foi possível criar o baralho.');
     }
   };
 
@@ -84,6 +109,7 @@ function Dashboard() {
       toast.success('Baralho atualizado!');
       closeModal();
     } catch (error) {
+       toast.error('Não foi possível atualizar o baralho.');
     }
   };
 
@@ -97,6 +123,7 @@ function Dashboard() {
       toast.success('Baralho excluído.');
       closeModal();
     } catch (error) {
+        toast.error('Não foi possível excluir o baralho.');
     }
   };
 
@@ -137,7 +164,7 @@ function Dashboard() {
         </div>
       );
     }
-    if (filteredDecks.length === 0) {
+    if (filteredDecks.length === 0 && searchTerm) {
       return (
           <div className="empty-state">
               <h3>Nenhum baralho corresponde à sua busca.</h3>
@@ -145,11 +172,14 @@ function Dashboard() {
           </div>
       );
     }
+    
     return (
       <div id="decks-grid" className="decks-grid">
+        {decks.length > 0 && decks.length < 4 && <ActionCard onClick={openCreateModal} />}
         {filteredDecks.map(deck => (
           <DeckCard key={deck.id} deck={deck} onEdit={() => openEditModal(deck)} />
         ))}
+        <CreateDeckCard onClick={openCreateModal} />
       </div>
     );
   };
@@ -171,7 +201,7 @@ function Dashboard() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="filter-dropdown">
+            <div className="filter-dropdown" ref={filterMenuRef}>
               <button className="btn" id="filter-btn" onClick={() => setFilterMenuVisible(!isFilterMenuVisible)}>
                 <i className="fas fa-filter"></i> Filtrar
               </button>

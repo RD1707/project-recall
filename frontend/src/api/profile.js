@@ -33,6 +33,27 @@ export const fetchProfile = async () => {
   }
 };
 
+export const updateProfile = async (profileData) => {
+    try {
+        const response = await fetch('/api/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader(),
+            },
+            body: JSON.stringify(profileData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao atualizar o perfil.');
+        }
+        return await response.json();
+    } catch (error) {
+        return handleApiError(error, 'updateProfile');
+    }
+};
+
 export const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
