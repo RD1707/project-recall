@@ -1,7 +1,16 @@
 import toast from 'react-hot-toast';
 
 const handleApiError = async (response) => {
-    const errorData = await response.json();
+    let errorData;
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        errorData = await response.json();
+    } else {
+        const text = await response.text();
+        errorData = { error: `Ocorreu um erro no servidor (Status: ${response.status})`, details: text };
+    }
+    
     console.error("Erro da API:", errorData);
     
     // Se o backend enviar um erro específico de campo, vamos usá-lo
@@ -23,6 +32,7 @@ export const loginUser = async (credentials) => {
         });
 
         if (!response.ok) {
+            // A função handleApiError agora vai tratar a resposta corretamente
             await handleApiError(response);
         }
 
