@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import VideoModal from '../components/common/VideoModal'; 
-import CookieBanner from '../components/common/CookieBanner'; 
 
 import '../assets/css/landing.css'; 
 
@@ -162,7 +161,6 @@ function Landing() {
       </footer>
 
       <VideoModal isOpen={isVideoModalOpen} onClose={() => setVideoModalOpen(false)} />
-      <CookieBanner />
     </div>
   );
 }
