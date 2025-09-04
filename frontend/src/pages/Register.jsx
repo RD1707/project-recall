@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
+import { registerUser } from '../api/auth'; // Importe a nova função
 
 import '../assets/css/login.css'; 
 
@@ -17,7 +18,6 @@ const AuthPromoPanel = ({ title, subtitle }) => (
     </div>
 );
 
-// Ícone do Google SVG
 const GoogleIcon = () => (
     <svg className="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="currentColor">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -26,8 +26,6 @@ const GoogleIcon = () => (
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
     </svg>
 );
-
-// --- Componente Principal da Página de Registro ---
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -80,30 +78,23 @@ function Register() {
         setErrors({});
 
         try {
-            const { data, error } = await supabase.auth.signUp({
+            // Usa a nova função que chama o backend
+            await registerUser({
                 email: formData.email,
                 password: formData.password,
-                options: {
-                    data: {
-                        full_name: formData.fullName,
-                        username: formData.username,
-                    }
-                }
+                full_name: formData.fullName,
+                username: formData.username,
             });
 
-            if (error) throw error;
-            
-            if (data.user) {
-                toast.success('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
-                navigate('/login');
-            }
+            toast.success('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
+            navigate('/login');
+
         } catch (err) {
-            if (err.message.includes("User already registered")) {
-                setErrors({ email: "Este e-mail já está em uso." });
-            } else if (err.message.includes("profiles_username_key")) {
-                setErrors({ username: "Este nome de usuário já está em uso." });
+            // A API de auth agora pode retornar um objeto de erro com o campo específico
+            if (err.field) {
+                setErrors({ [err.field]: err.error });
             } else {
-                toast.error(err.message || 'Ocorreu um erro ao criar a conta.');
+                // Erro genérico já tratado pelo toast na API
             }
         } finally {
             setLoading(false);
