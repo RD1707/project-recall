@@ -1,137 +1,32 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
-
 import Header from '../components/common/Header';
 import DeckCard from '../components/decks/DeckCard';
 import CreateDeckCard from '../components/decks/CreateDeckCard';
 import Modal from '../components/common/Modal';
-
 import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
 
 import '../assets/css/dashboard.css';
 
-const ColorPicker = ({ selectedColor, onChange }) => {
+// --- Subcomponentes para um Dashboard mais limpo e organizado ---
+
+// Skeleton Card para o estado de carregamento
+const SkeletonDeckCard = () => (
+    <div className="skeleton-deck">
+        <div className="skeleton skeleton-text"></div>
+        <div className="skeleton skeleton-text"></div>
+        <div className="skeleton skeleton-text"></div>
+        <div className="skeleton skeleton-button"></div>
+    </div>
+);
+
+// Formulário de Criação/Edição de Deck
+const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color: '#6366f1' }, formId }) => {
+    const [formData, setFormData] = useState(initialData);
+
     const colors = ['#6366f1', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
-    return (
-        <div className="color-picker">
-            {colors.map(color => (
-                <div
-                    key={color}
-                    className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => onChange(color)}
-                ></div>
-            ))}
-        </div>
-    );
-};
 
-function Dashboard() {
-    const [decks, setDecks] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const [searchTerm, setSearchTerm] = useState('');
-    const [activeFilter, setActiveFilter] = useState('all');
-    const [isFilterMenuVisible, setFilterMenuVisible] = useState(false);
-
-    const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-    const [isEditModalOpen, setEditModalOpen] = useState(false);
-    const [deckToEdit, setDeckToEdit] = useState(null);
-
-    const [formData, setFormData] = useState({ title: '', description: '', color: '#6366f1' });
-    const filterMenuRef = useRef(null);
-
-    useEffect(() => {
-        const loadDecks = async () => {
-            try {
-                setIsLoading(true);
-                const decksData = await fetchDecks();
-                setDecks(decksData);
-            } catch (err) {
-                setError('Não foi possível carregar os seus baralhos.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadDecks();
-    }, []);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
-                setFilterMenuVisible(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const openCreateModal = () => {
-        setFormData({ title: '', description: '', color: '#6366f1' });
-        setCreateModalOpen(true);
-    };
-
-    const openEditModal = (deck) => {
-        setDeckToEdit(deck);
-        setFormData({ title: deck.title, description: deck.description || '', color: deck.color || '#6366f1' });
-        setEditModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setCreateModalOpen(false);
-        setEditModalOpen(false);
-        setDeckToEdit(null);
-    };
-
-    const handleCreateDeck = async (e) => {
-        e.preventDefault();
-        if (!formData.title) {
-            toast.error('O título é obrigatório.');
-            return;
-        }
-        try {
-            const newDeck = await createDeck(formData);
-            setDecks(prevDecks => [newDeck, ...prevDecks]);
-            toast.success('Baralho criado com sucesso!');
-            closeModal();
-        } catch (error) {
-            toast.error('Não foi possível criar o baralho.');
-        }
-    };
-
-    const handleUpdateDeck = async (e) => {
-        e.preventDefault();
-        if (!formData.title) {
-            toast.error('O título é obrigatório.');
-            return;
-        }
-        try {
-            const updatedDeckWithCount = await updateDeck(deckToEdit.id, formData);
-            setDecks(decks.map(d => (d.id === updatedDeckWithCount.id ? updatedDeckWithCount : d)));
-            toast.success('Baralho atualizado!');
-            closeModal();
-        } catch (error) {
-            toast.error('Não foi possível atualizar o baralho.');
-        }
-    };
-
-    const handleDeleteDeck = async () => {
-        if (!window.confirm(`Tem a certeza de que quer excluir o baralho "${deckToEdit.title}"?`)) {
-            return;
-        }
-        try {
-            await deleteDeck(deckToEdit.id);
-            setDecks(decks.filter(d => d.id !== deckToEdit.id));
-            toast.success('Baralho excluído.');
-            closeModal();
-        } catch (error) {
-            toast.error('Não foi possível excluir o baralho.');
-        }
-    };
-
-    const handleFormChange = (e) => {
+    const handleChange = (e) => {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
     };
@@ -140,6 +35,69 @@ function Dashboard() {
         setFormData(prev => ({ ...prev, color }));
     };
 
+    return (
+        <form id={formId} onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }}>
+            <div className="form-group">
+                <label htmlFor="title">Título do Baralho</label>
+                <input type="text" id="title" value={formData.title} onChange={handleChange} required placeholder="Ex: Biologia Celular" />
+            </div>
+            <div className="form-group">
+                <label htmlFor="description">Descrição (Opcional)</label>
+                <textarea id="description" rows="3" value={formData.description} onChange={handleChange} placeholder="Uma breve descrição do conteúdo do baralho"></textarea>
+            </div>
+            <div className="form-group">
+                <label>Cor do Baralho</label>
+                <div className="color-picker">
+                    {colors.map(color => (
+                        <div
+                            key={color}
+                            className={`color-option ${formData.color === color ? 'selected' : ''}`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => handleColorChange(color)}
+                            role="radio"
+                            aria-checked={formData.color === color}
+                            aria-label={`Selecionar cor ${color}`}
+                            tabIndex={0}
+                        ></div>
+                    ))}
+                </div>
+            </div>
+        </form>
+    );
+};
+
+// --- Componente Principal do Dashboard ---
+
+function Dashboard() {
+    const [decks, setDecks] = useState([]);
+    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeFilter, setActiveFilter] = useState('all');
+    
+    // Estado unificado para os modais
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        mode: null, // 'create' ou 'edit'
+        deckData: null,
+    });
+
+    // Carregamento inicial dos decks
+    useEffect(() => {
+        const loadDecks = async () => {
+            try {
+                setStatus('loading');
+                const decksData = await fetchDecks();
+                setDecks(decksData);
+                setStatus('success');
+            } catch (err) {
+                setStatus('error');
+                toast.error('Não foi possível carregar seus baralhos.');
+            }
+        };
+        loadDecks();
+    }, []);
+    
+    // Filtragem e ordenação dos decks
     const filteredDecks = useMemo(() => {
         let decksToRender = [...decks];
 
@@ -159,19 +117,84 @@ function Dashboard() {
         return decksToRender;
     }, [decks, searchTerm, activeFilter]);
 
+    // Manipuladores de Modal
+    const openModal = (mode, deckData = null) => {
+        setModalState({ isOpen: true, mode, deckData });
+    };
+    const closeModal = () => {
+        setModalState({ isOpen: false, mode: null, deckData: null });
+    };
+
+    // Ações CRUD
+    const handleSaveDeck = async (formData) => {
+        if (!formData.title) {
+            toast.error('O título é obrigatório.');
+            return;
+        }
+
+        const isCreating = modalState.mode === 'create';
+        const promise = isCreating 
+            ? createDeck(formData)
+            : updateDeck(modalState.deckData.id, formData);
+
+        try {
+            const resultDeck = await toast.promise(promise, {
+                loading: `${isCreating ? 'Criando' : 'Salvando'} baralho...`,
+                success: `Baralho ${isCreating ? 'criado' : 'atualizado'} com sucesso!`,
+                error: `Não foi possível ${isCreating ? 'criar' : 'salvar'} o baralho.`,
+            });
+            
+            if (isCreating) {
+                setDecks(prevDecks => [resultDeck, ...prevDecks]);
+            } else {
+                setDecks(decks.map(d => (d.id === resultDeck.id ? resultDeck : d)));
+            }
+            closeModal();
+        } catch (error) {
+            // Toast.promise já lida com a notificação de erro
+        }
+    };
+    
+    const handleDeleteDeck = async () => {
+        if (!window.confirm(`Tem certeza de que quer excluir o baralho "${modalState.deckData.title}"? Esta ação não pode ser desfeita.`)) {
+            return;
+        }
+        
+        try {
+            await toast.promise(deleteDeck(modalState.deckData.id), {
+                loading: 'Excluindo baralho...',
+                success: 'Baralho excluído com sucesso.',
+                error: 'Não foi possível excluir o baralho.',
+            });
+            setDecks(decks.filter(d => d.id !== modalState.deckData.id));
+            closeModal();
+        } catch (error) {
+            // Toast.promise já lida com a notificação de erro
+        }
+    };
+
+    // Renderização do conteúdo principal
     const renderContent = () => {
-        if (isLoading) return <div className="loading-state">A carregar baralhos...</div>;
-        if (error) return <div className="error-state">{error}</div>;
+        if (status === 'loading') {
+            return (
+                <div id="decks-grid" className="decks-grid">
+                    {[...Array(6)].map((_, i) => <SkeletonDeckCard key={i} />)}
+                </div>
+            );
+        }
+        if (status === 'error') {
+            return <div className="error-state">Ocorreu um erro ao buscar seus dados.</div>;
+        }
         if (decks.length === 0) {
             return (
                 <div id="empty-state" className="empty-state">
                     <h3>Nenhum baralho encontrado</h3>
-                    <p>Comece criando seu primeiro baralho de flashcards</p>
-                    <button onClick={openCreateModal} className="btn btn-primary">Criar Primeiro Baralho</button>
+                    <p>Comece sua jornada de aprendizado criando seu primeiro baralho.</p>
+                    <button onClick={() => openModal('create')} className="btn btn-primary">Criar Primeiro Baralho</button>
                 </div>
             );
         }
-        if (filteredDecks.length === 0 && searchTerm) {
+        if (filteredDecks.length === 0) {
             return (
                 <div className="empty-state">
                     <h3>Nenhum baralho corresponde à sua busca.</h3>
@@ -179,16 +202,17 @@ function Dashboard() {
                 </div>
             );
         }
-
         return (
             <div id="decks-grid" className="decks-grid">
                 {filteredDecks.map(deck => (
-                    <DeckCard key={deck.id} deck={deck} onEdit={() => openEditModal(deck)} />
+                    <DeckCard key={deck.id} deck={deck} onEdit={() => openModal('edit', deck)} />
                 ))}
-                <CreateDeckCard onClick={openCreateModal} />
+                <CreateDeckCard onClick={() => openModal('create')} />
             </div>
         );
     };
+
+    const isEditing = modalState.mode === 'edit';
 
     return (
         <>
@@ -199,19 +223,16 @@ function Dashboard() {
                     <div className="header-actions">
                         <div className="search-box">
                             <i className="fas fa-search"></i>
-                            <input type="text" id="deck-search" placeholder="Buscar baralhos..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                            <input 
+                                type="text" 
+                                id="deck-search" 
+                                placeholder="Buscar baralhos..." 
+                                value={searchTerm} 
+                                onChange={(e) => setSearchTerm(e.target.value)} 
+                            />
                         </div>
-                        <div className="filter-dropdown" ref={filterMenuRef}>
-                            <button className="btn" id="filter-btn" onClick={() => setFilterMenuVisible(!isFilterMenuVisible)}>
-                                <i className="fas fa-filter"></i> Filtrar
-                            </button>
-                            <div className={`dropdown-menu filter-menu ${isFilterMenuVisible ? 'visible' : ''}`}>
-                                <button className={`dropdown-item ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => { setActiveFilter('all'); setFilterMenuVisible(false); }}>Todos</button>
-                                <button className={`dropdown-item ${activeFilter === 'recent' ? 'active' : ''}`} onClick={() => { setActiveFilter('recent'); setFilterMenuVisible(false); }}>Mais Recentes</button>
-                                <button className={`dropdown-item ${activeFilter === 'oldest' ? 'active' : ''}`} onClick={() => { setActiveFilter('oldest'); setFilterMenuVisible(false); }}>Mais Antigos</button>
-                            </div>
-                        </div>
-                        <button onClick={openCreateModal} id="create-deck-btn" className="btn btn-primary">
+                        {/* Filtros podem ser adicionados aqui no futuro */}
+                        <button onClick={() => openModal('create')} id="create-deck-btn" className="btn btn-primary">
                             <i className="fas fa-plus"></i> Novo Baralho
                         </button>
                     </div>
@@ -219,51 +240,29 @@ function Dashboard() {
                 <div className="decks-container">{renderContent()}</div>
             </main>
 
-            <Modal isOpen={isCreateModalOpen} onClose={closeModal} title="Criar Novo Baralho" footer={
-                <>
-                    <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
-                    <button type="submit" form="deck-form-create" className="btn btn-primary">Criar Baralho</button>
-                </>
-            }>
-                <form id="deck-form-create" onSubmit={handleCreateDeck}>
-                    <div className="form-group">
-                        <label htmlFor="title">Título do Baralho</label>
-                        <input type="text" id="title" value={formData.title} onChange={handleFormChange} required />
+            <Modal 
+                isOpen={modalState.isOpen} 
+                onClose={closeModal} 
+                title={isEditing ? "Editar Baralho" : "Criar Novo Baralho"}
+                footer={
+                    <div className={`modal-footer-actions ${isEditing ? 'edit-mode' : ''}`}>
+                        {isEditing && (
+                            <button type="button" className="btn btn-danger" onClick={handleDeleteDeck}>Excluir</button>
+                        )}
+                        <div className="main-actions">
+                            <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
+                            <button type="submit" form="deck-form" className="btn btn-primary">
+                                {isEditing ? 'Salvar Alterações' : 'Criar Baralho'}
+                            </button>
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Descrição (Opcional)</label>
-                        <textarea id="description" rows="3" value={formData.description} onChange={handleFormChange}></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label>Cor do Baralho</label>
-                        <ColorPicker selectedColor={formData.color} onChange={handleColorChange} />
-                    </div>
-                </form>
-            </Modal>
-
-            <Modal isOpen={isEditModalOpen} onClose={closeModal} title="Editar Baralho" footer={
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <button type="button" className="btn btn-danger" onClick={handleDeleteDeck}>Excluir</button>
-                    <div>
-                        <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
-                        <button type="submit" form="deck-form-edit" className="btn btn-primary">Salvar</button>
-                    </div>
-                </div>
-            }>
-                <form id="deck-form-edit" onSubmit={handleUpdateDeck}>
-                    <div className="form-group">
-                        <label htmlFor="title">Título do Baralho</label>
-                        <input type="text" id="title" value={formData.title} onChange={handleFormChange} required />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Descrição (Opcional)</label>
-                        <textarea id="description" rows="3" value={formData.description} onChange={handleFormChange}></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label>Cor do Baralho</label>
-                        <ColorPicker selectedColor={formData.color} onChange={handleColorChange} />
-                    </div>
-                </form>
+                }
+            >
+                <DeckForm 
+                    formId="deck-form"
+                    onSubmit={handleSaveDeck} 
+                    initialData={modalState.deckData}
+                />
             </Modal>
         </>
     );

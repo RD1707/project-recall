@@ -5,85 +5,115 @@ import { fetchSharedDeck } from '../api/decks';
 import '../assets/css/deck.css';
 import '../assets/css/shared-deck.css';
 
+// --- Subcomponentes para uma UI mais limpa e organizada ---
+
+// Cabeçalho público da página
+const PublicHeader = () => (
+    <header className="app-header public-header">
+         <div className="header-container">
+            <div className="header-logo-section">
+                <Link to="/"><i className="fas fa-brain"></i> Recall</Link>
+            </div>
+            <div className="header-actions">
+                <Link to="/register" className="btn btn-primary">Crie sua Conta Grátis</Link>
+            </div>
+        </div>
+    </header>
+);
+
+// Componente para o estado de Carregamento
+const LoadingState = () => (
+    <div className="deck-state-container">
+        <div className="loading-spinner"></div>
+        <p>Carregando baralho compartilhado...</p>
+    </div>
+);
+
+// Componente para o estado de Erro
+const ErrorState = ({ message }) => (
+    <div className="deck-state-container">
+        <div className="error-icon"><i className="fas fa-exclamation-triangle"></i></div>
+        <h2>Não foi possível carregar o baralho</h2>
+        <p>{message}</p>
+        <Link to="/" className="btn btn-secondary">Voltar à Página Inicial</Link>
+    </div>
+);
+
+// Componente para exibir o conteúdo do baralho
+const DeckContentView = ({ deck }) => (
+    <>
+        <section className="deck-hero-public">
+            <h1 id="deck-title-heading">{deck.title}</h1>
+            <p id="deck-description-paragraph">{deck.description || "Este baralho não tem uma descrição."}</p>
+        </section>
+        <section className="flashcards-section-public">
+            <div className="section-header">
+                 <h2 className="section-title">Flashcards ({deck.flashcards.length})</h2>
+            </div>
+            <div className="flashcards-grid">
+                {deck.flashcards.length > 0 ? (
+                    deck.flashcards.map((card, index) => (
+                        <div key={index} className="flashcard-item">
+                            <h3 className="flashcard-question">{card.question}</h3>
+                            <p className="flashcard-answer">{card.answer}</p>
+                        </div>
+                    ))
+                ) : (
+                    <div className="empty-state">
+                        <p>Este baralho não contém flashcards no momento.</p>
+                    </div>
+                )}
+            </div>
+        </section>
+        <footer className="shared-deck-footer">
+            <h3>Gostou do que viu?</h3>
+            <p>Crie sua conta no Recall para salvar este baralho, estudar com nosso método inteligente e criar seus próprios flashcards.</p>
+            <Link to="/register" className="btn btn-primary btn-lg">Começar a Estudar Agora</Link>
+        </footer>
+    </>
+);
+
+
+// --- Componente Principal da Página de Baralho Compartilhado ---
+
 function SharedDeck() {
     const { shareableId } = useParams();
     const [deck, setDeck] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const loadDeck = async () => {
+            setStatus('loading');
             try {
-                setLoading(true);
                 const data = await fetchSharedDeck(shareableId);
                 setDeck(data);
+                setStatus('success');
             } catch (err) {
-                setError(err.message || "Não foi possível carregar este baralho.");
-            } finally {
-                setLoading(false);
+                setErrorMessage(err.message || "Não foi possível encontrar este baralho. O link pode estar incorreto ou o acesso foi revogado.");
+                setStatus('error');
             }
         };
         loadDeck();
     }, [shareableId]);
 
     const renderContent = () => {
-        if (loading) {
-            return <p>A carregar baralho...</p>;
+        switch (status) {
+            case 'loading':
+                return <LoadingState />;
+            case 'error':
+                return <ErrorState message={errorMessage} />;
+            case 'success':
+                return <DeckContentView deck={deck} />;
+            default:
+                return null;
         }
-        if (error) {
-            return <p style={{ color: 'red' }}>{error}</p>;
-        }
-        if (!deck) {
-            return <p>Baralho não encontrado.</p>;
-        }
-        return (
-            <>
-                <section className="deck-header">
-                    <div className="deck-header-content">
-                        <h1 id="deck-title-heading">{deck.title}</h1>
-                        <p id="deck-description-paragraph">{deck.description || "Sem descrição."}</p>
-                    </div>
-                </section>
-                <section className="deck-content">
-                    <div className="flashcards-section">
-                        <div className="section-header">
-                             <h2 className="section-title">Flashcards ({deck.flashcards.length})</h2>
-                        </div>
-                        <div className="flashcards-grid">
-                            {deck.flashcards.length > 0 ? (
-                                deck.flashcards.map((card, index) => (
-                                    <div key={index} className="flashcard-item">
-                                        <div className="flashcard-content">
-                                            <h3 className="flashcard-question">{card.question}</h3>
-                                            <p className="flashcard-answer">{card.answer}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="empty-state">
-                                    <p>Este baralho não contém flashcards.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </section>
-            </>
-        );
     };
 
     return (
         <>
-            <header className="app-header">
-                 <div className="header-container">
-                    <div className="header-logo-section">
-                        <Link to="/">Recall</Link>
-                    </div>
-                    <div className="header-actions">
-                        <Link to="/register" className="btn btn-primary">Criar Conta Grátis</Link>
-                    </div>
-                </div>
-            </header>
-            <main className="deck-main">
+            <PublicHeader />
+            <main className="deck-main public-view">
                 {renderContent()}
             </main>
         </>
