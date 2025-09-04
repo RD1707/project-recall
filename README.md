@@ -4,7 +4,7 @@
 
 ##  Sobre o Projeto
 
-Este é o projeto **Recall**, uma plataforma inteligente de flashcards, migrado de sua versão original (HTML, CSS, Vanilla JS) para uma moderna Single-Page Application (SPA) utilizando **React**.
+Este é o projeto **Recall**, uma plataforma inteligente de flashcards.
 
 A aplicação permite que usuários transformem textos, arquivos (PDF, DOCX, TXT) e vídeos do YouTube em baralhos de estudo interativos, utilizando um sistema de repetição espaçada (SM-2) e IA generativa (Cohere) para otimizar o aprendizado.
 
