@@ -1,18 +1,26 @@
 import { supabase } from './supabaseClient';
 import toast from 'react-hot-toast';
 
-const handleApiError = (error, context) => {
-  console.error(`Erro em ${context}:`, error);
-  const errorMessage = error.message || `Ocorreu um erro em: ${context}.`;
-  toast.error(errorMessage);
-  throw new Error(errorMessage);
+const handleApiError = async (response, context) => {
+    console.error(`Erro em ${context}:`, response);
+    let errorMessage = `Ocorreu um erro em: ${context}.`;
+    try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+        // A resposta não era JSON, usa o status text
+        errorMessage = response.statusText;
+    }
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
 };
 
 const getAuthHeader = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error("Sessão inválida. Por favor, faça login novamente.");
-      window.location.href = '/login';
+      // A linha abaixo pode ser descomentada se quiser um redirecionamento forçado
+      // window.location.href = '/login'; 
       throw new Error("Usuário não autenticado");
     }
     return `Bearer ${session.access_token}`;
@@ -20,52 +28,64 @@ const getAuthHeader = async () => {
 
 export const createFlashcard = async (deckId, flashcardData) => {
     try {
-        const { data, error } = await supabase
-            .from('flashcards')
-            .insert({ ...flashcardData, deck_id: deckId })
-            .select()
-            .single();
-        if (error) throw error;
-        return data;
+        const response = await fetch(`/api/decks/${deckId}/flashcards`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            },
+            body: JSON.stringify(flashcardData)
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'createFlashcard');
+        }
+        const data = await response.json();
+        return data.flashcard; // O backend retorna um objeto { message, flashcard }
     } catch (error) {
-        return handleApiError(error, 'createFlashcard');
+        console.error("Falha ao criar flashcard:", error);
+        throw error;
     }
 }
 
 export const updateFlashcard = async (cardId, flashcardData) => {
     try {
-        const { data, error } = await supabase
-            .from('flashcards')
-            .update(flashcardData)
-            .eq('id', cardId)
-            .select()
-            .single();
-        if (error) throw error;
-        return data;
+        const response = await fetch(`/api/flashcards/${cardId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            },
+            body: JSON.stringify(flashcardData)
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'updateFlashcard');
+        }
+        const data = await response.json();
+        return data.flashcard;
     } catch (error) {
-        return handleApiError(error, 'updateFlashcard');
+        console.error("Falha ao atualizar flashcard:", error);
+        throw error;
     }
 }
 
 export const deleteFlashcard = async (cardId) => {
     try {
-        const { error } = await supabase
-            .from('flashcards')
-            .delete()
-            .eq('id', cardId);
-        if (error) throw error;
+        const response = await fetch(`/api/flashcards/${cardId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': await getAuthHeader() }
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'deleteFlashcard');
+        }
         return true;
     } catch (error) {
-        return handleApiError(error, 'deleteFlashcard');
+        console.error("Falha ao deletar flashcard:", error);
+        throw error;
     }
 }
 
+// Funções de geração com IA (não precisam de mudança)
 export const generateFlashcardsFromText = async (deckId, params) => {
-    const body = {
-        textContent: params.text,
-        count: params.count,
-        type: "Pergunta e Resposta", 
-    };
     try {
         const response = await fetch(`/api/decks/${deckId}/generate`, {
             method: 'POST',
@@ -73,15 +93,18 @@ export const generateFlashcardsFromText = async (deckId, params) => {
                 'Content-Type': 'application/json',
                 'Authorization': await getAuthHeader()
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                textContent: params.textContent, // Corrigido para corresponder ao backend
+                count: params.count,
+                type: "Pergunta e Resposta",
+            })
         });
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao gerar flashcards a partir de texto');
+            await handleApiError(response, 'generateFlashcardsFromText');
         }
         return await response.json();
     } catch (error) {
-        return handleApiError(error, 'generateFlashcardsFromText');
+        throw error;
     }
 };
 
@@ -95,21 +118,15 @@ export const generateFlashcardsFromFile = async (deckId, formData) => {
             body: formData
         });
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao gerar a partir do ficheiro');
+            await handleApiError(response, 'generateFlashcardsFromFile');
         }
         return await response.json();
     } catch (error) {
-        return handleApiError(error, 'generateFlashcardsFromFile');
+        throw error;
     }
 };
 
 export const generateFlashcardsFromYouTube = async (deckId, params) => {
-     const body = {
-        youtubeUrl: params.url,
-        count: params.count,
-        type: "Pergunta e Resposta",
-    };
     try {
          const response = await fetch(`/api/decks/${deckId}/generate-from-youtube`, {
             method: 'POST',
@@ -117,15 +134,18 @@ export const generateFlashcardsFromYouTube = async (deckId, params) => {
                 'Content-Type': 'application/json',
                 'Authorization': await getAuthHeader()
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify({
+                youtubeUrl: params.youtubeUrl, // Corrigido para corresponder ao backend
+                count: params.count,
+                type: "Pergunta e Resposta",
+            })
         });
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao gerar do YouTube');
+            await handleApiError(response, 'generateFlashcardsFromYouTube');
         }
         return await response.json();
     } catch (error) {
-        return handleApiError(error, 'generateFlashcardsFromYouTube');
+        throw error;
     }
 };
 
@@ -135,12 +155,11 @@ export const fetchReviewCards = async (deckId) => {
             headers: { 'Authorization': await getAuthHeader() }
         });
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao buscar cards para revisão');
+            await handleApiError(response, 'fetchReviewCards');
         }
         return await response.json();
     } catch (error) {
-        return handleApiError(error, 'fetchReviewCards');
+        throw error;
     }
 };
 
@@ -154,15 +173,11 @@ export const submitReview = async (cardId, quality) => {
             },
             body: JSON.stringify({ quality })
         });
-
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Falha ao submeter revisão');
+            await handleApiError(response, 'submitReview');
         }
-        
         return await response.json();
-
     } catch (error) {
-        return handleApiError(error, 'submitReview');
+        throw error;
     }
 };

@@ -5,15 +5,12 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware.authenticateToken);
 
-router.route('/decks/:deckId/flashcards')
-    .get(flashcardController.getFlashcardsInDeck)
-    .post(flashcardController.createFlashcard);
-
-router.route('/flashcards/:cardId')
+// A rota base agora será /api/flashcards, então o caminho aqui é apenas /:cardId
+router.route('/:cardId')
     .put(flashcardController.updateFlashcard)
     .delete(flashcardController.deleteFlashcard);
 
-router.post('/flashcards/:cardId/review', flashcardController.reviewFlashcard);
-router.post('/flashcards/:cardId/explain', flashcardController.getExplanation);
+router.post('/:cardId/review', flashcardController.reviewFlashcard);
+router.post('/:cardId/explain', flashcardController.getExplanation);
 
 module.exports = router;
