@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function DeckCard({ deck, onEdit }) {
-  const deckColor = deck.color || '#4f46e5';
+  const deckColor = deck.color || '#6366f1';
 
   const handleOptionsClick = (e) => {
     e.preventDefault();
