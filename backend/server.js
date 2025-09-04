@@ -16,37 +16,23 @@ const PORT = process.env.PORT || 3001;
 
 // Middlewares essenciais
 app.use(cors());
-app.use(express.json()); // Habilita o parsing de JSON no corpo das requisições
+app.use(express.json());
 
-// --- ROTAS DA API ---
-// Todas as rotas da API serão prefixadas com /api
-app.use('/api/auth', authRoutes);
-app.use('/api/decks', deckRoutes);
-app.use('/api/flashcards', flashcardRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api', shareRoutes);
-
-app.get('/api', (req, res) => {
-  res.json({ message: 'API do Recall está funcionando!' });
-});
-
+// --- ROTAS DA API (sem o prefixo /api) ---
+app.use('/auth', authRoutes);
+app.use('/decks', deckRoutes);
+app.use('/flashcards', flashcardRoutes);
+app.use('/profile', profileRoutes);
+app.use('/analytics', analyticsRoutes);
+app.use('/', shareRoutes); // Rota para /shared/:id
 
 // --- SERVIR O FRONTEND (PARA PRODUÇÃO) ---
-// Este bloco deve vir DEPOIS de todas as rotas da API
 const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
 app.use(express.static(frontendDistPath));
 
-// Rota "catch-all": Qualquer requisição GET que não seja para a API
-// deve servir o index.html do React.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-  });
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
-
 
 // Inicia o servidor
 app.listen(PORT, () => {
