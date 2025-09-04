@@ -79,7 +79,6 @@ function Landing() {
                     <nav className={`main-nav ${isMenuOpen ? 'is-open' : ''}`} id="main-nav">
                         <ul>
                             <li><a href="#features" onClick={closeMenu}>Recursos</a></li>
-                            <li><a href="#how-it-works" onClick={closeMenu}>Como Funciona</a></li>
                             <li><a href="#testimonials" onClick={closeMenu}>Depoimentos</a></li>
                             <li><Link to="/ajuda" onClick={closeMenu}>Ajuda</Link></li>
                         </ul>
@@ -176,7 +175,6 @@ function Landing() {
                             <p>Estude de forma mais inteligente com flashcards impulsionados por Inteligência Artificial.</p>
                         </div>
                         <div className="footer-links">
-                            <div className="footer-column"><h4>Produto</h4><ul><li><a href="#features">Recursos</a></li><li><a href="#how-it-works">Como Funciona</a></li></ul></div>
                             <div className="footer-column"><h4>Suporte</h4><ul><li><Link to="/ajuda">Centro de Ajuda</Link></li></ul></div>
                             <div className="footer-column"><h4>Legal</h4><ul><li><a href="#">Termos de Uso</a></li><li><a href="#">Política de Privacidade</a></li></ul></div>
                         </div>
