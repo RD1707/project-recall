@@ -25,23 +25,6 @@ const StepCard = ({ icon, step, title, children }) => (
     </div>
 );
 
-// Card de depoimento
-const TestimonialCard = ({ stars, text, author, role, avatar }) => (
-    <div className="testimonial-card">
-        <div className="testimonial-rating">
-            {[...Array(stars)].map((_, i) => <i key={i} className="fas fa-star"></i>)}
-        </div>
-        <p className="testimonial-text">"{text}"</p>
-        <div className="testimonial-author">
-            <img src={avatar} alt={author} className="author-avatar" />
-            <div className="author-info">
-                <h4>{author}</h4>
-                <p>{role}</p>
-            </div>
-        </div>
-    </div>
-);
-
 
 // --- Componente Principal da Landing Page ---
 
@@ -79,7 +62,6 @@ function Landing() {
                     <nav className={`main-nav ${isMenuOpen ? 'is-open' : ''}`} id="main-nav">
                         <ul>
                             <li><a href="#features" onClick={closeMenu}>Recursos</a></li>
-                            <li><a href="#testimonials" onClick={closeMenu}>Depoimentos</a></li>
                             <li><Link to="/ajuda" onClick={closeMenu}>Ajuda</Link></li>
                         </ul>
                     </nav>
