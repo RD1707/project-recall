@@ -19,12 +19,12 @@ app.use(cors());
 app.use(express.json());
 
 // --- ROTAS DA API (sem o prefixo /api) ---
-app.use('/auth', authRoutes);
-app.use('/decks', deckRoutes);
-app.use('/flashcards', flashcardRoutes);
-app.use('/profile', profileRoutes);
-app.use('/analytics', analyticsRoutes);
-app.use('/', shareRoutes); // Rota para /shared/:id
+app.use('/api/auth', authRoutes);
+app.use('/api/decks', deckRoutes);
+app.use('/api/flashcards', flashcardRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api', shareRoutes); // Esta rota lida com /api/shared/:id
 
 // --- SERVIR O FRONTEND (PARA PRODUÇÃO) ---
 const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
