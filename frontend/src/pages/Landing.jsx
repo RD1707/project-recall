@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import VideoModal from '../components/common/VideoModal';
 
-import '../assets/css/landing.css';
+import '../assets/css/landing.css'; // O CSS existente será amplamente reutilizado
 
 // --- Subcomponentes para melhor organização e reutilização ---
 
-// Card de feature individual
+// Card de feature individual (sem alterações)
 const FeatureCard = ({ icon, title, children }) => (
     <div className="feature-card">
         <div className="feature-icon"><i className={`fas ${icon}`}></i></div>
@@ -15,7 +15,7 @@ const FeatureCard = ({ icon, title, children }) => (
     </div>
 );
 
-// Card de depoimento
+// NOVO: Card de depoimento
 const TestimonialCard = ({ avatar, name, role, children }) => (
     <div className="testimonial-card">
         <div className="testimonial-rating">
@@ -212,20 +212,9 @@ function Landing() {
                 </section>
             </main>
 
-            {/* FOOTER RESTAURADO */}
             <footer className="landing-footer">
                 <div className="landing-container">
-                    <div className="footer-content">
-                        <div className="footer-brand">
-                            <div className="logo"><Link to="/"><span className="logo-icon"><i className="fas fa-brain"></i></span>Recall</Link></div>
-                            <p>Estude de forma mais inteligente com flashcards impulsionados por Inteligência Artificial.</p>
-                        </div>
-                        <div className="footer-links">
-                            <div className="footer-column"><h4>Suporte</h4><ul><li><Link to="/ajuda">Centro de Ajuda</Link></li></ul></div>
-                            <div className="footer-column"><h4>Legal</h4><ul><li><a href="#">Termos de Uso</a></li><li><a href="#">Política de Privacidade</a></li></ul></div>
-                        </div>
-                    </div>
-                    <div className="footer-bottom">
+                     <div className="footer-bottom">
                         <p>&copy; {new Date().getFullYear()} Recall. Todos os direitos reservados.</p>
                     </div>
                 </div>
