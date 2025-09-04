@@ -156,60 +156,6 @@ function Landing() {
                         </div>
                     </div>
                 </section>
-                
-                {/* Seção Como Funciona */}
-                <section id="how-it-works" className="how-it-works">
-                    <div className="landing-container">
-                        <div className="section-header">
-                            <h2 className="section-title">Comece a aprender em 3 passos simples</h2>
-                            <p className="section-subtitle">Um processo simplificado para transformar seu material de estudo em conhecimento duradouro.</p>
-                        </div>
-                        <div className="steps-container">
-                            <StepCard icon="fa-upload" step="1" title="Adicione seu Conteúdo">
-                                Insira textos, PDFs ou links de vídeos do YouTube que você precisa estudar na plataforma.
-                            </StepCard>
-                            <StepCard icon="fa-bolt" step="2" title="Gere com um Clique">
-                                Deixe nossa IA analisar o material e criar um baralho de flashcards completo para você.
-                            </StepCard>
-                            <StepCard icon="fa-graduation-cap" step="3" title="Estude e Memorize">
-                                Use nosso sistema de repetição espaçada para revisar de forma inteligente e nunca mais esquecer.
-                            </StepCard>
-                        </div>
-                    </div>
-                </section>
-                
-                {/* Seção de Depoimentos */}
-                <section id="testimonials" className="testimonials">
-                    <div className="landing-container">
-                        <div className="section-header">
-                            <h2 className="section-title">Amado por estudantes e profissionais</h2>
-                            <p className="section-subtitle">Veja o que nossos usuários estão dizendo sobre o poder do Recall.</p>
-                        </div>
-                        <div className="testimonials-grid">
-                            <TestimonialCard 
-                                stars={5}
-                                text="O Recall mudou completamente minha rotina de estudos para a faculdade de medicina. A geração por IA a partir de PDFs é simplesmente incrível e me poupa horas."
-                                author="Juliana S."
-                                role="Estudante de Medicina"
-                                avatar="https://i.pravatar.cc/150?img=1"
-                            />
-                            <TestimonialCard 
-                                stars={5}
-                                text="Eu uso para aprender novas linguagens de programação. Consigo transformar documentações densas em cartões de revisão práticos. Recomendo 100%!"
-                                author="Carlos M."
-                                role="Desenvolvedor de Software"
-                                avatar="https://i.pravatar.cc/150?img=3"
-                            />
-                            <TestimonialCard 
-                                stars={5}
-                                text="Finalmente uma ferramenta que entende como o cérebro aprende. O sistema de repetição espaçada é muito eficaz. Passei no meu concurso graças a ele."
-                                author="Beatriz L."
-                                role="Concurseira"
-                                avatar="https://i.pravatar.cc/150?img=5"
-                            />
-                        </div>
-                    </div>
-                </section>
 
                 {/* Seção Final de CTA */}
                 <section className="final-cta">

@@ -382,18 +382,6 @@ a {
     font-weight: 600;
 }
 
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0px) rotate(var(--initial-rotate, 0deg));
-    }
-
-    50% {
-        transform: translateY(-20px) rotate(calc(var(--initial-rotate, 0deg) + 2deg));
-    }
-}
-
 /* --------------------------------------------------------------------------
    6. SEÇÃO: FEATURES
    -------------------------------------------------------------------------- */
