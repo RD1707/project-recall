@@ -2,8 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import VideoModal from '../components/common/VideoModal';
 
-import '../assets/css/landing.css'; 
+import '../assets/css/landing.css'; // O CSS existente será amplamente reutilizado
 
+// --- Subcomponentes para melhor organização e reutilização ---
+
+// Card de feature individual (sem alterações)
 const FeatureCard = ({ icon, title, children }) => (
     <div className="feature-card">
         <div className="feature-icon"><i className={`fas ${icon}`}></i></div>
@@ -12,11 +15,46 @@ const FeatureCard = ({ icon, title, children }) => (
     </div>
 );
 
+// NOVO: Card de depoimento
+const TestimonialCard = ({ avatar, name, role, children }) => (
+    <div className="testimonial-card">
+        <div className="testimonial-rating">
+            <i className="fas fa-star"></i>
+            <i className="fas fa-star"></i>
+            <i className="fas fa-star"></i>
+            <i className="fas fa-star"></i>
+            <i className="fas fa-star"></i>
+        </div>
+        <p className="testimonial-text">"{children}"</p>
+        <div className="testimonial-author">
+            <img src={avatar} alt={name} className="author-avatar" />
+            <div className="author-info">
+                <h4>{name}</h4>
+                <p>{role}</p>
+            </div>
+        </div>
+    </div>
+);
+
+
+// Card de passo a passo
+const StepCard = ({ icon, step, title, children }) => (
+    <div className="step">
+        <div className="step-number">{step}</div>
+        <div className="step-icon"><i className={`fas ${icon}`}></i></div>
+        <h3>{title}</h3>
+        <p>{children}</p>
+    </div>
+);
+
+// --- Componente Principal da Landing Page ---
+
 function Landing() {
     const [isMenuOpen, setMenuOpen] = useState(false);
     const [isVideoModalOpen, setVideoModalOpen] = useState(false);
     const headerRef = useRef(null);
 
+    // Efeito para adicionar sombra no header ao rolar a página
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 80) {
@@ -68,6 +106,7 @@ function Landing() {
             </header>
 
             <main>
+                {/* Seção Hero */}
                 <section className="hero">
                     <div className="hero-container landing-container">
                         <div className="hero-text">
@@ -82,6 +121,7 @@ function Landing() {
                             </div>
                         </div>
                         <div className="hero-image">
+                            {/* Cards animados com CSS para mais destaque */}
                             <div className="animated-cards-container">
                                 <div className="animated-card card-1">
                                     <h4>O que é a fotossíntese?</h4>
@@ -100,6 +140,7 @@ function Landing() {
                     </div>
                 </section>
                 
+                {/* Seção de Features */}
                 <section id="features" className="features">
                     <div className="landing-container">
                         <div className="section-header">
@@ -119,7 +160,48 @@ function Landing() {
                         </div>
                     </div>
                 </section>
-                
+
+                {/* NOVA SEÇÃO: Como funciona */}
+                <section id="how-it-works" className="how-it-works">
+                    <div className="landing-container">
+                         <div className="section-header">
+                            <h2 className="section-title">Comece a aprender em 3 passos</h2>
+                        </div>
+                        <div className="steps-container">
+                            <StepCard icon="fa-upload" step="1" title="Envie seu Conteúdo">
+                                Adicione textos, documentos (PDF, DOCX) ou links de vídeos do YouTube que você deseja estudar.
+                            </StepCard>
+                            <StepCard icon="fa-cogs" step="2" title="Gere com a IA">
+                                Deixe nossa IA analisar o material e criar flashcards com perguntas e respostas pertinentes em segundos.
+                            </StepCard>
+                            <StepCard icon="fa-graduation-cap" step="3" title="Estude e Domine">
+                                Revise seus cards com nosso sistema inteligente e observe seu conhecimento decolar.
+                            </StepCard>
+                        </div>
+                    </div>
+                </section>
+
+                {/* NOVA SEÇÃO: Depoimentos */}
+                <section id="testimonials" className="testimonials">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <h2 className="section-title">Amado por estudantes e autodidatas</h2>
+                        </div>
+                        <div className="testimonials-grid">
+                            <TestimonialCard avatar="https://i.pravatar.cc/150?u=a042581f4e29026704d" name="Juliana S." role="Estudante de Medicina">
+                                O Recall mudou completamente minha forma de estudar para as provas. A criação de cards a partir dos meus PDFs economiza horas!
+                            </TestimonialCard>
+                            <TestimonialCard avatar="https://i.pravatar.cc/150?u=a042581f4e29026704e" name="Carlos M." role="Concurseiro">
+                                A repetição espaçada é genial. Sinto que realmente estou memorizando o conteúdo, e não apenas decorando para o dia da prova.
+                            </TestimonialCard>
+                            <TestimonialCard avatar="https://i.pravatar.cc/150?u=a042581f4e29026704f" name="Beatriz L." role="Desenvolvedora de Software">
+                                Uso o Recall para aprender novas tecnologias. Consigo transformar documentações densas em pílulas de conhecimento fáceis de revisar.
+                            </TestimonialCard>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Seção Final de CTA */}
                 <section className="final-cta">
                     <div className="landing-container">
                         <h2>Pronto para turbinar seus estudos?</h2>

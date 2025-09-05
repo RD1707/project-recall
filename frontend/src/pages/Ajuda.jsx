@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import '../assets/css/landing.css'; 
+import '../assets/css/landing.css'; // Reutiliza estilos da landing page
 import '../assets/css/ajuda.css';
 
+// --- Dados Estáticos ---
+// Definido fora do componente para evitar recriação a cada renderização
 const faqData = [
     {
         question: "Como a IA do Recall gera os flashcards?",
@@ -27,6 +29,9 @@ const faqData = [
     }
 ];
 
+// --- Subcomponentes para uma UI mais limpa e organizada ---
+
+// Item do FAQ com foco em acessibilidade
 const FaqItem = ({ question, answer, index }) => {
     const [isOpen, setIsOpen] = useState(false);
     const answerId = `faq-answer-${index}`;
@@ -59,6 +64,7 @@ const FaqItem = ({ question, answer, index }) => {
     );
 };
 
+// Seção de Contato
 const ContactSection = () => {
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
 
@@ -69,9 +75,10 @@ const ContactSection = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Lógica de envio real seria implementada aqui (ex: API call)
         console.log("Dados do formulário:", formData);
         alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-        setFormData({ name: '', email: '', subject: '', message: '' }); 
+        setFormData({ name: '', email: '', subject: '', message: '' }); // Limpa o formulário
     };
 
     return (
@@ -113,7 +120,10 @@ const ContactSection = () => {
     );
 };
 
+// --- Componente Principal da Página de Ajuda ---
+
 function Ajuda() {
+    // Rola para o topo da página ao carregar
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);

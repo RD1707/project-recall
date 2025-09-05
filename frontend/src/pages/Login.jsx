@@ -2,10 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
-import { loginUser } from '../api/auth'; 
+import { loginUser } from '../api/auth'; // Importe a nova função
 
 import '../assets/css/login.css';
 
+// --- Subcomponentes para Reutilização ---
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -28,6 +29,8 @@ const GoogleIcon = () => (
     </svg>
 );
 
+// --- Componente Principal da Página de Login ---
+
 function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
@@ -47,20 +50,25 @@ function Login() {
         setError('');
 
         try {
+            // Use a nova função que chama o seu backend
             const { user } = await loginUser({
                 email: formData.email,
                 password: formData.password,
             });
 
-            if (user && user.username) {
-                toast.success('Login bem-sucedido!');
-                navigate('/dashboard');
-            } else {
+            // A lógica de verificação de perfil agora é responsabilidade do onAuthStateChange no App.jsx
+            // ou pode ser feita aqui se preferir.
+            if (!user.username) {
                 toast('Quase lá! Complete seu perfil para continuar.');
                 navigate('/complete-profile');
+            } else {
+                toast.success('Login bem-sucedido!');
+                navigate('/dashboard');
             }
 
         } catch (err) {
+            // O toast de erro já é mostrado pela api/auth.js
+            // Apenas definimos uma mensagem local se necessário
             setError(err.message || 'E-mail ou senha inválidos.');
         } finally {
             setLoading(false);

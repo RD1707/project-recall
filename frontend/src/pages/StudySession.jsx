@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { fetchReviewCards, submitReview } from '../api/flashcards';
+import { fetchReviewCards } from '../api/flashcards';
 import { fetchDeckById } from '../api/decks';
 
 import '../assets/css/study.css';
@@ -46,7 +46,7 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
                     <h1>Sessão Concluída!</h1>
                     <p>Excelente trabalho! Você está um passo mais perto de dominar este assunto.</p>
                 </header>
-
+                
                 <div className="session-stats">
                     <div className="stats-grid">
                         <div className="stat-block">
@@ -85,14 +85,13 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
 };
 
 const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats }) => {
-    const { deckId } = useParams();
     const progress = totalCards > 0 ? ((currentIndex + 1) / totalCards) * 100 : 0;
-
+    
     return (
         <header className="study-header">
             <div className="header-container">
                 <div className="header-left">
-                    <Link to={`/deck/${deckId}`} className="icon-btn ghost" aria-label="Voltar ao baralho">
+                    <Link to={`/deck/${useParams().deckId}`} className="icon-btn ghost" aria-label="Voltar ao baralho">
                         <i className="fas fa-arrow-left"></i>
                     </Link>
                     <div className="deck-info">
@@ -105,7 +104,7 @@ const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats 
                         <time>{`${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}`}</time>
                     </div>
                 </div>
-                <div className="header-right">
+                 <div className="header-right">
                 </div>
             </div>
             <div className="global-progress">
@@ -153,7 +152,7 @@ const ResponseControls = ({ isFlipped, onFlip, onQualitySelect }) => {
             </button>
         );
     }
-
+    
     return (
         <div className="quality-buttons">
             <div className="quality-grid">
@@ -185,16 +184,6 @@ function StudySession() {
     });
 
     const timerRef = useRef(null);
-    const currentIndexRef = useRef(currentIndex);
-    const cardsToStudyRef = useRef(cardsToStudy);
-    const timerValueRef = useRef(timer);
-
-    // Keep refs updated with current state
-    useEffect(() => {
-        currentIndexRef.current = currentIndex;
-        cardsToStudyRef.current = cardsToStudy;
-        timerValueRef.current = timer;
-    }, [currentIndex, cardsToStudy, timer]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -210,7 +199,7 @@ function StudySession() {
                     navigate(`/deck/${deckId}`);
                     return;
                 }
-
+                
                 setAllCards(reviewCards);
                 setCardsToStudy(reviewCards);
                 setDeck(deckData);
@@ -250,18 +239,14 @@ function StudySession() {
     const handleFlip = useCallback(() => !isFlipped && setIsFlipped(true), [isFlipped]);
 
     const handleNextCard = useCallback(() => {
-        if (currentIndexRef.current < cardsToStudyRef.current.length - 1) {
+        if (currentIndex < cardsToStudy.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
         } else {
-            setSessionStats(prev => ({
-                ...prev,
-                totalTime: timerValueRef.current,
-                totalCardsStudied: cardsToStudyRef.current.length
-            }));
+            setSessionStats(prev => ({ ...prev, totalTime: timer, totalCardsStudied: cardsToStudy.length }));
             setStatus('complete');
         }
-    }, []);
+    }, [currentIndex, cardsToStudy.length, timer]);
 
     const handleQualitySelection = useCallback((quality) => {
         if (!isFlipped) return;
@@ -274,14 +259,11 @@ function StudySession() {
         };
         setFeedback({ show: true, ...feedbackMap[quality] });
         setTimeout(() => setFeedback({ show: false, type: '', text: '' }), 600);
-
+        
         setSessionStats(prev => {
             const newMistakes = new Set(prev.mistakes);
             const statsUpdate = { ...prev };
-            if (quality === 1) {
-                statsUpdate.wrong++;
-                newMistakes.add(currentCard.id);
-            }
+            if (quality === 1) { statsUpdate.wrong++; newMistakes.add(currentCard.id); }
             if (quality === 2) statsUpdate.hard++;
             if (quality === 3) statsUpdate.good++;
             if (quality === 4) statsUpdate.easy++;
@@ -289,32 +271,23 @@ function StudySession() {
             return statsUpdate;
         });
 
-        // Submit review and advance to next card
-        submitReview(currentCard.id, quality)
-            .catch(() => toast.error("Não foi possível salvar sua resposta."))
-            .finally(() => {
-                setTimeout(handleNextCard, 300);
-            });
-    }, [isFlipped, currentCard, handleNextCard]);
+        submitReview(currentCard.id, quality).catch(() => toast.error("Não foi possível salvar sua resposta."));
+        setTimeout(handleNextCard, 300);
 
+    }, [isFlipped, currentCard, handleNextCard]);
+    
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (status !== 'studying') return;
-            if (e.code === 'Space') {
-                e.preventDefault();
-                handleFlip();
-            }
-            if (isFlipped && e.key >= '1' && e.key <= '4') {
-                e.preventDefault();
-                handleQualitySelection(Number(e.key));
-            }
+            if (e.code === 'Space') { e.preventDefault(); handleFlip(); }
+            if (isFlipped && e.key >= '1' && e.key <= '4') { e.preventDefault(); handleQualitySelection(Number(e.key)); }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [status, isFlipped, handleFlip, handleQualitySelection]);
 
     if (status === 'loading') return <LoadingScreen />;
-
+    
     if (status === 'complete') {
         return (
             <CompletionScreen
@@ -328,7 +301,7 @@ function StudySession() {
             />
         );
     }
-
+    
     return (
         <>
             <StudyHeader
@@ -340,10 +313,10 @@ function StudySession() {
             />
             <main className="study-main">
                 <div className="study-container">
-                    <StudyCard
-                        card={currentCard}
+                    <StudyCard 
+                        card={currentCard} 
                         isFlipped={isFlipped}
-                        onFlip={handleFlip}
+                        onFlip={handleFlip} 
                         feedback={feedback}
                     />
                     <div className="response-controls">
