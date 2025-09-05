@@ -52,12 +52,12 @@ function Login() {
                 password: formData.password,
             });
 
-            if (!user.username) {
-                toast('Quase lá! Complete seu perfil para continuar.');
-                navigate('/complete-profile');
-            } else {
+            if (user && user.username) {
                 toast.success('Login bem-sucedido!');
                 navigate('/dashboard');
+            } else {
+                toast('Quase lá! Complete seu perfil para continuar.');
+                navigate('/complete-profile');
             }
 
         } catch (err) {
