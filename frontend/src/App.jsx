@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { supabase } from './api/supabaseClient';
 import toast from 'react-hot-toast';
@@ -46,12 +46,6 @@ const AuthHandler = () => {
 };
 
 function App() {
-  const [profileLoaded, setProfileLoaded] = useState(false);
-
-  const handleProfileLoaded = (profile) => {
-    setProfileLoaded(true);
-  };
-  
   return (
     <BrowserRouter>
       <AuthHandler />
@@ -62,11 +56,11 @@ function App() {
         <Route path="/ajuda" element={<Ajuda />} />
         <Route path="/shared-deck/:shareableId" element={<SharedDeck />} /> 
 
-        <Route path="/dashboard" element={<ProtectedRoute onProfileLoaded={handleProfileLoaded}><Dashboard /></ProtectedRoute>} />
-        <Route path="/deck/:deckId" element={<ProtectedRoute onProfileLoaded={handleProfileLoaded}><DeckDetail /></ProtectedRoute>} />
-        <Route path="/study/:deckId" element={<ProtectedRoute onProfileLoaded={handleProfileLoaded}><StudySession /></ProtectedRoute>} />
-        <Route path="/progress" element={<ProtectedRoute onProfileLoaded={handleProfileLoaded}><Progress /></ProtectedRoute>} />
-        <Route path="/complete-profile" element={<ProtectedRoute onProfileLoaded={handleProfileLoaded}><CompleteProfile /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
+        <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
+        <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+        <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

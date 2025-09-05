@@ -8,9 +8,6 @@ import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
 
 import '../assets/css/dashboard.css';
 
-// --- Subcomponentes para um Dashboard mais limpo e organizado ---
-
-// Skeleton Card para o estado de carregamento
 const SkeletonDeckCard = () => (
     <div className="skeleton-deck">
         <div className="skeleton skeleton-text"></div>
@@ -20,7 +17,6 @@ const SkeletonDeckCard = () => (
     </div>
 );
 
-// Formulário de Criação/Edição de Deck
 const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color: '#6366f1' }, formId }) => {
     const [formData, setFormData] = useState(initialData);
 
@@ -66,22 +62,19 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
     );
 };
 
-// --- Componente Principal do Dashboard ---
 
 function Dashboard() {
     const [decks, setDecks] = useState([]);
-    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [status, setStatus] = useState('loading'); 
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     
-    // Estado unificado para os modais
     const [modalState, setModalState] = useState({
         isOpen: false,
-        mode: null, // 'create' ou 'edit'
+        mode: null,
         deckData: null,
     });
 
-    // Carregamento inicial dos decks
     useEffect(() => {
         const loadDecks = async () => {
             try {
@@ -97,7 +90,6 @@ function Dashboard() {
         loadDecks();
     }, []);
     
-    // Filtragem e ordenação dos decks
     const filteredDecks = useMemo(() => {
         let decksToRender = [...decks];
 
@@ -117,7 +109,6 @@ function Dashboard() {
         return decksToRender;
     }, [decks, searchTerm, activeFilter]);
 
-    // Manipuladores de Modal
     const openModal = (mode, deckData = null) => {
         setModalState({ isOpen: true, mode, deckData });
     };
@@ -125,7 +116,6 @@ function Dashboard() {
         setModalState({ isOpen: false, mode: null, deckData: null });
     };
 
-    // Ações CRUD
     const handleSaveDeck = async (formData) => {
         if (!formData.title) {
             toast.error('O título é obrigatório.');
@@ -151,7 +141,6 @@ function Dashboard() {
             }
             closeModal();
         } catch (error) {
-            // Toast.promise já lida com a notificação de erro
         }
     };
     
@@ -169,11 +158,9 @@ function Dashboard() {
             setDecks(decks.filter(d => d.id !== modalState.deckData.id));
             closeModal();
         } catch (error) {
-            // Toast.promise já lida com a notificação de erro
         }
     };
 
-    // Renderização do conteúdo principal
     const renderContent = () => {
         if (status === 'loading') {
             return (
@@ -231,7 +218,6 @@ function Dashboard() {
                                 onChange={(e) => setSearchTerm(e.target.value)} 
                             />
                         </div>
-                        {/* Filtros podem ser adicionados aqui no futuro */}
                         <button onClick={() => openModal('create')} id="create-deck-btn" className="btn btn-primary">
                             <i className="fas fa-plus"></i> Novo Baralho
                         </button>

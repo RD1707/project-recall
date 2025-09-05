@@ -7,12 +7,8 @@ import { fetchAnalyticsSummary, fetchReviewsOverTime, fetchPerformanceInsights }
 
 import '../assets/css/progress.css';
 
-// Registrando componentes do Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// --- Subcomponentes para uma UI modular e inteligente ---
-
-// Card de Estatística Individual (com estado de loading)
 const StatCard = ({ label, value, icon, loading }) => {
     if (loading) {
         return <div className="stat-card skeleton"></div>;
@@ -28,7 +24,6 @@ const StatCard = ({ label, value, icon, loading }) => {
     );
 };
 
-// Grid de Estatísticas que busca seus próprios dados
 const StatsGrid = () => {
     const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -54,11 +49,10 @@ const StatsGrid = () => {
     );
 };
 
-// Gráfico de Atividade que gerencia seu próprio estado e dados
 const ActivityChart = () => {
     const [chartData, setChartData] = useState(null);
     const [timeRange, setTimeRange] = useState(7);
-    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [status, setStatus] = useState('loading'); 
 
     useEffect(() => {
         setStatus('loading');
@@ -117,7 +111,6 @@ const ActivityChart = () => {
     );
 };
 
-// Seção de Insights com seus próprios dados
 const InsightsSection = () => {
     const [insights, setInsights] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -170,9 +163,6 @@ const InsightsSection = () => {
         </section>
     );
 };
-
-
-// --- Componente Principal da Página de Progresso ---
 
 function Progress() {
     return (
