@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../api/supabaseClient';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, onProfileLoaded }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +21,9 @@ function ProtectedRoute({ children }) {
           .single();
         
         setProfile(userProfile);
+        if (onProfileLoaded) {
+            onProfileLoaded(userProfile);
+        }
       }
       setLoading(false);
     };
@@ -38,7 +41,7 @@ function ProtectedRoute({ children }) {
         authListener.subscription.unsubscribe();
     };
 
-  }, []);
+  }, [onProfileLoaded]);
 
   if (loading) {
     return <div>Carregando sua sessão...</div>; 
