@@ -4,11 +4,8 @@ import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
 import { completeUserProfile } from '../api/auth';
 
-import '../assets/css/login.css'; // Reutilizando o mesmo CSS
+import '../assets/css/login.css';
 
-// --- Subcomponentes para Reutilização ---
-
-// Painel lateral de marketing, reutilizável para Login e Registro
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
         <div className="promo-content">
@@ -21,8 +18,6 @@ const AuthPromoPanel = ({ title, subtitle }) => (
     </div>
 );
 
-
-// --- Componente Principal da Página ---
 
 function CompleteProfile() {
     const [user, setUser] = useState(null);
@@ -83,7 +78,6 @@ function CompleteProfile() {
         setErrors({});
         
         try {
-            // A API foi projetada para receber 'fullName' e 'username'
             await completeUserProfile({
                 fullName: formData.fullName,
                 username: formData.username
@@ -91,7 +85,6 @@ function CompleteProfile() {
             toast.success('Perfil completo! Bem-vindo ao Recall.');
             navigate('/dashboard');
         } catch (err) {
-            // O backend retorna um campo de erro específico
             if (err.field === 'username') {
                 setErrors({ username: err.message });
             } else {
@@ -107,7 +100,7 @@ function CompleteProfile() {
     }
     
     if (!user) {
-        return null; // Evita renderizar o formulário antes de ter o usuário
+        return null; 
     }
 
     return (

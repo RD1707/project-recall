@@ -11,9 +11,6 @@ import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashc
 
 import '../assets/css/deck.css';
 
-// --- Subcomponentes para uma UI mais limpa e organizada ---
-
-// Cabeçalho da página do baralho
 const DeckHeader = ({ deck, onShare }) => (
     <section className="deck-hero">
         <div className="hero-content">
@@ -35,7 +32,6 @@ const DeckHeader = ({ deck, onShare }) => (
     </section>
 );
 
-// Cards de estatísticas
 const DeckStats = ({ stats }) => (
     <div className="deck-stats-container">
         <div className="stat-card">
@@ -53,7 +49,6 @@ const DeckStats = ({ stats }) => (
     </div>
 );
 
-// Item individual da lista de flashcards
 const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => (
     <div className="flashcard-item" tabIndex={0}>
         <div className="flashcard-content">
@@ -67,7 +62,6 @@ const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => (
     </div>
 ));
 
-// Lista de flashcards
 const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
     <section className="flashcards-section">
         <div className="section-header">
@@ -92,23 +86,20 @@ const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
     </section>
 );
 
-// --- Componente Principal da Página de Detalhes do Baralho ---
-
 function DeckDetail() {
     const { deckId } = useParams();
     const navigate = useNavigate();
 
     const [deck, setDeck] = useState(null);
     const [flashcards, setFlashcards] = useState([]);
-    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [status, setStatus] = useState('loading'); 
     
-    const [modalState, setModalState] = useState({ type: null, data: null }); // 'add', 'edit', 'share'
+    const [modalState, setModalState] = useState({ type: null, data: null }); 
     const [formData, setFormData] = useState({ question: '', answer: '' });
     const [shareLink, setShareLink] = useState('');
     
     const pollingIntervalRef = useRef(null);
 
-    // Carregamento inicial
     useEffect(() => {
         const loadDeckData = async () => {
             setStatus('loading');
@@ -127,10 +118,9 @@ function DeckDetail() {
             }
         };
         loadDeckData();
-        return () => clearInterval(pollingIntervalRef.current); // Limpa o polling ao sair
+        return () => clearInterval(pollingIntervalRef.current); 
     }, [deckId, navigate]);
 
-    // Cálculo das estatísticas
     const stats = useMemo(() => {
         const today = new Date();
         const toReview = flashcards.filter(card => !card.due_date || new Date(card.due_date) <= today).length;
@@ -138,14 +128,13 @@ function DeckDetail() {
         return { total: flashcards.length, toReview, mastered };
     }, [flashcards]);
 
-    // Lógica de polling para novos cards
     const handleGenerationStart = useCallback(() => {
         clearInterval(pollingIntervalRef.current);
         const initialCardCount = flashcards.length;
         let attempts = 0;
         
         pollingIntervalRef.current = setInterval(async () => {
-            if (attempts > 20) { // Timeout de 60 segundos
+            if (attempts > 20) {
                 toast.error("A geração demorou mais que o esperado.");
                 clearInterval(pollingIntervalRef.current);
                 return;
@@ -166,7 +155,6 @@ function DeckDetail() {
         }, 3000);
     }, [deckId, flashcards.length]);
 
-    // Manipuladores de Modal
     const openModal = (type, data = null) => {
         setModalState({ type, data });
         if (type === 'edit' && data) {
@@ -177,7 +165,6 @@ function DeckDetail() {
     };
     const closeModal = () => setModalState({ type: null, data: null });
 
-    // Ações CRUD para Flashcards
     const handleSaveCard = async (e) => {
         e.preventDefault();
         if (!formData.question.trim() || !formData.answer.trim()) {

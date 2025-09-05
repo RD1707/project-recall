@@ -9,7 +9,6 @@ import './assets/css/header.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
-    {/* O Toaster permite que as notificações apareçam em qualquer lugar da app */}
     <Toaster 
       position="top-right"
       toastOptions={{

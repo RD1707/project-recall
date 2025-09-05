@@ -5,9 +5,6 @@ import { fetchSharedDeck } from '../api/decks';
 import '../assets/css/deck.css';
 import '../assets/css/shared-deck.css';
 
-// --- Subcomponentes para uma UI mais limpa e organizada ---
-
-// Cabeçalho público da página
 const PublicHeader = () => (
     <header className="app-header public-header">
          <div className="header-container">
@@ -21,7 +18,6 @@ const PublicHeader = () => (
     </header>
 );
 
-// Componente para o estado de Carregamento
 const LoadingState = () => (
     <div className="deck-state-container">
         <div className="loading-spinner"></div>
@@ -29,7 +25,6 @@ const LoadingState = () => (
     </div>
 );
 
-// Componente para o estado de Erro
 const ErrorState = ({ message }) => (
     <div className="deck-state-container">
         <div className="error-icon"><i className="fas fa-exclamation-triangle"></i></div>
@@ -39,7 +34,6 @@ const ErrorState = ({ message }) => (
     </div>
 );
 
-// Componente para exibir o conteúdo do baralho
 const DeckContentView = ({ deck }) => (
     <>
         <section className="deck-hero-public">
@@ -73,13 +67,10 @@ const DeckContentView = ({ deck }) => (
     </>
 );
 
-
-// --- Componente Principal da Página de Baralho Compartilhado ---
-
 function SharedDeck() {
     const { shareableId } = useParams();
     const [deck, setDeck] = useState(null);
-    const [status, setStatus] = useState('loading'); // 'loading', 'success', 'error'
+    const [status, setStatus] = useState('loading');
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {

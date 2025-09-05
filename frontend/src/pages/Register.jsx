@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
-import { registerUser } from '../api/auth'; // Importe a nova função
+import { registerUser } from '../api/auth';
 
 import '../assets/css/login.css'; 
 
@@ -78,7 +78,6 @@ function Register() {
         setErrors({});
 
         try {
-            // Usa a nova função que chama o backend
             await registerUser({
                 email: formData.email,
                 password: formData.password,
@@ -90,11 +89,9 @@ function Register() {
             navigate('/login');
 
         } catch (err) {
-            // A API de auth agora pode retornar um objeto de erro com o campo específico
             if (err.field) {
                 setErrors({ [err.field]: err.error });
             } else {
-                // Erro genérico já tratado pelo toast na API
             }
         } finally {
             setLoading(false);
