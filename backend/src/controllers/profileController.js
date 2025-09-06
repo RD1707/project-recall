@@ -9,6 +9,7 @@ const profileUpdateSchema = z.object({
         .max(20, 'O nome de usuário deve ter no máximo 20 caracteres.')
         .regex(/^[a-zA-Z0-9_]+$/, 'Nome de usuário deve conter apenas letras, números e underscore.')
         .optional(),
+    bio: z.string().max(160).optional(), // ← NOVO CAMPO
     password: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.').optional(),
 }).strict();
 

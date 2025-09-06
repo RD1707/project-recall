@@ -1,4 +1,3 @@
-// src/api/profile.js
 import { supabase } from './supabaseClient';
 import toast from 'react-hot-toast';
 
@@ -8,6 +7,15 @@ const handleApiError = (error, context) => {
   return null;
 };
 
+const getAuthHeader = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    toast.error("Sessão inválida. Por favor, faça login novamente.");
+    throw new Error("Usuário não autenticado");
+  }
+  return `Bearer ${session.access_token}`;
+};
+
 export const fetchProfile = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -15,7 +23,7 @@ export const fetchProfile = async () => {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('username, full_name, points, current_streak')
+      .select('username, full_name, points, current_streak, bio') // ← Adicione bio
       .eq('id', user.id)
       .single();
 
@@ -25,7 +33,10 @@ export const fetchProfile = async () => {
 
     return {
       email: user.email,
-      ...profile
+      username: profile?.username || '',
+      full_name: profile?.full_name || '',
+      points: profile?.points || 0,
+      current_streak: profile?.current_streak || 0
     };
 
   } catch (error) {
@@ -54,10 +65,15 @@ export const updateProfile = async (profileData) => {
     }
 };
 
+
 export const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            return handleApiError(error, 'logout');
+        }
+        return true;
+    } catch (error) {
         return handleApiError(error, 'logout');
     }
-    return true;
 };
