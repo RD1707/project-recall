@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import { supabase } from './supabaseClient';
 
 const handleApiError = async (response) => {
     let errorData;
@@ -32,21 +33,22 @@ export const loginUser = async (credentials) => {
         });
 
         if (!response.ok) {
-            // A função handleApiError agora vai tratar a resposta corretamente
             await handleApiError(response);
         }
 
         const data = await response.json();
         
-        // Armazenar a sessão no localStorage para que o Supabase JS SDK possa pegá-la
+        // CORREÇÃO: Usar o método correto do Supabase para definir a sessão
         if (data.session) {
-            localStorage.setItem('sb-khofqsjwyunicxdxapih-auth-token', JSON.stringify(data.session));
+            // Definir a sessão no cliente Supabase
+            await supabase.auth.setSession({
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token
+            });
         }
 
         return data;
     } catch (error) {
-        // O erro já foi tratado e exibido pelo toast em handleApiError
-        // Apenas relançamos para que o componente saiba que a chamada falhou
         throw error;
     }
 };
@@ -65,7 +67,6 @@ export const registerUser = async (userData) => {
 
         return await response.json();
     } catch (error) {
-        // Relança o erro para ser pego no componente
         throw error;
     }
 };
