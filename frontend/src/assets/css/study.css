@@ -414,6 +414,7 @@ body.study-session-active {
 .stat-description {
     font-size: 0.875rem;
     color: var(--color-text-muted);
+    margin-left: 10px;
 }
 
 .performance-chart {
