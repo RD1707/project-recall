@@ -272,7 +272,7 @@ function Landing() {
                             />
                             <StepCard
                                 number="2"
-                                icon="fa-cards"
+                                icon="fa-star"
                                 title="IA cria flashcards"
                                 description="Nossa IA analisa e gera cards otimizados em segundos, prontos para revisar."
                             />
