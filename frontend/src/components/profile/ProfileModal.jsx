@@ -252,7 +252,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
           />
           <div className="user-info">
           <h3>{user?.username || 'Usuário'}</h3>
-          <p className="user-email">{user?.email}</p>
+          <p className="user-username">{user?.username}</p>
         </div>
         </div>
 
