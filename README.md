@@ -40,8 +40,6 @@
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 
 </div>
 
@@ -116,40 +114,6 @@
 
 ---
 
-## 🚀 Começando
-
-### Pré-requisitos
-
-```bash
-Node.js ≥ 18.0.0
-PostgreSQL ≥ 14.0
-Redis ≥ 6.0
-```
-
-### Instalação Rápida
-
-```bash
-# Clone o repositório
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
-
-# Entre no diretório
-cd SEU_REPOSITORIO
-
-# Instale as dependências
-npm install
-
-# Configure as variáveis de ambiente
-cp .env.example .env
-
-# Execute as migrações
-npm run migrate
-
-# Inicie o projeto
-npm run dev
-```
-
----
-
 ## 📈 Métricas de Desenvolvimento
 
 <div align="center">
@@ -191,7 +155,7 @@ Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONT
 
 ### 🌟 Se este projeto te ajudou, deixe uma estrela!
 
-[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO)
+[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/RD1707/project-recall)
 
 ---
 
