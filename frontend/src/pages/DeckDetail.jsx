@@ -29,7 +29,7 @@ const DeckHeader = ({ deck, onShare }) => (
             <div className="deck-actions">
                 <Link to={`/study/${deck.id}`} className="btn btn-primary btn-large">
                     <i className="fas fa-play-circle"></i>
-                    <span><strong>Estudar Agora</strong><small className="btn-subtitle">Iniciar sessão de revisão</small></span>
+                    <span><strong>Estudar Agora</strong></span>
                 </Link>
                 <button onClick={onShare} className="btn btn-secondary">
                     <i className="fas fa-share-alt"></i> Compartilhar
