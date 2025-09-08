@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { updateProfile } from '../../api/profile'; 
+import { updateProfile, uploadAvatar } from '../../api/profile'; 
 import Modal from '../common/Modal';
-
 
 // Componente de força da senha
 const PasswordStrengthIndicator = ({ password }) => {
@@ -50,7 +49,7 @@ const PasswordStrengthIndicator = ({ password }) => {
   );
 };
 
-// Componente de campo de input aprimorado
+// Componente de campo de formulário
 const FormField = ({ 
   label, 
   id, 
@@ -81,7 +80,7 @@ const FormField = ({
         <input
           type={inputType}
           id={id}
-          className={`form-control ${error ? 'error' : ''} ${value && !error ? 'valid' : ''}`}
+          className={`form-control ${error ? 'error' : ''}`}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
@@ -97,11 +96,6 @@ const FormField = ({
           >
             <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
           </button>
-        )}
-        {value && !error && !disabled && (
-          <div className="input-success-icon">
-            <i className="fas fa-check"></i>
-          </div>
         )}
       </div>
       {error && <span className="field-error">{error}</span>}
@@ -141,186 +135,89 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
     }
   }, [user, isOpen]);
 
-  const validateField = (field, value) => {
-    switch (field) {
-      case 'fullName':
-        if (!value.trim()) return 'Nome completo é obrigatório';
-        if (value.length < 2) return 'Nome deve ter pelo menos 2 caracteres';
-        return '';
-      
-      case 'username':
-        if (!value.trim()) return 'Nome de usuário é obrigatório';
-        if (!/^[a-zA-Z0-9_]{3,20}$/.test(value)) {
-          return 'Use 3-20 caracteres (letras, números ou _)';
-        }
-        return '';
-      
-      case 'bio':
-        if (value.length > 160) return 'Bio deve ter no máximo 160 caracteres';
-        return '';
-      
-      case 'password':
-        if (value && value.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
-        return '';
-      
-      case 'confirmPassword':
-        if (formData.password && value !== formData.password) {
-          return 'Senhas não coincidem';
-        }
-        return '';
-      
-      default:
-        return '';
-    }
-  };
-
   const handleChange = (e) => {
     const { id, value } = e.target;
-    
-    setFormData(prev => {
-      const newData = { ...prev, [id]: value };
-      
-      // Verificar se houve mudanças
-      const originalData = {
-        fullName: user?.fullName || '',
-        username: user?.username || '',
-        bio: user?.bio || ''
-      };
-      
-      const hasChanged = Object.keys(originalData).some(key => 
-        newData[key] !== originalData[key]
-      ) || newData.password || newData.confirmPassword;
-      
-      setHasChanges(hasChanged);
-      return newData;
-    });
-
-    // Validação em tempo real
-    const error = validateField(id, value);
-    setErrors(prev => ({ ...prev, [id]: error }));
-
-    // Se é confirmação de senha, também validar a senha principal
-    if (id === 'password' && formData.confirmPassword) {
-      const confirmError = validateField('confirmPassword', formData.confirmPassword);
-      setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
-    }
+    setFormData(prev => ({ ...prev, [id]: value }));
+    setHasChanges(true);
   };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        toast.error('Imagem deve ter no máximo 5MB');
-        return;
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        toast.error('Arquivo deve ser uma imagem');
-        return;
-      }
-      
-      // Aqui você implementaria o upload da imagem
-      toast.success('Funcionalidade de avatar será implementada em breve!');
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+      toast.error('A imagem deve ter no máximo 5MB.');
+      return;
     }
-  };
+    if (!file.type.startsWith('image/')) {
+      toast.error('O arquivo deve ser uma imagem.');
+      return;
+    }
 
-  
-  const validateForm = () => {
-    const newErrors = {};
-    
-    // Validar todos os campos
-    Object.keys(formData).forEach(field => {
-      const error = validateField(field, formData[field]);
-      if (error) newErrors[field] = error;
+    const promise = uploadAvatar(file);
+    toast.promise(promise, {
+        loading: 'Enviando avatar...',
+        success: (data) => {
+            onProfileUpdate({ ...user, avatar_url: data.avatarUrl });
+            return 'Avatar atualizado com sucesso!';
+        },
+        error: 'Não foi possível atualizar o avatar.'
     });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Por favor, corrija os erros antes de salvar');
-      return;
-    }
-
     if (!hasChanges) {
-      toast.info('Nenhuma alteração foi feita');
-      return;
+        toast.info('Nenhuma alteração para salvar.');
+        return;
     }
-
     setLoading(true);
     
     try {
       const dataToUpdate = {};
-      
-      // Apenas incluir campos que mudaram
-      if (formData.fullName !== (user?.fullName || '')) {
-        dataToUpdate.full_name = formData.fullName;
-      }
-      
-      if (formData.username !== (user?.username || '')) {
-        dataToUpdate.username = formData.username;
-      }
-      
-      if (formData.bio !== (user?.bio || '')) {
-        dataToUpdate.bio = formData.bio;
-      }
-      
+      if (formData.fullName !== (user?.fullName || '')) dataToUpdate.full_name = formData.fullName;
+      if (formData.username !== (user?.username || '')) dataToUpdate.username = formData.username;
+      if (formData.bio !== (user?.bio || '')) dataToUpdate.bio = formData.bio;
       if (formData.password) {
+        if (formData.password !== formData.confirmPassword) {
+            toast.error("As senhas não coincidem.");
+            setLoading(false);
+            return;
+        }
         dataToUpdate.password = formData.password;
       }
       
-      await updateProfile(dataToUpdate);
-      
+      const result = await updateProfile(dataToUpdate);
       toast.success('Perfil atualizado com sucesso!');
       
-      // Atualizar dados do usuário
-      onProfileUpdate({ 
-        ...user, 
-        fullName: formData.fullName,
-        username: formData.username,
-        bio: formData.bio
-      });
-      
+      onProfileUpdate({ ...user, ...result.profile });
       setHasChanges(false);
       onClose();
       
     } catch (error) {
-      // Erro já tratado pela API
+      // API já mostra o toast de erro, não precisa fazer nada aqui
     } finally {
       setLoading(false);
     }
   };
 
-  const handleClose = () => {
-    if (hasChanges) {
-      if (window.confirm('Você tem alterações não salvas. Deseja sair mesmo assim?')) {
-        onClose();
-      }
-    } else {
-      onClose();
-    }
-  };
+  // Decide se mostra a imagem ou a inicial
+  const avatarContent = user?.avatar_url
+    ? <img src={user.avatar_url} alt="Avatar do usuário" className="avatar-img" />
+    : <span className="avatar-text">{user?.initial}</span>;
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
       title="Editar Perfil"
       footer={
         <div className="modal-footer-enhanced">
-          <button 
-            type="button" 
-            className="btn btn-secondary" 
-            onClick={handleClose}
-          >
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancelar
           </button>
           <button 
@@ -329,30 +226,19 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
             className={`btn btn-primary ${hasChanges ? 'has-changes' : ''}`}
             disabled={loading || !hasChanges}
           >
-            {loading ? (
-              <>
-                <i className="fas fa-spinner fa-spin"></i>
-                Salvando...
-              </>
-            ) : (
-              <>
-                <i className="fas fa-save"></i>
-                Salvar Alterações
-              </>
-            )}
+            {loading ? 'Salvando...' : 'Salvar Alterações'}
           </button>
         </div>
       }
     >
       <div className="profile-modal-content">
-        {/* Avatar Section */}
         <div className="avatar-section">
           <div className="avatar-container" onClick={handleAvatarClick}>
             <div className="avatar-image">
-              <span className="avatar-text">{user?.initial}</span>
+              {avatarContent}
               <div className="avatar-overlay">
                 <i className="fas fa-camera"></i>
-                <span>Alterar foto</span>
+                <span>Alterar</span>
               </div>
             </div>
           </div>
@@ -364,104 +250,51 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
             className="sr-only"
           />
           <div className="user-info">
-            <h3>{user?.fullName || 'Usuário'}</h3>
-            <p>@{user?.username || 'username'}</p>
+            <h3>{formData.fullName || 'Usuário'}</h3>
             <p className="user-email">{user?.email}</p>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="profile-tabs">
           <button
             type="button"
             className={`tab-button ${activeTab === 'general' ? 'active' : ''}`}
             onClick={() => setActiveTab('general')}
           >
-            <i className="fas fa-user"></i>
-            Geral
+            <i className="fas fa-user-edit"></i> Geral
           </button>
           <button
             type="button"
             className={`tab-button ${activeTab === 'security' ? 'active' : ''}`}
             onClick={() => setActiveTab('security')}
           >
-            <i className="fas fa-shield-alt"></i>
-            Segurança
+            <i className="fas fa-shield-alt"></i> Segurança
           </button>
         </div>
 
-        {/* Form */}
         <form id="profile-form" onSubmit={handleSubmit}>
           {activeTab === 'general' && (
             <div className="tab-content">
-              <FormField
-                label="Nome Completo"
-                id="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                error={errors.fullName}
-                placeholder="Seu nome completo"
-                maxLength={50}
-              />
-
-              <FormField
-                label="Nome de Usuário"
-                id="username"
-                value={formData.username}
-                onChange={handleChange}
-                error={errors.username}
-                placeholder="seu_username"
-                maxLength={20}
-              />
-
-              <FormField
-                label="Bio"
-                id="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                error={errors.bio}
-                placeholder="Conte um pouco sobre você..."
-                maxLength={160}
-              />
-
-              <FormField
-                label="E-mail"
-                id="email"
-                value={user?.email || ''}
-                disabled={true}
-                placeholder="seu@email.com"
-              >
-                <small className="field-help">
-                  <i className="fas fa-info-circle"></i>
-                  E-mail não pode ser alterado no momento
-                </small>
-              </FormField>
+              <FormField label="Nome Completo" id="fullName" value={formData.fullName} onChange={handleChange} />
+              <FormField label="Nome de Usuário" id="username" value={formData.username} onChange={handleChange} />
+              <FormField label="Bio" id="bio" value={formData.bio} onChange={handleChange} maxLength={160} placeholder="Conte um pouco sobre você..." />
             </div>
           )}
 
           {activeTab === 'security' && (
             <div className="tab-content">
-              <div className="security-info">
-                <i className="fas fa-shield-alt"></i>
-                <div>
-                  <h4>Alterar Senha</h4>
-                  <p>Deixe em branco se não quiser alterar sua senha</p>
-                </div>
-              </div>
-
-              <FormField
+               <FormField
                 label="Nova Senha"
                 id="password"
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
                 error={errors.password}
-                placeholder="Digite sua nova senha"
+                placeholder="Deixe em branco para não alterar"
                 showToggle={true}
               >
                 <PasswordStrengthIndicator password={formData.password} />
               </FormField>
-
               <FormField
                 label="Confirmar Nova Senha"
                 id="confirmPassword"
@@ -472,35 +305,9 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
                 placeholder="Confirme sua nova senha"
                 showToggle={true}
               />
-
-              <div className="password-requirements">
-                <h4>Requisitos da senha:</h4>
-                <ul>
-                  <li className={formData.password.length >= 6 ? 'valid' : ''}>
-                    <i className="fas fa-check"></i>
-                    Pelo menos 6 caracteres
-                  </li>
-                  <li className={/[A-Z]/.test(formData.password) ? 'valid' : ''}>
-                    <i className="fas fa-check"></i>
-                    Uma letra maiúscula
-                  </li>
-                  <li className={/[0-9]/.test(formData.password) ? 'valid' : ''}>
-                    <i className="fas fa-check"></i>
-                    Um número
-                  </li>
-                </ul>
-              </div>
             </div>
           )}
         </form>
-
-        {/* Changes indicator */}
-        {hasChanges && (
-          <div className="changes-indicator">
-            <i className="fas fa-circle"></i>
-            Você tem alterações não salvas
-          </div>
-        )}
       </div>
     </Modal>
   );

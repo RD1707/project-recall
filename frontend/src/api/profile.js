@@ -3,8 +3,9 @@ import toast from 'react-hot-toast';
 
 const handleApiError = (error, context) => {
   console.error(`Erro em ${context}:`, error);
-  toast.error(error.message || `Ocorreu um erro em: ${context}.`);
-  return null;
+  const errorMessage = error.message || `Ocorreu um erro em: ${context}.`;
+  toast.error(errorMessage);
+  throw new Error(errorMessage);
 };
 
 const getAuthHeader = async () => {
@@ -23,7 +24,7 @@ export const fetchProfile = async () => {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('username, full_name, points, current_streak, bio') // ← Adicione bio
+      .select('username, full_name, points, current_streak, bio, avatar_url') // ← Adicionado avatar_url
       .eq('id', user.id)
       .single();
 
@@ -36,7 +37,9 @@ export const fetchProfile = async () => {
       username: profile?.username || '',
       full_name: profile?.full_name || '',
       points: profile?.points || 0,
-      current_streak: profile?.current_streak || 0
+      current_streak: profile?.current_streak || 0,
+      bio: profile?.bio || '',
+      avatar_url: profile?.avatar_url || null, // ← Adicionado avatar_url
     };
 
   } catch (error) {
@@ -61,7 +64,32 @@ export const updateProfile = async (profileData) => {
         }
         return await response.json();
     } catch (error) {
-        return handleApiError(error, 'updateProfile');
+        // Erro já será um objeto Error, então podemos apenas relançá-lo
+        throw handleApiError(error, 'updateProfile');
+    }
+};
+
+// NOVA FUNÇÃO para upload do avatar
+export const uploadAvatar = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        const response = await fetch('/api/profile/avatar', {
+            method: 'POST',
+            headers: {
+                'Authorization': await getAuthHeader(),
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao enviar o avatar.');
+        }
+        return await response.json();
+    } catch (error) {
+       throw handleApiError(error, 'uploadAvatar');
     }
 };
 
@@ -70,7 +98,7 @@ export const logout = async () => {
     try {
         const { error } = await supabase.auth.signOut();
         if (error) {
-            return handleApiError(error, 'logout');
+            throw error;
         }
         return true;
     } catch (error) {
