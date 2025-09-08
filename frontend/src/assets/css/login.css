@@ -111,7 +111,6 @@
 .btn-social .icon {
     width: 20px;
     height: 20px;
-    flex-shrink: 0; /* CORREÇÃO: Impede que o ícone seja comprimido */
 }
 
 .separator {
@@ -174,19 +173,14 @@
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 0.75rem; /* Aumentei um pouco o espaçamento */
+    gap: 0.5rem;
     font-size: var(--font-size-sm);
     cursor: pointer;
 }
 
-/* CORREÇÃO: Sobrescreve o estilo global de 'input' para o nosso checkbox */
-.checkbox-label input[type="checkbox"] {
-    display: inline-block;
+.checkbox-label input {
     width: 16px;
     height: 16px;
-    padding: 0;
-    margin: 0;
-    flex-shrink: 0;
     accent-color: var(--color-primary-500);
 }
 

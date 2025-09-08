@@ -6,6 +6,7 @@ import { loginUser } from '../api/auth';
 
 import '../assets/css/login.css';
 
+
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
         <div className="promo-content">
@@ -46,15 +47,18 @@ function Login() {
         setError('');
 
         try {
-            await loginUser({
+            const { user } = await loginUser({
                 email: formData.email,
                 password: formData.password,
             });
 
-            // Após o login bem-sucedido, apenas redirecionar
-            // O ProtectedRoute cuidará de verificar o perfil e redirecionar adequadamente
-            toast.success('Login bem-sucedido!');
-            navigate('/dashboard');
+            if (!user.username) {
+                toast('Quase lá! Complete seu perfil para continuar.');
+                navigate('/complete-profile');
+            } else {
+                toast.success('Login bem-sucedido!');
+                navigate('/dashboard');
+            }
 
         } catch (err) {
             setError(err.message || 'E-mail ou senha inválidos.');
@@ -64,19 +68,9 @@ function Login() {
     };
 
     const handleGoogleLogin = async () => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({ 
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard'
-                }
-            });
-            
-            if (error) {
-                toast.error(error.message || "Não foi possível conectar com o Google.");
-            }
-        } catch (err) {
-            toast.error("Erro ao conectar com o Google.");
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+        if (error) {
+            toast.error(error.message || "Não foi possível conectar com o Google.");
         }
     };
 

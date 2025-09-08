@@ -7,26 +7,23 @@ function DeckCard({ deck, onEdit }) {
   const handleOptionsClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onEdit();
+    onEdit(); 
   };
 
   return (
     <Link to={`/deck/${deck.id}`} className="deck-card">
-      <div className="deck-card__header" style={{ '--deck-color': deckColor }}>
+      <div className="deck-card-header" style={{ borderLeftColor: deckColor }}>
         <h3>{deck.title}</h3>
-        <button className="deck-card__options-btn" aria-label="Opções do baralho" onClick={handleOptionsClick}>
+        <button className="deck-options-btn" aria-label="Opções do baralho" onClick={handleOptionsClick}>
           <i className="fas fa-ellipsis-v"></i>
         </button>
       </div>
-      <div className="deck-card__body">
+      <div className="deck-card-body">
         <p>{deck.description || 'Sem descrição'}</p>
       </div>
-      <div className="deck-card__footer">
-        <span className="deck-card__card-count">
-            <i className="fas fa-layer-group"></i>
-            {deck.card_count || 0} cards
-        </span>
-        <div className="deck-card__study-btn">Estudar</div>
+      <div className="deck-card-footer">
+        <span>{deck.card_count || 0} cards</span>
+        <div className="btn btn-primary-static">Estudar</div>
       </div>
     </Link>
   );

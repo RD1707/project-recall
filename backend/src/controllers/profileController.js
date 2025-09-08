@@ -1,27 +1,23 @@
-// backend/src/controllers/profileController.js
 const supabase = require('../config/supabaseClient');
 const logger = require('../config/logger');
 const { z } = require('zod');
 
-// Schema atualizado para incluir 'bio' e ser mais flexível
 const profileUpdateSchema = z.object({
-    full_name: z.string().min(3, 'O nome completo deve ter pelo menos 3 caracteres.').optional(),
+    full_name: z.string().min(3, 'O nome completo deve ter pelo menos 3 caracteres.').optional().nullable(),
     username: z.string()
         .min(3, 'O nome de usuário deve ter pelo menos 3 caracteres.')
         .max(20, 'O nome de usuário deve ter no máximo 20 caracteres.')
         .regex(/^[a-zA-Z0-9_]+$/, 'Nome de usuário deve conter apenas letras, números e underscore.')
         .optional(),
-    bio: z.string().max(160, 'A bio não pode exceder 160 caracteres.').optional().nullable(),
     password: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.').optional(),
 }).strict();
 
 
 const getProfile = async (req, res) => {
     try {
-        // Adicionado avatar_url ao select
         const { data, error } = await supabase
             .from('profiles')
-            .select('points, current_streak, full_name, username, bio, avatar_url')
+            .select('points, current_streak, full_name, username')
             .eq('id', req.user.id)
             .single();
 
@@ -32,8 +28,6 @@ const getProfile = async (req, res) => {
                 current_streak: 0, 
                 full_name: '', 
                 username: '',
-                bio: '',
-                avatar_url: null,
                 email: req.user.email 
             });
         }
@@ -51,10 +45,10 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     const userId = req.user.id;
     try {
-        // Agora o schema valida também a bio
-        const { full_name, username, bio, password } = profileUpdateSchema.parse(req.body);
+        const { full_name, username, password } = profileUpdateSchema.parse(req.body);
         let profileDataToUpdate = {};
         
+        // Se estiver atualizando o username, verificar se já existe
         if (username) {
             const { data: existingUser } = await supabase
                 .from('profiles')
@@ -69,34 +63,32 @@ const updateProfile = async (req, res) => {
                     code: 'USERNAME_TAKEN' 
                 });
             }
+            
             profileDataToUpdate.username = username;
         }
         
+        // Atualizar senha se fornecida
         if (password) {
             const { error: authError } = await supabase.auth.updateUser({ password });
             if (authError) throw new Error(`Erro ao atualizar senha: ${authError.message}`);
         }
 
-        if (full_name !== undefined) profileDataToUpdate.full_name = full_name;
-        if (bio !== undefined) profileDataToUpdate.bio = bio; // Adiciona bio à atualização
-        
-        if (Object.keys(profileDataToUpdate).length > 0) {
-            const { data: updatedProfile, error: profileError } = await supabase
-                .from('profiles')
-                .update(profileDataToUpdate)
-                .eq('id', userId)
-                .select('full_name, username, bio') // Retorna os dados atualizados
-                .single();
-                
-            if (profileError) throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);
-            
-            return res.status(200).json({ 
-              message: 'Perfil atualizado com sucesso!',
-              profile: updatedProfile 
-            });
+        // Atualizar full_name se fornecido
+        if (full_name !== undefined) {
+            profileDataToUpdate.full_name = full_name;
         }
         
-        res.status(200).json({ message: 'Nenhuma alteração detectada.' });
+        // Atualizar profile se houver dados para atualizar
+        if (Object.keys(profileDataToUpdate).length > 0) {
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update(profileDataToUpdate)
+                .eq('id', userId);
+                
+            if (profileError) throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);
+        }
+        
+        res.status(200).json({ message: 'Perfil atualizado com sucesso!' });
 
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -104,56 +96,6 @@ const updateProfile = async (req, res) => {
         }
         logger.error(`Error updating profile for user ${userId}: ${error.message}`);
         res.status(500).json({ message: 'Erro interno ao atualizar o perfil.', code: 'INTERNAL_SERVER_ERROR' });
-    }
-};
-
-// FUNÇÃO IMPLEMENTADA para upload do avatar
-const uploadAvatar = async (req, res) => {
-    const userId = req.user.id;
-
-    if (!req.file) {
-        return res.status(400).json({ message: 'Nenhum arquivo de imagem enviado.', code: 'VALIDATION_ERROR' });
-    }
-
-    try {
-        const file = req.file;
-        const filePath = `${userId}/${Date.now()}-${file.originalname}`;
-
-        // 1. Fazer upload para o Supabase Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('avatars') // Nome do nosso bucket
-            .upload(filePath, file.buffer, {
-                contentType: file.mimetype,
-                upsert: true, // Sobrescreve se já existir um com o mesmo nome
-            });
-
-        if (uploadError) throw uploadError;
-
-        // 2. Obter a URL pública do arquivo
-        const { data: urlData } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(uploadData.path);
-            
-        const avatar_url = urlData.publicUrl;
-
-        // 3. Atualizar a tabela de perfis com a nova URL
-        const { data: updatedProfile, error: profileError } = await supabase
-            .from('profiles')
-            .update({ avatar_url })
-            .eq('id', userId)
-            .select('avatar_url')
-            .single();
-
-        if (profileError) throw profileError;
-
-        res.status(200).json({ 
-            message: 'Avatar atualizado com sucesso!', 
-            avatarUrl: updatedProfile.avatar_url 
-        });
-
-    } catch (error) {
-        logger.error(`Erro no upload do avatar para o usuário ${userId}: ${error.message}`);
-        res.status(500).json({ message: 'Erro ao fazer upload do avatar.', code: 'UPLOAD_ERROR' });
     }
 };
 
@@ -205,6 +147,5 @@ module.exports = {
     getProfile, 
     updateProfile,
     getProfileByUsername,
-    uploadAvatar,
     getLeaderboard
 };

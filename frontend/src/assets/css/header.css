@@ -126,41 +126,6 @@
     box-shadow: 0 0 0 3px var(--color-primary-500);
 }
 
-/* Estilos do Avatar no Header */
-.user-avatar-button {
-    padding: 0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.user-avatar-button .user-avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-    box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary-100);
-}
-
-.user-avatar-button img.user-avatar {
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.user-avatar-button:hover .user-avatar {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary-500);
-}
-
-/* Dropdown avatar */
-.dropdown-user-info img.user-avatar {
-    width: 36px;
-    height: 36px;
-    object-fit: cover;
-    border-radius: 50%;
-    box-shadow: none;
-}
-
 .dropdown-menu {
     position: absolute;
     top: calc(100% + 0.75rem);
@@ -217,4 +182,3 @@
     .header-container { padding: 0 1rem; }
     .user-stats, .nav-link { display: none; }
 }
-

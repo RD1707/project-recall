@@ -31,11 +31,6 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
         setFormData(prev => ({ ...prev, color }));
     };
 
-    // Efeito para resetar o formulário quando initialData muda
-    useEffect(() => {
-        setFormData(initialData);
-    }, [initialData]);
-
     return (
         <form id={formId} onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }}>
             <div className="form-group">
@@ -146,7 +141,6 @@ function Dashboard() {
             }
             closeModal();
         } catch (error) {
-            // O toast.promise já lida com a exibição do erro.
         }
     };
     
@@ -164,7 +158,6 @@ function Dashboard() {
             setDecks(decks.filter(d => d.id !== modalState.deckData.id));
             closeModal();
         } catch (error) {
-            // O toast.promise já lida com a exibição do erro.
         }
     };
 
@@ -207,7 +200,6 @@ function Dashboard() {
     };
 
     const isEditing = modalState.mode === 'edit';
-    const formInitialData = isEditing ? modalState.deckData : { title: '', description: '', color: '#6366f1' };
 
     return (
         <>
@@ -255,7 +247,7 @@ function Dashboard() {
                 <DeckForm 
                     formId="deck-form"
                     onSubmit={handleSaveDeck} 
-                    initialData={formInitialData}
+                    initialData={modalState.deckData}
                 />
             </Modal>
         </>

@@ -2,11 +2,13 @@ import React from 'react';
 
 function CreateDeckCard({ onClick }) {
   return (
-    <div className="create-new-card" onClick={onClick}>
-        <div className="create-new-card__icon">
+    <div className="deck-card create-new" onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div className="deck-card-inner">
+        <div className="create-icon">
           <i className="fas fa-plus"></i>
         </div>
-        <h3 className="create-new-card__title">Criar Novo Baralho</h3>
+        <h3>Criar Novo Baralho</h3>
+      </div>
     </div>
   );
 }

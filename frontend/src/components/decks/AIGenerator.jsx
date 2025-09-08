@@ -203,6 +203,7 @@ function AIGenerator({ deckId, onGenerationStart }) {
                             <div className="tab-pane active">
                                 <label htmlFor="url" className="input-label">URL do vídeo</label>
                                 <div className="url-input-wrapper">
+                                    <i className="fas fa-link url-icon"></i>
                                     <input type="url" id="url" value={formData.url} onChange={handleInputChange} placeholder="https://www.youtube.com/watch?v=..." />
                                 </div>
                             </div>
