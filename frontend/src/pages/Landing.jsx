@@ -45,7 +45,6 @@ function Landing() {
                     <nav className={`main-nav ${isMenuOpen ? 'is-open' : ''}`} id="main-nav">
                         <ul>
                             <li><a href="#features" onClick={closeMenu}>Recursos</a></li>
-                            <li><a href="#how-it-works" onClick={closeMenu}>Como Funciona</a></li>
                             <li><Link to="/ajuda" onClick={closeMenu}>Ajuda</Link></li>
                         </ul>
                     </nav>
