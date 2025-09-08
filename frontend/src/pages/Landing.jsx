@@ -433,7 +433,7 @@ function Landing() {
                                 period="mês"
                                 features={[
                                     "Flashcards ilimitados",
-                                    "IA avançada (GPT-4)",
+                                    "IA avançada (GPT-5",
                                     "Dispositivos ilimitados",
                                     "Analytics completo",
                                     "Modo offline",
