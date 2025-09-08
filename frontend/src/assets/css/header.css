@@ -28,7 +28,7 @@
 .header-back-section a {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 0.5rem;
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--color-dark-900);
