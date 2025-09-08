@@ -32,7 +32,6 @@
   color: var(--color-text-default);
 }
 
-/* Theme Selector */
 .theme-selector {
   display: flex;
   border: 1px solid var(--color-border);
@@ -55,14 +54,12 @@
   font-weight: 500;
 }
 
-/* Session Goal Input */
 .setting-item input[type="number"] {
   width: 80px;
   text-align: center;
   padding: 0.5rem;
 }
 
-/* Toggle Switch for Notifications */
 .switch {
   position: relative;
   display: inline-block;

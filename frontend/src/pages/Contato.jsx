@@ -24,7 +24,6 @@ function Contato() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aqui você integraria com um serviço de e-mail ou backend
         console.log("Dados do formulário:", formData);
         toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.');
         setFormData({ name: '', email: '', subject: '', message: '' }); 

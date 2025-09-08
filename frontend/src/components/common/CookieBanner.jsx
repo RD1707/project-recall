@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Componente para o Modal de Preferências
 const PreferencesModal = ({ onClose, onSave }) => {
     const [preferences, setPreferences] = useState({
         analytics: false,
@@ -67,7 +66,6 @@ const PreferencesModal = ({ onClose, onSave }) => {
     );
 };
 
-// Componente Principal do Banner
 function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);

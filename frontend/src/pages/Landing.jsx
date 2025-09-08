@@ -355,7 +355,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Depoimentos */}
                 <section id="testimonials" className="testimonials">
                     <div className="landing-container">
                         <div className="section-header">
@@ -480,7 +479,6 @@ function Landing() {
 
             </main>
 
-            {/* Footer */}
             <footer className="landing-footer">
                 <div className="landing-container">
                     <div className="footer-content">

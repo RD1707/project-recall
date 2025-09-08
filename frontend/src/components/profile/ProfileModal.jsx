@@ -1,10 +1,8 @@
-// frontend/src/components/profile/ProfileModal.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { updateProfile, uploadAvatar } from '../../api/profile'; 
 import Modal from '../common/Modal';
 
-// Componente de força da senha
 const PasswordStrengthIndicator = ({ password }) => {
   const getStrength = (pwd) => {
     if (!pwd) return { level: 0, text: '', color: '' };
@@ -50,7 +48,6 @@ const PasswordStrengthIndicator = ({ password }) => {
   );
 };
 
-// Componente de campo de formulário
 const FormField = ({ 
   label, 
   id, 
@@ -105,7 +102,6 @@ const FormField = ({
   );
 };
 
-// Componente principal do modal
 function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -134,7 +130,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       setHasChanges(false);
       setActiveTab('general');
     }
-  }, [user?.id, isOpen]); // <-- CORREÇÃO APLICADA AQUI
+  }, [user?.id, isOpen]); 
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -150,7 +146,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB
+    if (file.size > 5 * 1024 * 1024) { 
       toast.error('A imagem deve ter no máximo 5MB.');
       return;
     }
@@ -200,13 +196,11 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       onClose();
       
     } catch (error) {
-      // API já mostra o toast de erro, não precisa fazer nada aqui
     } finally {
       setLoading(false);
     }
   };
 
-  // Decide se mostra a imagem ou a inicial
   const avatarContent = user?.avatar_url
     ? <img src={user.avatar_url} alt="Avatar do usuário" className="avatar-img" />
     : <span className="avatar-text">{user?.initial}</span>;

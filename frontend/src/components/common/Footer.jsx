@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../../assets/css/landing.css'; // Reusing landing page footer styles for consistency
+import '../../assets/css/landing.css'; 
 
 function Footer() {
   return (
