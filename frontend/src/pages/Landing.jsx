@@ -147,7 +147,7 @@ function Landing() {
                         <div className="hero-text">
                             <div className="hero-badge">
                                 <i className="fas fa-sparkles"></i>
-                                Powered by GPT-4
+                                Powered by GPT-5
                             </div>
                             <h1>
                                 Memorize 10x mais rápido com
@@ -219,7 +219,7 @@ function Landing() {
                         </div>
                         <div className="features-grid">
                             <FeatureCard
-                                icon="fa-wand-magic-sparkles"
+                                icon="fa-cloud"
                                 title="Geração Inteligente"
                                 description="IA analisa seu material e cria flashcards focados nos pontos mais importantes, economizando horas de preparação."
                                 badge="Novo"
