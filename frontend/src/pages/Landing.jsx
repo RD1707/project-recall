@@ -488,28 +488,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* CTA Final */}
-                <section className="final-cta">
-                    <div className="landing-container">
-                        <div className="cta-content">
-                            <h2>Comece sua jornada de aprendizado hoje</h2>
-                            <p>
-                                Junte-se a mais de 50.000 estudantes que já estão aprendendo 
-                                de forma mais inteligente, não mais difícil.
-                            </p>
-                            <div className="cta-actions">
-                                <Link to="/register" className="btn btn-primary btn-lg">
-                                    <i className="fas fa-rocket"></i>
-                                    Criar Conta Gratuita
-                                </Link>
-                                <span className="cta-note">
-                                    <i className="fas fa-check-circle"></i>
-                                    Sem cartão • Setup em 60s • Cancele quando quiser
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </main>
 
             {/* Footer */}
