@@ -206,18 +206,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Seção de Estatísticas */}
-                <section className="stats">
-                    <div className="landing-container">
-                        <div className="stats-grid">
-                            <StatCard number="50" suffix="mil+" label="Estudantes ativos" />
-                            <StatCard number="2" suffix="M+" label="Flashcards criados" />
-                            <StatCard number="95" suffix="%" label="Taxa de aprovação" />
-                            <StatCard number="4.9" suffix="/5" label="Avaliação média" />
-                        </div>
-                    </div>
-                </section>
-
                 {/* Features Aprimoradas */}
                 <section id="features" className="features">
                     <div className="landing-container">

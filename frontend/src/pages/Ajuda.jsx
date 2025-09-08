@@ -128,13 +128,6 @@ function Ajuda() {
                             Recall
                         </Link>
                     </div>
-                    <nav className="main-nav">
-                        <ul>
-                            <li><a href="/#features">Recursos</a></li>
-                            <li><a href="/#how-it-works">Como Funciona</a></li>
-                            <li><Link to="/ajuda">Ajuda</Link></li>
-                        </ul>
-                    </nav>
                     <div className="header-actions">
                          <Link to="/login" className="btn btn-primary">Começar Agora</Link>
                     </div>
