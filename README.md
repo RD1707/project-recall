@@ -1,101 +1,202 @@
-# Recall - Flashcards Inteligentes com React e IA
+# 🧠 Flashcards Inteligentes
+<div align="center">
 
------
+![Typing Animation](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=32&duration=2800&pause=2000&color=61DBFB&center=true&vCenter=true&width=600&lines=Estude+menos%2C+aprenda+mais!;Flashcards+com+Intelig%C3%AAncia+Artificial;Transforme+conte%C3%BAdo+em+conhecimento)
 
-##  Sobre o Projeto
+**Transforme qualquer conteúdo em flashcards inteligentes com o poder da Inteligência Artificial.**
 
-Este é o projeto **Recall**, uma plataforma inteligente de flashcards.
+[![Demonstration](https://img.shields.io/badge/🎬_Demonstração-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/seu-video)
+[![Live Demo](https://img.shields.io/badge/🚀_Demo_Ao_Vivo-4CAF50?style=for-the-badge&logo=vercel&logoColor=white)](https://seu-projeto.vercel.app)
 
-A aplicação permite que usuários transformem textos, arquivos (PDF, DOCX, TXT) e vídeos do YouTube em baralhos de estudo interativos, utilizando um sistema de repetição espaçada (SM-2) e IA generativa (Cohere) para otimizar o aprendizado.
+</div>
 
-###  Stack Tecnológica
+---
 
-  - **Frontend**: React (Vite), React Router, Chart.js, react-hot-toast
-  - **Backend**: Node.js, Express.js
-  - **Banco de Dados**: PostgreSQL (via Supabase)
-  - **Serviços de IA**: Cohere
-  - **Filas e Cache**: Redis + BullMQ (para processamento assíncrono de IA)
-  - **Autenticação**: Supabase Auth (Email/Senha e Google OAuth)
+## 🛠️ Stack Tecnológica
 
------
+### **Frontend**
+<div align="center">
 
-##  Funcionalidades Principais
+![React](https://img.shields.io/badge/React-61DBFB?style=for-the-badge&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 
-  - **Geração de Flashcards com IA**: Crie flashcards automaticamente a partir de texto, arquivos (`.pdf`, `.docx`, `.txt`, `.md`) ou links de vídeos do YouTube.
-  - **Repetição Espaçada**: O sistema calcula o momento ideal para revisar cada card, baseado no algoritmo SM-2, para maximizar a retenção.
-  - **Sessões de Estudo Interativas**: Uma interface limpa e focada para revisar seus flashcards.
-  - **Dashboard de Progresso**: Acompanhe suas estatísticas, como total de revisões, precisão e sequência de estudos (streak).
-  - **Autenticação Segura**: Suporte para cadastro com e-mail/senha e login social com Google.
-  - **Compartilhamento de Baralhos**: Gere links públicos para compartilhar seus baralhos com outras pessoas.
-  - **Gamificação**: Sistema de pontos e streaks para manter o usuário engajado.
-  - **Gerenciamento Completo**: Crie, edite e delete baralhos e flashcards de forma intuitiva.
+</div>
 
------
+### **Backend**
+<div align="center">
 
-##  Setup e Execução Local
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
-O projeto é dividido em duas partes: o **frontend** (React) e o **backend** (Node.js). Para rodar localmente, você precisará ter os dois servidores em execução simultaneamente.
+</div>
+
+### **Banco de Dados & Cache**
+<div align="center">
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+
+</div>
+
+### **IA & Machine Learning**
+<div align="center">
+
+![Cohere](https://img.shields.io/badge/Cohere-A435F0?style=for-the-badge&logo=cohere&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+
+</div>
+
+### **DevOps & Ferramentas**
+<div align="center">
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![BullMQ](https://img.shields.io/badge/BullMQ-FF0000?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+
+</div>
+
+---
+
+## 📊 Estatísticas do Projeto
+
+<div align="center">
+
+![GitHub Stars](https://img.shields.io/github/stars/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=yellow)
+![GitHub Forks](https://img.shields.io/github/forks/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
+![GitHub Issues](https://img.shields.io/github/issues/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=red)
+![GitHub Last Commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=green)
+
+![GitHub License](https://img.shields.io/github/license/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=open-source-initiative&color=orange)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=purple)
+![GitHub Contributors](https://img.shields.io/github/contributors/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=brightgreen)
+
+</div>
+
+---
+
+## 👥 Nossa Equipe
+
+<div align="center">
+
+| **🚀 Desenvolvedor Full-Stack** | **🎨 UI/UX Designer** | **🤖 Especialista em IA** | **📊 Data Scientist** |
+|:---:|:---:|:---:|:---:|
+| [![Seu Nome](https://github.com/SEU_USUARIO.png?size=100)](https://github.com/SEU_USUARIO) | [![Nome do Designer](https://github.com/USUARIO_DESIGNER.png?size=100)](https://github.com/USUARIO_DESIGNER) | [![Nome do IA Expert](https://github.com/USUARIO_IA.png?size=100)](https://github.com/USUARIO_IA) | [![Nome do Data Scientist](https://github.com/USUARIO_DATA.png?size=100)](https://github.com/USUARIO_DATA) |
+| **[Seu Nome](https://github.com/SEU_USUARIO)** | **[Nome do Designer](https://github.com/USUARIO_DESIGNER)** | **[Nome do IA Expert](https://github.com/USUARIO_IA)** | **[Nome do Data Scientist](https://github.com/USUARIO_DATA)** |
+| *Full-Stack Developer* | *UI/UX Designer* | *AI Engineer* | *Data Scientist* |
+
+</div>
+
+---
+
+## ✨ Funcionalidades
+
+<div align="center">
+
+| 🎯 **Características** | 📝 **Descrição** |
+|:---:|:---|
+| 🤖 **IA Integrada** | Geração automática de flashcards usando Cohere AI |
+| 📚 **Multi-formato** | Suporte para PDF, texto, imagens e vídeos |
+| 🧠 **Aprendizado Adaptativo** | Sistema que se adapta ao seu ritmo de estudo |
+| 📊 **Analytics Avançado** | Acompanhe seu progresso com gráficos detalhados |
+| 🌙 **Modo Escuro** | Interface moderna com suporte a temas |
+| 📱 **Responsivo** | Funciona perfeitamente em todos os dispositivos |
+| ⚡ **Performance** | Carregamento ultra-rápido com Vite e Redis |
+| 🔒 **Seguro** | Autenticação JWT e criptografia de dados |
+
+</div>
+
+---
+
+## 🚀 Começando
 
 ### Pré-requisitos
 
-  - Node.js (v18 ou superior)
-  - npm ou yarn
-  - Uma conta no [Supabase](https://supabase.com/) para o banco de dados.
-  - Uma chave de API da [Cohere](https://cohere.com/).
-  - (Opcional) Uma instância do [Redis](https://redis.io/) para habilitar o processamento em fila.
-
-### 1\. Configuração do Backend
-
-a. Navegue até a pasta do backend:
-
 ```bash
-cd backend
+Node.js ≥ 18.0.0
+PostgreSQL ≥ 14.0
+Redis ≥ 6.0
 ```
 
-b. Instale as dependências:
+### Instalação Rápida
 
 ```bash
+# Clone o repositório
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+
+# Entre no diretório
+cd SEU_REPOSITORIO
+
+# Instale as dependências
 npm install
-```
 
-c. Crie um arquivo `.env` na raiz da pasta `backend` e preencha com suas chaves, usando o `.env.example` como referência:
+# Configure as variáveis de ambiente
+cp .env.example .env
 
-```env
-PORT=3001
-SUPABASE_URL=SUA_URL_SUPABASE
-SUPABASE_SERVICE_ROLE_KEY=SUA_CHAVE_SERVICE_ROLE_SUPABASE
-COHERE_API_KEY=SUA_CHAVE_API_COHERE
-REDIS_URL=seu_redis_url_ou_deixe_em_branco_para_desabilitar
-```
+# Execute as migrações
+npm run migrate
 
-d. Inicie o servidor do backend e o worker da fila:
-
-```bash
+# Inicie o projeto
 npm run dev
 ```
 
-O servidor da API estará rodando em `http://localhost:3001`.
+---
 
-### 2\. Configuração do Frontend (React)
+## 📈 Métricas de Desenvolvimento
 
-a. Em um **novo terminal**, navegue até a pasta do frontend:
+<div align="center">
 
-```bash
-cd frontend
-```
+![Commits](https://img.shields.io/github/commit-activity/m/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=brightgreen)
+![Code Size](https://img.shields.io/github/languages/code-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
+![Repo Size](https://img.shields.io/github/repo-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=orange)
 
-b. Instale as dependências:
+</div>
 
-```bash
-npm install
-```
+---
 
-c. O frontend já está configurado para se comunicar com o backend através de um proxy no arquivo `vite.config.js`.
+## 🤝 Contribuindo
 
-d. Inicie o servidor de desenvolvimento do Vite:
+Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONTRIBUTING.md) para começar.
 
-```bash
-npm run dev
-```
+<div align="center">
 
-A aplicação React estará disponível em `http://localhost:5173` (ou outra porta, se a 5173 estiver em uso).
+[![Contributors](https://contrib.rocks/image?repo=SEU_USUARIO/SEU_REPOSITORIO)](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/graphs/contributors)
+
+</div>
+
+---
+
+## 📞 Contato & Suporte
+
+<div align="center">
+
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SEU_DISCORD)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contato@seuprojeto.com)
+[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/SEU_TWITTER)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/SEU_LINKEDIN)
+
+</div>
+
+---
+
+<div align="center">
+
+### 🌟 Se este projeto te ajudou, deixe uma estrela!
+
+[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO)
+
+---
+
+**Feito com ❤️ pela equipe Flashcards Inteligentes**
+
+![Wave](https://raw.githubusercontent.com/mayhemantt/mayhemantt/Update/svg/Bottom.svg)
+
+</div>
