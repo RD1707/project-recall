@@ -85,18 +85,6 @@
 
 ---
 
-## 📈 Métricas de Desenvolvimento
-
-<div align="center">
-
-![Commits](https://img.shields.io/github/commit-activity/m/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=brightgreen)
-![Code Size](https://img.shields.io/github/languages/code-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
-![Repo Size](https://img.shields.io/github/repo-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=orange)
-
-</div>
-
----
-
 ## 🤝 Contribuindo
 
 Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONTRIBUTING.md) para começar.
