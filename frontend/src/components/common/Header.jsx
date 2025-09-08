@@ -108,7 +108,7 @@ function Header() {
                     {dropdownAvatarContent()}
                     <div className="user-details">
                         <span id="user-full-name">{user.fullName}</span>
-                        <span className="user-plan">{user.email}</span>
+                        <span className="user-plan">{user.username}</span>
                     </div>
                 </div>
                 <div className="dropdown-divider"></div>
