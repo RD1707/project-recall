@@ -179,8 +179,11 @@ section {
     height: 100%;
 }
 
-/* Section Headers */
+/* Section Headers - SUGESTÃO DE MELHORIA */
 .section-header {
+    display: flex; /* Adicionado */
+    flex-direction: column; /* Adicionado */
+    align-items: center; /* Adicionado */
     text-align: center;
     margin-bottom: var(--space-16);
     max-width: 680px;
