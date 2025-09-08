@@ -61,7 +61,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. GRADE DE BARALHOS (DECKS)
+   2. GRADE DE BARALHOS (DECKS) - VISUAL ATUALIZADO
    -------------------------------------------------------------------------- */
 
 .decks-grid {
@@ -75,44 +75,58 @@
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-soft);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: inherit;
     overflow: hidden;
-    /* Garante que os filhos respeitem o border-radius */
+    position: relative;
 }
 
 .deck-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-primary-100);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--deck-color, var(--color-primary-500));
 }
 
 .deck-card__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.25rem;
-    border-left: 5px solid var(--deck-color, var(--color-primary-500));
+    padding: 1.5rem;
+    position: relative;
+    background: linear-gradient(135deg, var(--deck-color, var(--color-primary-500)), #a8a29e); /* Cor de fallback */
+    color: white;
 }
 
+.deck-card__header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--deck-color, var(--color-primary-500)), #8c837d);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+
 .deck-card__header h3 {
-    font-size: 1.25rem;
-    color: var(--color-dark-800);
+    font-size: 1.3rem;
+    color: var(--color-surface);
     margin: 0;
     word-break: break-word;
-    /* Evita que títulos longos quebrem o layout */
+    position: relative;
+    z-index: 2;
 }
 
 .deck-card__options-btn {
-    color: var(--color-text-muted);
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.8);
     transition: var(--transition-fast);
-    padding: 0.25rem;
+    padding: 0.5rem;
     border-radius: 50%;
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
 }
 
 .deck-card:hover .deck-card__options-btn {
@@ -120,13 +134,15 @@
 }
 
 .deck-card__options-btn:hover {
-    background-color: var(--color-background);
-    color: var(--color-dark-900);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-surface);
 }
 
+
 .deck-card__body {
-    padding: 0 1.25rem 1.25rem 1.25rem;
+    padding: 1.25rem;
     flex-grow: 1;
+    background-color: var(--color-surface);
 }
 
 .deck-card__body p {
@@ -134,12 +150,12 @@
     font-size: var(--font-size-base);
     line-height: 1.6;
     margin: 0;
-    /* Truncamento de texto para descrições longas */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3; /* Mais espaço para descrição */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-height: 4.8rem; /* Garante altura mínima para 3 linhas */
 }
 
 .deck-card__footer {
@@ -149,10 +165,12 @@
     padding: 1rem 1.25rem;
     border-top: 1px solid var(--color-border);
     background-color: var(--color-background);
-    margin-top: auto;
 }
 
-.deck-card__footer span {
+.deck-card__card-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: var(--font-size-sm);
     font-weight: 500;
     color: var(--color-text-muted);
@@ -161,7 +179,7 @@
 .deck-card__study-btn {
     font-size: var(--font-size-sm);
     font-weight: 600;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.2rem;
     border-radius: var(--border-radius-sm);
     background-color: var(--color-primary-100);
     color: var(--color-primary-600);
@@ -169,37 +187,49 @@
 }
 
 .deck-card:hover .deck-card__study-btn {
-    background-color: var(--color-primary-500);
+    background-color: var(--deck-color, var(--color-primary-500));
     color: var(--color-surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-
-/* Card para "Criar Novo" */
+/* Card para "Criar Novo" - ESTILO MELHORADO */
 .create-new-card {
     border: 2px dashed var(--color-border);
-    background-color: var(--color-background);
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: var(--color-text-muted);
     text-align: center;
     padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    transition: all 0.3s ease;
+    min-height: 220px; /* Garante altura similar aos outros cards */
 }
 
 .create-new-card:hover {
     border-color: var(--color-primary-500);
     background: var(--color-primary-100);
     color: var(--color-primary-600);
+    box-shadow: var(--shadow-lg);
 }
 
 .create-new-card__icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
+    transition: transform 0.3s ease;
 }
 
-.create-new-card h3 {
+.create-new-card:hover .create-new-card__icon {
+    transform: scale(1.1);
+}
+
+.create-new-card__title {
     color: inherit;
     font-size: 1.25rem;
+    font-weight: 600;
 }
 
 /* --------------------------------------------------------------------------

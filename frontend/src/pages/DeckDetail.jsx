@@ -11,6 +11,13 @@ import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashc
 
 import '../assets/css/deck.css';
 
+const LoadingComponent = () => (
+    <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <h2>Carregando baralho...</h2>
+    </div>
+);
+
 const DeckHeader = ({ deck, onShare }) => (
     <section className="deck-hero">
         <div className="hero-content">
@@ -22,7 +29,7 @@ const DeckHeader = ({ deck, onShare }) => (
             <div className="deck-actions">
                 <Link to={`/study/${deck.id}`} className="btn btn-primary btn-large">
                     <i className="fas fa-play-circle"></i>
-                    <span><strong>Estudar Agora</strong><small className="btn-subtitle">Iniciar sessão de revisão</small></span>
+                    <span><strong>Estudar Agora</strong></span>
                 </Link>
                 <button onClick={onShare} className="btn btn-secondary">
                     <i className="fas fa-share-alt"></i> Compartilhar
@@ -224,11 +231,25 @@ function DeckDetail() {
     };
     
     if (status === 'loading') {
-        return <><Header /><main className="deck-main"><h1>Carregando baralho...</h1></main></>;
+        return (
+            <>
+                <Header />
+                <main className="deck-main">
+                    <LoadingComponent />
+                </main>
+            </>
+        );
     }
     
     if (status === 'error' || !deck) {
-        return <><Header /><main className="deck-main"><h1>Baralho não encontrado</h1></main></>;
+        return (
+            <>
+                <Header />
+                <main className="deck-main">
+                    <h1>Baralho não encontrado</h1>
+                </main>
+            </>
+        );
     }
 
     return (
