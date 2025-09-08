@@ -5,9 +5,6 @@
 
 **Transforme qualquer conteúdo em flashcards inteligentes com o poder da Inteligência Artificial.**
 
-[![Demonstration](https://img.shields.io/badge/🎬_Demonstração-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/seu-video)
-[![Live Demo](https://img.shields.io/badge/🚀_Demo_Ao_Vivo-4CAF50?style=for-the-badge&logo=vercel&logoColor=white)](https://seu-projeto.vercel.app)
-
 </div>
 
 ---
@@ -40,17 +37,6 @@
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-
-</div>
-
-### **IA & Machine Learning**
-<div align="center">
-
-![Cohere](https://img.shields.io/badge/Cohere-A435F0?style=for-the-badge&logo=cohere&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
 </div>
 
@@ -61,23 +47,6 @@
 ![BullMQ](https://img.shields.io/badge/BullMQ-FF0000?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
-
-</div>
-
----
-
-## 📊 Estatísticas do Projeto
-
-<div align="center">
-
-![GitHub Stars](https://img.shields.io/github/stars/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=yellow)
-![GitHub Forks](https://img.shields.io/github/forks/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
-![GitHub Issues](https://img.shields.io/github/issues/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=red)
-![GitHub Last Commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=green)
-
-![GitHub License](https://img.shields.io/github/license/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=open-source-initiative&color=orange)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=purple)
-![GitHub Contributors](https://img.shields.io/github/contributors/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=brightgreen)
 
 </div>
 
@@ -116,52 +85,6 @@
 
 ---
 
-## 🚀 Começando
-
-### Pré-requisitos
-
-```bash
-Node.js ≥ 18.0.0
-PostgreSQL ≥ 14.0
-Redis ≥ 6.0
-```
-
-### Instalação Rápida
-
-```bash
-# Clone o repositório
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
-
-# Entre no diretório
-cd SEU_REPOSITORIO
-
-# Instale as dependências
-npm install
-
-# Configure as variáveis de ambiente
-cp .env.example .env
-
-# Execute as migrações
-npm run migrate
-
-# Inicie o projeto
-npm run dev
-```
-
----
-
-## 📈 Métricas de Desenvolvimento
-
-<div align="center">
-
-![Commits](https://img.shields.io/github/commit-activity/m/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=brightgreen)
-![Code Size](https://img.shields.io/github/languages/code-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
-![Repo Size](https://img.shields.io/github/repo-size/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=orange)
-
-</div>
-
----
-
 ## 🤝 Contribuindo
 
 Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONTRIBUTING.md) para começar.
@@ -191,7 +114,7 @@ Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONT
 
 ### 🌟 Se este projeto te ajudou, deixe uma estrela!
 
-[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO)
+[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/RD1707/project-recall)
 
 ---
 
