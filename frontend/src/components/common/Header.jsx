@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { fetchProfile, logout } from '../../api/profile';
+import { fetchProfile, logout } from '../../api/profile'; // updateProfile não é mais necessário aqui
 import toast from 'react-hot-toast';
 
 import ProfileModal from '../profile/ProfileModal';
@@ -12,8 +12,8 @@ function Header() {
     streak: 0,
     initial: '',
     email: 'carregando...',
-    fullName: 'Usuário',
-    avatar_url: null, 
+    fullNamAe: 'Usuário',
+    avatar_url: null, // Novo estado para a URL do avatar
     bio: ''
   });
   const [loading, setLoading] = useState(true);
@@ -31,10 +31,11 @@ function Header() {
         const profileData = await fetchProfile();
         if (profileData) {
           setUser({
-            ...profileData, 
+            ...profileData, // Usa todos os dados retornados
             initial: profileData.full_name ? profileData.full_name.charAt(0).toUpperCase() : (profileData.email ? profileData.email.charAt(0).toUpperCase() : 'R'),
           });
         } else {
+          // A API já mostra um toast, então podemos apenas redirecionar
           navigate('/login');
         }
       } catch (error) {
@@ -64,10 +65,12 @@ function Header() {
 
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
+  // Esta função agora recebe todos os dados atualizados
   const handleProfileUpdate = (updatedUserData) => {
       setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
   };
 
+  // Lógica para decidir o que mostrar no avatar
   const avatarContent = (avatarClass = 'user-avatar') => {
       if (user.avatar_url) {
           return <img src={user.avatar_url} alt="Avatar" className={avatarClass} />;
@@ -108,7 +111,7 @@ function Header() {
                     {dropdownAvatarContent()}
                     <div className="user-details">
                         <span id="user-full-name">{user.fullName}</span>
-                        <span className="user-plan">{user.username}</span>
+                        <span className="user-plan">{user.email}</span>
                     </div>
                 </div>
                 <div className="dropdown-divider"></div>
