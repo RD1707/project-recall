@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import Header from '../components/common/Header';
+import Footer from '../components/common/Footer'; 
 import DeckCard from '../components/decks/DeckCard';
 import CreateDeckCard from '../components/decks/CreateDeckCard';
 import Modal from '../components/common/Modal';
@@ -31,7 +32,6 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
         setFormData(prev => ({ ...prev, color }));
     };
 
-    // Efeito para resetar o formulário quando initialData muda
     useEffect(() => {
         setFormData(initialData);
     }, [initialData]);
@@ -70,7 +70,7 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
 
 function Dashboard() {
     const [decks, setDecks] = useState([]);
-    const [status, setStatus] = useState('loading'); 
+    const [status, setStatus] = useState('loading');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     
@@ -146,7 +146,6 @@ function Dashboard() {
             }
             closeModal();
         } catch (error) {
-            // O toast.promise já lida com a exibição do erro.
         }
     };
     
@@ -164,7 +163,6 @@ function Dashboard() {
             setDecks(decks.filter(d => d.id !== modalState.deckData.id));
             closeModal();
         } catch (error) {
-            // O toast.promise já lida com a exibição do erro.
         }
     };
 
@@ -258,6 +256,7 @@ function Dashboard() {
                     initialData={formInitialData}
                 />
             </Modal>
+            <Footer />
         </>
     );
 }

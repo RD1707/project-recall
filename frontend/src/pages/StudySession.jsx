@@ -189,7 +189,6 @@ function StudySession() {
     const cardsToStudyRef = useRef(cardsToStudy);
     const timerValueRef = useRef(timer);
 
-    // Keep refs updated with current state
     useEffect(() => {
         currentIndexRef.current = currentIndex;
         cardsToStudyRef.current = cardsToStudy;
@@ -289,7 +288,6 @@ function StudySession() {
             return statsUpdate;
         });
 
-        // Submit review and advance to next card
         submitReview(currentCard.id, quality)
             .catch(() => toast.error("Não foi possível salvar sua resposta."))
             .finally(() => {

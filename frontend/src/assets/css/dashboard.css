@@ -1,17 +1,8 @@
-/* ==========================================================================
-   DASHBOARD PAGE - RECALL
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   1. LAYOUT PRINCIPAL E CABEÇALHO DA PÁGINA
-   -------------------------------------------------------------------------- */
-
 .dashboard-main {
     max-width: var(--container-width);
     margin: 0 auto;
     padding: 2.5rem 1.5rem;
     animation: fadeIn 0.5s ease-out;
-    /* Animação de entrada suave */
 }
 
 .content-header {
@@ -60,10 +51,6 @@
     width: 300px;
 }
 
-/* --------------------------------------------------------------------------
-   2. GRADE DE BARALHOS (DECKS) - VISUAL ATUALIZADO
-   -------------------------------------------------------------------------- */
-
 .decks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -108,7 +95,6 @@
     z-index: 1;
 }
 
-
 .deck-card__header h3 {
     font-size: 1.3rem;
     color: var(--color-surface);
@@ -151,11 +137,11 @@
     line-height: 1.6;
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* Mais espaço para descrição */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-height: 4.8rem; /* Garante altura mínima para 3 linhas */
+    min-height: 4.8rem; 
 }
 
 .deck-card__footer {
@@ -192,7 +178,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Card para "Criar Novo" - ESTILO MELHORADO */
 .create-new-card {
     border: 2px dashed var(--color-border);
     background-color: transparent;
@@ -206,7 +191,7 @@
     padding: 2rem;
     border-radius: var(--border-radius-lg);
     transition: all 0.3s ease;
-    min-height: 220px; /* Garante altura similar aos outros cards */
+    min-height: 220px;
 }
 
 .create-new-card:hover {
@@ -231,10 +216,6 @@
     font-size: 1.25rem;
     font-weight: 600;
 }
-
-/* --------------------------------------------------------------------------
-   3. ESTADOS (CARREGAMENTO, VAZIO, ERRO)
-   -------------------------------------------------------------------------- */
 
 .skeleton-deck {
     background: var(--color-surface);
@@ -280,7 +261,6 @@
 .empty-state,
 .error-state {
     grid-column: 1 / -1;
-    /* Ocupa toda a largura da grade */
     text-align: center;
     padding: 4rem 1rem;
     background-color: var(--color-background);
@@ -296,10 +276,6 @@
 .empty-state p {
     margin-bottom: 1.5rem;
 }
-
-/* --------------------------------------------------------------------------
-   4. MODAL E FORMULÁRIO
-   -------------------------------------------------------------------------- */
 
 .color-picker {
     display: flex;
@@ -352,10 +328,6 @@
     color: var(--color-surface);
     border-color: #ef4444;
 }
-
-/* --------------------------------------------------------------------------
-   5. RESPONSIVIDADE
-   -------------------------------------------------------------------------- */
 
 @media (max-width: 768px) {
     .dashboard-main {

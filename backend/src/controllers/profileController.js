@@ -1,9 +1,7 @@
-// backend/src/controllers/profileController.js
 const supabase = require('../config/supabaseClient');
 const logger = require('../config/logger');
 const { z } = require('zod');
 
-// Schema atualizado para incluir 'bio' e ser mais flexível
 const profileUpdateSchema = z.object({
     full_name: z.string().min(3, 'O nome completo deve ter pelo menos 3 caracteres.').optional(),
     username: z.string()
@@ -18,7 +16,6 @@ const profileUpdateSchema = z.object({
 
 const getProfile = async (req, res) => {
     try {
-        // Adicionado avatar_url ao select
         const { data, error } = await supabase
             .from('profiles')
             .select('points, current_streak, full_name, username, bio, avatar_url')
@@ -51,7 +48,6 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     const userId = req.user.id;
     try {
-        // Agora o schema valida também a bio
         const { full_name, username, bio, password } = profileUpdateSchema.parse(req.body);
         let profileDataToUpdate = {};
         
@@ -85,7 +81,7 @@ const updateProfile = async (req, res) => {
                 .from('profiles')
                 .update(profileDataToUpdate)
                 .eq('id', userId)
-                .select('full_name, username, bio') // Retorna os dados atualizados
+                .select('full_name, username, bio') 
                 .single();
                 
             if (profileError) throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);
@@ -107,7 +103,6 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// FUNÇÃO IMPLEMENTADA para upload do avatar
 const uploadAvatar = async (req, res) => {
     const userId = req.user.id;
 
@@ -119,24 +114,21 @@ const uploadAvatar = async (req, res) => {
         const file = req.file;
         const filePath = `${userId}/${Date.now()}-${file.originalname}`;
 
-        // 1. Fazer upload para o Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('avatars') // Nome do nosso bucket
+            .from('avatars') 
             .upload(filePath, file.buffer, {
                 contentType: file.mimetype,
-                upsert: true, // Sobrescreve se já existir um com o mesmo nome
+                upsert: true, 
             });
 
         if (uploadError) throw uploadError;
 
-        // 2. Obter a URL pública do arquivo
         const { data: urlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(uploadData.path);
             
         const avatar_url = urlData.publicUrl;
 
-        // 3. Atualizar a tabela de perfis com a nova URL
         const { data: updatedProfile, error: profileError } = await supabase
             .from('profiles')
             .update({ avatar_url })
@@ -157,7 +149,6 @@ const uploadAvatar = async (req, res) => {
     }
 };
 
-// Nova função para buscar perfil por username (útil para rankings e gamificação)
 const getProfileByUsername = async (req, res) => {
     const { username } = req.params;
     
@@ -180,7 +171,6 @@ const getProfileByUsername = async (req, res) => {
     }
 };
 
-// Nova função para buscar ranking de usuários
 const getLeaderboard = async (req, res) => {
     const { limit = 10, offset = 0 } = req.query;
     

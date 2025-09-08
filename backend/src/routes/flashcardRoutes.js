@@ -5,7 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware.authenticateToken);
 
-// A rota base agora será /api/flashcards, então o caminho aqui é apenas /:cardId
 router.route('/:cardId')
     .put(flashcardController.updateFlashcard)
     .delete(flashcardController.deleteFlashcard);

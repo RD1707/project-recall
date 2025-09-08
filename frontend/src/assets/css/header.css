@@ -126,7 +126,6 @@
     box-shadow: 0 0 0 3px var(--color-primary-500);
 }
 
-/* Estilos do Avatar no Header */
 .user-avatar-button {
     padding: 0;
     border-radius: 50%;
@@ -152,7 +151,6 @@
     box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary-500);
 }
 
-/* Dropdown avatar */
 .dropdown-user-info img.user-avatar {
     width: 36px;
     height: 36px;

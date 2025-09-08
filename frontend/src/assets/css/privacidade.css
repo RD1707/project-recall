@@ -1,0 +1,57 @@
+/* ==========================================================================
+   LEGAL PAGES (PRIVACIDADE, TERMOS) - RECALL
+   ========================================================================== */
+
+.legal-main {
+    background-color: var(--color-surface);
+    padding: 4rem 0;
+}
+
+.legal-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.legal-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.legal-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.legal-header .last-updated {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.legal-content h2 {
+    font-size: 1.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.legal-content p, .legal-content li {
+    line-height: 1.8;
+    color: var(--color-text-default);
+    margin-bottom: 1rem;
+}
+
+.legal-content ul {
+    list-style-position: inside;
+    padding-left: 1rem;
+}
+
+.legal-content a {
+    color: var(--color-primary-500);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.legal-content a:hover {
+    text-decoration: underline;
+}

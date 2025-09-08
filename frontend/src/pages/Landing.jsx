@@ -4,7 +4,6 @@ import VideoModal from '../components/common/VideoModal';
 
 import '../assets/css/landing.css';
 
-// Componente de Card de Feature melhorado
 const FeatureCard = ({ icon, title, description, badge }) => (
     <div className="feature-card">
         {badge && <span className="feature-badge">{badge}</span>}
@@ -16,7 +15,6 @@ const FeatureCard = ({ icon, title, description, badge }) => (
     </div>
 );
 
-// Componente de Depoimento
 const TestimonialCard = ({ name, role, institution, image, rating, text }) => (
     <div className="testimonial-card">
         <div className="testimonial-rating">
@@ -35,7 +33,6 @@ const TestimonialCard = ({ name, role, institution, image, rating, text }) => (
     </div>
 );
 
-// Componente de Estatística
 const StatCard = ({ number, label, suffix = "" }) => (
     <div className="stat-card">
         <div className="stat-number">
@@ -45,7 +42,6 @@ const StatCard = ({ number, label, suffix = "" }) => (
     </div>
 );
 
-// Componente de Step
 const StepCard = ({ number, icon, title, description }) => (
     <div className="step">
         <div className="step-number">{number}</div>
@@ -57,7 +53,6 @@ const StepCard = ({ number, icon, title, description }) => (
     </div>
 );
 
-// Componente de Plano de Preços
 const PricingCard = ({ name, price, period, features, highlighted, ctaText }) => (
     <div className={`pricing-card ${highlighted ? 'highlighted' : ''}`}>
         {highlighted && <span className="pricing-badge">Mais Popular</span>}
@@ -106,7 +101,6 @@ function Landing() {
 
     return (
         <>
-            {/* Header Aprimorado */}
             <header className="landing-header" ref={headerRef}>
                 <div className="header-container landing-container">
                     <div className="logo">
@@ -141,7 +135,6 @@ function Landing() {
             </header>
 
             <main>
-                {/* Hero Section Melhorada */}
                 <section className="hero">
                     <div className="hero-container landing-container">
                         <div className="hero-text">
@@ -206,7 +199,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Features Aprimoradas */}
                 <section id="features" className="features">
                     <div className="landing-container">
                         <div className="section-header">
@@ -253,7 +245,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Como Funciona */}
                 <section id="how-it-works" className="how-it-works">
                     <div className="landing-container">
                         <div className="section-header">
@@ -286,7 +277,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Use Cases / Para Quem */}
                 <section className="use-cases">
                     <div className="landing-container">
                         <div className="section-header">
@@ -365,7 +355,6 @@ function Landing() {
                     </div>
                 </section>
 
-                {/* Depoimentos */}
                 <section id="testimonials" className="testimonials">
                     <div className="landing-container">
                         <div className="section-header">
@@ -490,7 +479,6 @@ function Landing() {
 
             </main>
 
-            {/* Footer */}
             <footer className="landing-footer">
                 <div className="landing-container">
                     <div className="footer-content">
@@ -520,9 +508,7 @@ function Landing() {
                             <div className="footer-column">
                                 <h4>Empresa</h4>
                                 <ul>
-                                    <li><a href="#">Sobre</a></li>
-                                    <li><a href="#">Blog</a></li>
-                                    <li><a href="#">Carreiras</a></li>
+                                    <li><a href="Sobre.jsx">Sobre</a></li>
                                     <li><a href="#">Contato</a></li>
                                 </ul>
                             </div>
@@ -530,9 +516,7 @@ function Landing() {
                                 <h4>Suporte</h4>
                                 <ul>
                                     <li><Link to="/ajuda">Central de Ajuda</Link></li>
-                                    <li><a href="#">Guias</a></li>
                                     <li><a href="#">API Docs</a></li>
-                                    <li><a href="#">Status</a></li>
                                 </ul>
                             </div>
                             <div className="footer-column">
@@ -541,7 +525,6 @@ function Landing() {
                                     <li><a href="#">Privacidade</a></li>
                                     <li><a href="#">Termos</a></li>
                                     <li><a href="#">Cookies</a></li>
-                                    <li><a href="#">Licenças</a></li>
                                 </ul>
                             </div>
                         </div>

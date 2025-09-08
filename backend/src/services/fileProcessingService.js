@@ -6,7 +6,7 @@ const logger = require('../config/logger');
 class FileProcessingService {
     constructor() {
         this.limits = {
-            maxFileSize: 10 * 1024 * 1024, // 10MB
+            maxFileSize: 10 * 1024 * 1024, 
             maxTextLength: 100000,
             minTextLength: 50
         };
@@ -73,12 +73,10 @@ class FileProcessingService {
                     throw new Error(`Tipo de arquivo não suportado: ${mimetype}`);
             }
 
-            // Validar texto extraído
             if (!extractedText || extractedText.trim().length < this.limits.minTextLength) {
                 throw new Error(`Texto extraído é muito curto (mínimo ${this.limits.minTextLength} caracteres)`);
             }
 
-            // Limpar e processar texto
             const cleanedText = this.cleanText(extractedText);
             const wasOptimized = cleanedText.length > this.limits.maxTextLength;
             const finalText = wasOptimized 

@@ -14,7 +14,6 @@ const handleApiError = async (response) => {
     
     console.error("Erro da API:", errorData);
     
-    // Se o backend enviar um erro específico de campo, vamos usá-lo
     if (errorData.field && errorData.type === 'FIELD_ERROR') {
         throw errorData; 
     }
@@ -38,9 +37,7 @@ export const loginUser = async (credentials) => {
 
         const data = await response.json();
         
-        // CORREÇÃO: Usar o método correto do Supabase para definir a sessão
         if (data.session) {
-            // Definir a sessão no cliente Supabase
             await supabase.auth.setSession({
                 access_token: data.session.access_token,
                 refresh_token: data.session.refresh_token

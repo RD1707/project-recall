@@ -1,0 +1,143 @@
+.apidocs-main {
+    background-color: var(--color-surface);
+    padding: 4rem 0;
+}
+
+.apidocs-container {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.apidocs-sidebar {
+    position: sticky;
+    top: 100px; 
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.apidocs-sidebar h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.apidocs-sidebar ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.apidocs-sidebar a {
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-muted);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.apidocs-sidebar a:hover {
+    background-color: var(--color-background);
+    color: var(--color-dark-800);
+}
+
+.apidocs-content section {
+    padding-bottom: 3rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.apidocs-content section:last-child {
+    border-bottom: none;
+}
+
+.apidocs-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.apidocs-content h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.apidocs-content h4 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.apidocs-content p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.endpoint {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.method-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    color: white;
+    text-transform: uppercase;
+}
+.method-badge.get { background-color: #3b82f6; }
+.method-badge.post { background-color: #10b981; }
+.method-badge.put { background-color: #f59e0b; }
+.method-badge.delete { background-color: #ef4444; }
+
+.endpoint-path {
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--color-dark-800);
+    font-weight: 500;
+}
+
+.endpoint-body {
+    padding: 1.5rem;
+}
+
+.code-block {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.875rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 992px) {
+    .apidocs-container {
+        grid-template-columns: 1fr;
+    }
+    .apidocs-sidebar {
+        position: static;
+        height: auto;
+        margin-bottom: 2rem;
+    }
+}

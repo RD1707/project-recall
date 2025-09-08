@@ -6,10 +6,8 @@ const { YoutubeTranscript } = require('youtube-transcript');
 const { flashcardGenerationQueue, isRedisConnected } = require('../config/queue');
 const { processGenerationAndSave } = require('../services/generationService');
 
-// NOVA IMPORTAÇÃO: Serviço de processamento de arquivos
 const FileProcessingService = require('../services/fileProcessingService');
 
-// CONSTANTE NECESSÁRIA: Tipos de arquivo suportados
 const SUPPORTED_MIME_TYPES = {
     'text/plain': { extension: 'txt', category: 'text' },
     'text/markdown': { extension: 'md', category: 'text' },
@@ -174,13 +172,11 @@ const generateCardsForDeck = async (req, res) => {
     }
 };
 
-// FUNÇÃO CORRIGIDA: generateCardsFromFile
 const generateCardsFromFile = async (req, res) => {
     const { id: deckId } = req.params;
     const userId = req.user.id;
 
     try {
-        // Log para debug (remova depois que funcionar)
         console.log('DEBUG - req.body:', req.body);
         console.log('DEBUG - req.file:', req.file ? req.file.originalname : 'No file');
 
@@ -191,7 +187,6 @@ const generateCardsFromFile = async (req, res) => {
             });
         }
 
-        // Verificar se o tipo é suportado
         if (!SUPPORTED_MIME_TYPES[req.file.mimetype]) {
             const supportedTypes = Object.keys(SUPPORTED_MIME_TYPES)
                 .map(type => SUPPORTED_MIME_TYPES[type].extension.toUpperCase())
@@ -203,7 +198,6 @@ const generateCardsFromFile = async (req, res) => {
             });
         }
 
-        // Verificar acesso ao deck
         const { data: deck, error: deckError } = await supabase
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
@@ -214,7 +208,6 @@ const generateCardsFromFile = async (req, res) => {
             });
         }
 
-        // Extrair texto do arquivo usando o novo serviço
         let extractionResult;
         try {
             extractionResult = await FileProcessingService.extractText(req.file);
@@ -228,15 +221,12 @@ const generateCardsFromFile = async (req, res) => {
 
         const { text: textContent, originalLength, wasOptimized, processingInfo } = extractionResult;
 
-        // CORREÇÃO: Processar parâmetros manualmente (sem validação Zod problemática)
         const rawCount = req.body.count;
         const rawType = req.body.type;
 
-        // Converter e validar manualmente
         const count = rawCount ? parseInt(rawCount, 10) : 5;
         const type = rawType || 'Pergunta e Resposta';
 
-        // Validação básica
         if (count < 1 || count > 15) {
             return res.status(400).json({ 
                 message: 'Quantidade deve estar entre 1 e 15.', 
@@ -251,7 +241,6 @@ const generateCardsFromFile = async (req, res) => {
             });
         }
 
-        // Preparar dados para geração
         const jobData = {
             deckId,
             textContent,
@@ -265,7 +254,6 @@ const generateCardsFromFile = async (req, res) => {
             }
         };
 
-        // Log dos dados finais
         console.log('DEBUG - jobData preparado:', {
             deckId,
             textLength: textContent.length,
@@ -274,7 +262,6 @@ const generateCardsFromFile = async (req, res) => {
             filename: processingInfo.filename
         });
 
-        // Processar geração
         if (isRedisConnected) {
             await flashcardGenerationQueue.add('generate-file', jobData);
             
@@ -293,7 +280,6 @@ const generateCardsFromFile = async (req, res) => {
                 }
             });
         } else {
-            // Fallback para processamento síncrono
             const savedFlashcards = await processGenerationAndSave(jobData);
             res.status(201).json({ 
                 message: 'Flashcards gerados com sucesso!', 

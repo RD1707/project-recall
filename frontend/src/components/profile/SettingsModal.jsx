@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
-import './SettingsModal.css'; // Precisaremos criar este arquivo CSS
+import './SettingsModal.css'; 
 
 function SettingsModal({ isOpen, onClose }) {
   const [settings, setSettings] = useState({
@@ -34,7 +34,6 @@ function SettingsModal({ isOpen, onClose }) {
       }
     >
       <div className="settings-container">
-        {/* Seção de Aparência */}
         <div className="settings-section">
           <h4>Aparência</h4>
           <div className="setting-item">
@@ -56,7 +55,6 @@ function SettingsModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Seção de Sessão de Estudo */}
         <div className="settings-section">
           <h4>Sessão de Estudo</h4>
           <div className="setting-item">
@@ -73,7 +71,6 @@ function SettingsModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Seção de Notificações */}
         <div className="settings-section">
             <h4>Notificações</h4>
              <div className="setting-item">
