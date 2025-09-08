@@ -195,7 +195,6 @@ Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONT
 
 ---
 
-**Feito com ❤️ pela equipe Flashcards Inteligentes**
 
 ![Wave](https://raw.githubusercontent.com/mayhemantt/mayhemantt/Update/svg/Bottom.svg)
 
