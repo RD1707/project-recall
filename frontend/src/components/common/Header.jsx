@@ -12,7 +12,7 @@ function Header() {
     streak: 0,
     initial: '',
     email: 'carregando...',
-    fullNamAe: 'Usuário',
+    fullName: 'Usuário',
     avatar_url: null, // Novo estado para a URL do avatar
     bio: ''
   });
