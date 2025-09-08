@@ -1,3 +1,4 @@
+// frontend/src/api/profile.js
 import { supabase } from './supabaseClient';
 import toast from 'react-hot-toast';
 
@@ -69,7 +70,7 @@ export const updateProfile = async (profileData) => {
     }
 };
 
-// NOVA FUNÇÃO para upload do avatar
+// FUNÇÃO IMPLEMENTADA para upload do avatar
 export const uploadAvatar = async (file) => {
     try {
         const formData = new FormData();

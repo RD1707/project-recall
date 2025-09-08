@@ -1,3 +1,4 @@
+// backend/src/controllers/profileController.js
 const supabase = require('../config/supabaseClient');
 const logger = require('../config/logger');
 const { z } = require('zod');
@@ -106,7 +107,7 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// NOVA FUNÇÃO para upload do avatar
+// FUNÇÃO IMPLEMENTADA para upload do avatar
 const uploadAvatar = async (req, res) => {
     const userId = req.user.id;
 

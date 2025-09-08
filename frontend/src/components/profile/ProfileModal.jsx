@@ -1,3 +1,4 @@
+// frontend/src/components/profile/ProfileModal.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { updateProfile, uploadAvatar } from '../../api/profile'; 
