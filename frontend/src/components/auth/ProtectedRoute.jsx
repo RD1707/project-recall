@@ -11,51 +11,62 @@ function ProtectedRoute({ children }) {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
+      setSession(currentSession);
+
       if (currentSession) {
-        setSession(currentSession);
-        const { data: userProfile } = await supabase
+        const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
-          .select('username')
+          .select('username, full_name')
           .eq('id', currentSession.user.id)
           .single();
-        
-        setProfile(userProfile);
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Erro ao buscar perfil:', profileError);
+        } else {
+          setProfile(userProfile);
+        }
       }
+      
       setLoading(false);
     };
 
     checkUser();
-    
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-        if (!session) {
-            setProfile(null);
-        }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
     });
 
     return () => {
-        authListener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
-
   }, []);
 
   if (loading) {
-    return <div>Carregando sua sessão...</div>; 
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Carregando sua sessão...
+      </div>
+    );
   }
 
   if (!session) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (session && (!profile || !profile.username)) {
+  if (!profile || !profile.username) {
     if (location.pathname !== '/complete-profile') {
       return <Navigate to="/complete-profile" replace />;
     }
   }
 
-  if (session && profile?.username && location.pathname === '/complete-profile') {
-      return <Navigate to="/dashboard" replace />;
+  if (profile?.username && location.pathname === '/complete-profile') {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
