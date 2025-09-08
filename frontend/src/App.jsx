@@ -1,25 +1,25 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Landing from './src/pages/Landing';
-import Login from './src/pages/Login';
-import Register from './src/pages/Register';
-import Ajuda from './src/pages/Ajuda';
-import Sobre from './src/pages/Sobre';
-import Contato from './src/pages/Contato';
-import ApiDocs from './src/pages/ApiDocs';
-import Privacidade from './src/pages/Privacidade';
-import Termos from './src/pages/Termos';
-import SharedDeck from './src/pages/SharedDeck';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Ajuda from './pages/Ajuda';
+import Sobre from './pages/Sobre';
+import Contato from './pages/Contato';
+import ApiDocs from './pages/ApiDocs';
+import Privacidade from './pages/Privacidade';
+import Termos from './pages/Termos';
+import SharedDeck from './pages/SharedDeck';
 
-import Dashboard from './src/pages/Dashboard';
-import DeckDetail from './src/pages/DeckDetail';
-import StudySession from './src/pages/StudySession';
-import Progress from './src/pages/Progress';
-import CompleteProfile from './src/pages/CompleteProfile';
+import Dashboard from './pages/Dashboard';
+import DeckDetail from './pages/DeckDetail';
+import StudySession from './pages/StudySession';
+import Progress from './pages/Progress';
+import CompleteProfile from './pages/CompleteProfile';
 
-import ProtectedRoute from './src/components/auth/ProtectedRoute'; 
-import CookieBanner from './src/components/common/CookieBanner';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import CookieBanner from './components/common/CookieBanner';
 
 function App() {
   return (
@@ -36,7 +36,7 @@ function App() {
         <Route path="/api-docs" element={<ApiDocs />} />
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/termos" element={<Termos />} />
-        <Route path="/shared-deck/:shareableId" element={<SharedDeck />} /> 
+        <Route path="/shared-deck/:shareableId" element={<SharedDeck />} />
 
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
@@ -49,4 +49,3 @@ function App() {
 }
 
 export default App;
-
