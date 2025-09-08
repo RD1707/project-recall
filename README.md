@@ -5,9 +5,6 @@
 
 **Transforme qualquer conteúdo em flashcards inteligentes com o poder da Inteligência Artificial.**
 
-[![Demonstration](https://img.shields.io/badge/🎬_Demonstração-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/seu-video)
-[![Live Demo](https://img.shields.io/badge/🚀_Demo_Ao_Vivo-4CAF50?style=for-the-badge&logo=vercel&logoColor=white)](https://seu-projeto.vercel.app)
-
 </div>
 
 ---
@@ -40,15 +37,6 @@
 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-
-</div>
-
-### **IA & Machine Learning**
-<div align="center">
-
-![Cohere](https://img.shields.io/badge/Cohere-A435F0?style=for-the-badge&logo=cohere&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
 </div>
 
