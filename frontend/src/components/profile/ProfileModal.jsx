@@ -134,7 +134,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       setHasChanges(false);
       setActiveTab('general');
     }
-  }, [user, isOpen]);
+  }, [user?.id, isOpen]); // <-- CORREÇÃO APLICADA AQUI
 
   const handleChange = (e) => {
     const { id, value } = e.target;

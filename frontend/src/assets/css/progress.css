@@ -1,9 +1,22 @@
 /* ==========================================================================
-   PROGRESS PAGE - RECALL
+   PROGRESS PAGE - RECALL (VERSÃO 2.0 - ATUALIZADA)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. LAYOUT PRINCIPAL E CABEÇALHO DA PÁGINA
+   1. CORES E VARIÁVEIS ADICIONAIS
+   -------------------------------------------------------------------------- */
+
+:root {
+    --color-success-100: #d1fae5;
+    --color-success-500: #10b981;
+    --color-warning-100: #fef3c7;
+    --color-warning-500: #f59e0b;
+    --color-info-100: #dbeafe;
+    --color-info-500: #3b82f6;
+}
+
+/* --------------------------------------------------------------------------
+   2. LAYOUT PRINCIPAL E CABEÇALHO DA PÁGINA
    -------------------------------------------------------------------------- */
 
 .progress-main {
@@ -30,8 +43,59 @@
     margin: 0 auto;
 }
 
+/* NOVO: Layout de duas colunas para a seção principal */
+.progress-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-column {
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
 /* --------------------------------------------------------------------------
-   2. GRID DE ESTATÍSTICAS (StatsGrid)
+   3. COMPONENTE CARD CUSTOMIZADO
+   -------------------------------------------------------------------------- */
+
+.card-custom {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.card-header h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. GRID DE ESTATÍSTICAS (StatsGrid) - ESTILO ATUALIZADO
    -------------------------------------------------------------------------- */
 
 .stats-overview-grid {
@@ -50,11 +114,12 @@
     align-items: center;
     gap: 1rem;
     transition: var(--transition-fast);
+    box-shadow: var(--shadow-soft);
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-100);
 }
 
 .stat-icon-wrapper {
@@ -65,8 +130,8 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--border-radius-md);
-    background-color: var(--color-primary-100);
-    color: var(--color-primary-500);
+    background-color: var(--icon-color);
+    color: var(--icon-bg);
     font-size: 1.25rem;
 }
 
@@ -74,6 +139,7 @@
     font-size: 1.75rem;
     font-weight: 700;
     line-height: 1.2;
+    color: var(--color-dark-800);
 }
 
 .stat-label {
@@ -82,27 +148,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. GRÁFICO DE ATIVIDADE (ActivityChart)
+   5. GRÁFICO DE ATIVIDADE (ActivityChart)
    -------------------------------------------------------------------------- */
-
-.chart-card {
-    padding: 2rem;
-    margin-bottom: 3rem;
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.chart-header h2 {
-    font-size: var(--font-size-xl);
-    margin: 0;
-}
 
 .time-range-selector {
     display: flex;
@@ -136,24 +183,8 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. SEÇÃO DE INSIGHTS (InsightsSection)
+   6. SEÇÃO DE INSIGHTS (InsightsSection)
    -------------------------------------------------------------------------- */
-
-.insights-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-    align-items: start;
-}
-
-.insights-grid .card {
-    padding: 1.5rem;
-}
-
-.insights-grid h2 {
-    font-size: var(--font-size-xl);
-    margin-bottom: 1.5rem;
-}
 
 .difficult-decks-list {
     list-style: none;
@@ -169,6 +200,11 @@
     padding: 1rem;
     border-radius: var(--border-radius-sm);
     background-color: var(--color-background);
+    transition: background-color 0.2s ease;
+}
+
+.difficult-decks-list li:hover {
+    background-color: #f0f0f5;
 }
 
 .deck-name {
@@ -180,12 +216,84 @@
     color: var(--color-text-muted);
 }
 
-.ai-insight-content {
-    line-height: 1.7;
+/* --------------------------------------------------------------------------
+   7. NOVA SEÇÃO DE CONQUISTAS (Achievements)
+   -------------------------------------------------------------------------- */
+
+.achievements-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.achievement-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.achievement-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+    font-size: 1.1rem;
+}
+
+.achievement-icon.primary { background-color: var(--color-primary-100); color: var(--color-primary-500); }
+.achievement-icon.success { background-color: var(--color-success-100); color: var(--color-success-500); }
+.achievement-icon.warning { background-color: var(--color-warning-100); color: var(--color-warning-500); }
+.achievement-icon.info { background-color: var(--color-info-100); color: var(--color-info-500); }
+
+.achievement-details {
+    flex-grow: 1;
+}
+
+.achievement-details h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.achievement-details p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0.25rem 0 0.75rem 0;
+}
+
+.achievement-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.achievement-progress-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.progress-bar {
+    height: 6px;
+    background-color: var(--color-border);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--color-primary-500);
+    border-radius: 99px;
+    transition: width 0.5s ease;
 }
 
 /* --------------------------------------------------------------------------
-   5. ESTADOS DE CARREGAMENTO (SKELETONS)
+   8. ESTADOS DE CARREGAMENTO (SKELETONS)
    -------------------------------------------------------------------------- */
 
 .skeleton {
@@ -195,43 +303,27 @@
     border-radius: var(--border-radius-md);
 }
 
-.stat-card.skeleton {
-    height: 94px;
-    padding: 0;
-}
+.stat-card.skeleton { height: 94px; padding: 0; }
+.chart-container.skeleton { height: 350px; }
+.skeleton-list-item { height: 66px; margin-bottom: 1rem; border-radius: var(--border-radius-sm); }
 
-.chart-container.skeleton {
-    height: 350px;
-}
+@keyframes shimmer { to { background-position: -200% 0; } }
 
-.skeleton-list-item {
-    height: 66px;
-    margin-bottom: 1rem;
-    border-radius: var(--border-radius-sm);
-}
+/* --------------------------------------------------------------------------
+   9. RESPONSIVIDADE
+   -------------------------------------------------------------------------- */
 
-.skeleton-text-block .skeleton-line {
-    height: 16px;
-    margin-bottom: 1rem;
-    border-radius: var(--border-radius-sm);
-}
-
-.skeleton-text-block .skeleton-line.short {
-    width: 70%;
-}
-
-@keyframes shimmer {
-    to {
-        background-position: -200% 0;
+@media (max-width: 992px) {
+    .progress-layout {
+        grid-template-columns: 1fr;
+    }
+    .sidebar-column {
+        position: static;
     }
 }
 
-/* --------------------------------------------------------------------------
-   6. RESPONSIVIDADE
-   -------------------------------------------------------------------------- */
-
 @media (max-width: 768px) {
-    .chart-header {
+    .card-header {
         flex-direction: column;
         align-items: flex-start;
     }
