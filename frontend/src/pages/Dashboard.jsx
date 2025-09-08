@@ -256,7 +256,6 @@ function Dashboard() {
                     initialData={formInitialData}
                 />
             </Modal>
-            <Footer />
         </>
     );
 }
