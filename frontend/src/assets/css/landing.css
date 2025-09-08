@@ -189,6 +189,7 @@ section {
     max-width: 680px;
     margin-left: auto;
     margin-right: auto;
+    opacity: 0;
 }
 
 .section-tag {
@@ -241,7 +242,6 @@ section {
 .btn-primary:hover {
     background: var(--color-primary-dark);
     box-shadow: var(--shadow-md);
-    transform: scale(1.02);
 }
 
 .btn-secondary {
@@ -489,7 +489,6 @@ section {
 .btn-video:hover .play-icon {
     background: var(--color-primary);
     color: white;
-    transform: scale(1.1);
 }
 
 .btn-video:hover {
@@ -577,7 +576,6 @@ section {
 
 .floating-card:hover {
     box-shadow: var(--shadow-soft);
-    transform: scale(1.05);
 }
 
 .card-header {
@@ -697,7 +695,6 @@ section {
 .feature-card:hover {
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-soft);
-    transform: scale(1.02);
 }
 
 .feature-badge {
