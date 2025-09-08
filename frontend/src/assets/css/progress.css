@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PROGRESS PAGE - RECALL (VERSÃO 2.0 - ATUALIZADA)
+   PROGRESS PAGE - RECALL (VERSÃO 2.1 - COM TUTOR IA)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -43,7 +43,6 @@
     margin: 0 auto;
 }
 
-/* NOVO: Layout de duas colunas para a seção principal */
 .progress-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -95,7 +94,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   4. GRID DE ESTATÍSTICAS (StatsGrid) - ESTILO ATUALIZADO
+   4. GRID DE ESTATÍSTICAS (StatsGrid)
    -------------------------------------------------------------------------- */
 
 .stats-overview-grid {
@@ -118,6 +117,7 @@
 }
 
 .stat-card:hover {
+    transform: translateY(-4px);
     box-shadow: var(--shadow-md);
     border-color: var(--color-primary-100);
 }
@@ -186,6 +186,13 @@
    6. SEÇÃO DE INSIGHTS (InsightsSection)
    -------------------------------------------------------------------------- */
 
+.insights-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
 .difficult-decks-list {
     list-style: none;
     display: flex;
@@ -216,8 +223,14 @@
     color: var(--color-text-muted);
 }
 
+#ai-tutor-card .ai-insight-content {
+    line-height: 1.7;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
 /* --------------------------------------------------------------------------
-   7. NOVA SEÇÃO DE CONQUISTAS (Achievements)
+   7. SEÇÃO DE CONQUISTAS (Achievements)
    -------------------------------------------------------------------------- */
 
 .achievements-list {
@@ -306,6 +319,8 @@
 .stat-card.skeleton { height: 94px; padding: 0; }
 .chart-container.skeleton { height: 350px; }
 .skeleton-list-item { height: 66px; margin-bottom: 1rem; border-radius: var(--border-radius-sm); }
+.skeleton-text-block .skeleton-line { height: 16px; margin-bottom: 1rem; border-radius: var(--border-radius-sm); }
+.skeleton-text-block .skeleton-line.short { width: 70%; }
 
 @keyframes shimmer { to { background-position: -200% 0; } }
 
@@ -314,7 +329,7 @@
    -------------------------------------------------------------------------- */
 
 @media (max-width: 992px) {
-    .progress-layout {
+    .progress-layout, .insights-grid {
         grid-template-columns: 1fr;
     }
     .sidebar-column {
