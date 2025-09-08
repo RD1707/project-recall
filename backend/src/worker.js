@@ -7,7 +7,6 @@ const { connection, isRedisConnected } = require('./config/queue');
 
 const queueName = 'flashcardGeneration';
 
-// Só inicializar o worker se houver conexão Redis
 if (!connection) {
   logger.warn('⚠️  Redis não está disponível. Worker não será iniciado.');
   process.exit(0);

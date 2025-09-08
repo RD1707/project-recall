@@ -50,9 +50,6 @@ function Login() {
                 email: formData.email,
                 password: formData.password,
             });
-
-            // Após o login bem-sucedido, apenas redirecionar
-            // O ProtectedRoute cuidará de verificar o perfil e redirecionar adequadamente
             toast.success('Login bem-sucedido!');
             navigate('/dashboard');
 

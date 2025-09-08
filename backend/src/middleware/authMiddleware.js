@@ -10,14 +10,12 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    // Verificar token JWT do Supabase
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
       return res.status(403).json({ error: 'Token inválido ou expirado.' });
     }
 
-    // Adicionar informações do usuário à requisição
     req.user = user;
     next();
   } catch (error) {

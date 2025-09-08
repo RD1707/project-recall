@@ -3,7 +3,6 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
-// Importação das rotas
 const authRoutes = require('./src/routes/authRoutes');
 const deckRoutes = require('./src/routes/deckRoutes');
 const flashcardRoutes = require('./src/routes/flashcardRoutes');
@@ -14,19 +13,16 @@ const shareRoutes = require('./src/routes/shareRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middlewares essenciais
 app.use(cors());
 app.use(express.json());
 
-// --- ROTAS DA API (sem o prefixo /api) ---
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/flashcards', flashcardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api', shareRoutes); // Esta rota lida com /api/shared/:id
+app.use('/api', shareRoutes); 
 
-// --- SERVIR O FRONTEND (PARA PRODUÇÃO) ---
 const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
 app.use(express.static(frontendDistPath));
 
@@ -34,7 +30,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-// Inicia o servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

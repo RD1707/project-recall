@@ -6,6 +6,7 @@ import App from './App.jsx';
 import './assets/css/base.css';
 import './assets/css/header.css'; 
 import './assets/css/profile-modal.css';
+import './assets/css/cookie-banner.css'; 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

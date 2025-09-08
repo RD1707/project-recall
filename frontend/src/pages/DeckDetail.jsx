@@ -196,7 +196,7 @@ function DeckDetail() {
                 setFlashcards(prev => [...prev, resultCard]);
             }
             closeModal();
-        } catch (err) { /* Erro já tratado pelo toast.promise */ }
+        } catch (err) {}
     };
     
     const handleDeleteCard = async (cardId) => {
@@ -208,7 +208,7 @@ function DeckDetail() {
                 error: 'Falha ao excluir.',
             });
             setFlashcards(prev => prev.filter(card => card.id !== cardId));
-        } catch (err) { /* Erro já tratado pelo toast.promise */ }
+        } catch (err) {}
     };
 
     const handleShare = async () => {
@@ -222,7 +222,7 @@ function DeckDetail() {
                 setShareLink(result.shareableLink);
                 openModal('share');
             }
-        } catch (err) { /* Erro já tratado pelo toast.promise */ }
+        } catch (err) {}
     };
 
     const copyToClipboard = () => {

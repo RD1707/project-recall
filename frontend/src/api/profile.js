@@ -1,4 +1,3 @@
-// frontend/src/api/profile.js
 import { supabase } from './supabaseClient';
 import toast from 'react-hot-toast';
 
@@ -25,7 +24,7 @@ export const fetchProfile = async () => {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('username, full_name, points, current_streak, bio, avatar_url') // ← Adicionado avatar_url
+      .select('username, full_name, points, current_streak, bio, avatar_url') 
       .eq('id', user.id)
       .single();
 
@@ -40,7 +39,7 @@ export const fetchProfile = async () => {
       points: profile?.points || 0,
       current_streak: profile?.current_streak || 0,
       bio: profile?.bio || '',
-      avatar_url: profile?.avatar_url || null, // ← Adicionado avatar_url
+      avatar_url: profile?.avatar_url || null, 
     };
 
   } catch (error) {
@@ -65,12 +64,10 @@ export const updateProfile = async (profileData) => {
         }
         return await response.json();
     } catch (error) {
-        // Erro já será um objeto Error, então podemos apenas relançá-lo
         throw handleApiError(error, 'updateProfile');
     }
 };
 
-// FUNÇÃO IMPLEMENTADA para upload do avatar
 export const uploadAvatar = async (file) => {
     try {
         const formData = new FormData();

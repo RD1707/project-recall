@@ -4,12 +4,10 @@ const logger = require('../config/logger');
 const signup = async (req, res) => {
   const { email, password, full_name, username } = req.body;
 
-  // Validações
   if (!email || !password || !full_name || !username) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios: Email, Senha, Nome Completo e Nome de Usuário.' });
   }
 
-  // Validar formato do username (apenas letras, números e underscore)
   const usernameRegex = /^[a-zA-Z0-9_]+$/;
   if (!usernameRegex.test(username)) {
     return res.status(400).json({ error: 'Nome de usuário inválido. Use apenas letras, números e underscore.' });
@@ -22,7 +20,6 @@ const signup = async (req, res) => {
   try {
     console.log("Dados recebidos no backend:", { email, full_name, username });
     
-    // 1. Verificar se o username já existe
     console.log("Verificando se username já existe...");
     const { data: existingUser, error: checkError } = await supabase
       .from('profiles')
@@ -41,7 +38,6 @@ const signup = async (req, res) => {
     
     console.log("Username disponível, criando usuário no Supabase Auth...");
     
-    // 2. Criar usuário no Supabase Auth (sem metadata para evitar conflitos)
     const { data, error } = await supabase.auth.signUp({ 
       email, 
       password
@@ -50,7 +46,6 @@ const signup = async (req, res) => {
     if (error) {
       console.error("Erro do Supabase Auth:", error);
       
-      // Verificar se é erro de email duplicado
       if (error.message && (error.message.includes('already registered') || error.message.includes('already exists') || error.message.includes('email'))) {
         return res.status(400).json({ 
           error: 'Este e-mail já está cadastrado.',
@@ -62,12 +57,10 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
     
-    // IMPORTANTE: O Supabase pode retornar sucesso mesmo sem criar o usuário em alguns casos
     if (!data.user) {
       return res.status(400).json({ error: 'Falha ao criar usuário. Verifique se o email já está cadastrado.' });
     }
 
-    // 3. Verificar se o perfil já existe (pode ter sido criado automaticamente)
     console.log("Verificando se perfil já existe para user.id:", data.user.id);
     
     const { data: existingProfile, error: checkProfileError } = await supabase
@@ -81,7 +74,6 @@ const signup = async (req, res) => {
     
     if (existingProfile) {
       console.log("Perfil já existe, atualizando dados:", existingProfile);
-      // Perfil já existe, vamos atualizá-lo com os dados corretos
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -104,7 +96,6 @@ const signup = async (req, res) => {
     } else {
       console.log("Perfil não existe, criando novo...");
       
-      // Verificar novamente se o perfil foi criado entre a verificação e agora
       console.log("Verificando novamente se perfil foi criado automaticamente...");
       const { data: recheckProfile, error: recheckError } = await supabase
         .from('profiles')
@@ -114,7 +105,6 @@ const signup = async (req, res) => {
       
       if (recheckProfile) {
         console.log("Perfil foi criado automaticamente durante o processo:", recheckProfile);
-        // Perfil foi criado automaticamente, vamos atualizá-lo
         const { data: updatedProfile, error: updateError } = await supabase
           .from('profiles')
           .update({
@@ -135,7 +125,6 @@ const signup = async (req, res) => {
           console.log("Perfil atualizado com sucesso:", savedProfile);
         }
       } else {
-        // Garantir que os campos não estão vazios para satisfazer as constraints
         const profileData = {
           id: data.user.id,
           full_name: full_name.trim() || 'Usuário Recall',
@@ -166,16 +155,12 @@ const signup = async (req, res) => {
     if (profileError) {
       console.error("Erro ao criar perfil:", profileError);
       
-      // Se falhar ao criar o perfil, tentar deletar o usuário
-      // Nota: Isso requer permissões de admin. Se não tiver, registre o erro
       try {
-        // Este método pode não funcionar sem service_role key
         await supabase.auth.admin.deleteUser(data.user.id);
       } catch (deleteError) {
         console.error("Não foi possível reverter a criação do usuário:", deleteError);
       }
 
-      // Verificar se é erro de constraint
       if (profileError.code === '23505') {
         if (profileError.message && profileError.message.includes('username')) {
           return res.status(400).json({ 
@@ -242,7 +227,6 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Falha ao criar sessão.' });
     }
 
-    // Buscar dados do perfil incluindo username
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('username, full_name, points, current_streak')
@@ -251,7 +235,6 @@ const login = async (req, res) => {
 
     if (profileError) {
       console.error("Erro ao buscar perfil:", profileError);
-      // Continuar mesmo sem o perfil, mas avisar
     }
 
     res.status(200).json({ 
@@ -282,7 +265,6 @@ const checkGoogleProfile = async (req, res) => {
   try {
     console.log("Verificando perfil Google para user:", userId);
 
-    // Verificar se o perfil já existe
     const { data: existingProfile, error: checkError } = await supabase
       .from('profiles')
       .select('*')
@@ -295,7 +277,6 @@ const checkGoogleProfile = async (req, res) => {
     }
 
     if (existingProfile && existingProfile.username && existingProfile.full_name) {
-      // Perfil já existe e está completo
       console.log("Perfil Google já existe e está completo:", existingProfile);
       return res.status(200).json({ 
         hasProfile: true,
@@ -303,7 +284,6 @@ const checkGoogleProfile = async (req, res) => {
       });
     }
 
-    // Perfil não existe ou está incompleto
     console.log("Perfil Google não existe ou está incompleto");
     return res.status(200).json({ 
       hasProfile: false,
@@ -320,12 +300,10 @@ const checkGoogleProfile = async (req, res) => {
 const completeGoogleProfile = async (req, res) => {
   const { userId, fullName, username, email, avatarUrl } = req.body;
 
-  // Validações
   if (!userId || !fullName || !username || !email) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
-  // Validar formato do username
   const usernameRegex = /^[a-zA-Z0-9_]+$/;
   if (!usernameRegex.test(username)) {
     return res.status(400).json({ 
@@ -346,12 +324,11 @@ const completeGoogleProfile = async (req, res) => {
   try {
     console.log("Completando perfil Google para user:", userId);
 
-    // 1. Verificar se o username já existe
     const { data: existingUser, error: checkError } = await supabase
       .from('profiles')
       .select('username')
       .eq('username', username)
-      .neq('id', userId) // Excluir o próprio usuário
+      .neq('id', userId) 
       .single();
 
     if (existingUser) {
@@ -362,7 +339,6 @@ const completeGoogleProfile = async (req, res) => {
       });
     }
 
-    // 2. Verificar se o perfil já existe
     const { data: existingProfile, error: profileCheckError } = await supabase
       .from('profiles')
       .select('*')
@@ -372,7 +348,6 @@ const completeGoogleProfile = async (req, res) => {
     let savedProfile;
 
     if (existingProfile) {
-      // Atualizar perfil existente
       console.log("Atualizando perfil Google existente");
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
@@ -400,7 +375,6 @@ const completeGoogleProfile = async (req, res) => {
 
       savedProfile = updatedProfile;
     } else {
-      // Criar novo perfil
       console.log("Criando novo perfil Google");
       const { data: newProfile, error: insertError } = await supabase
         .from('profiles')

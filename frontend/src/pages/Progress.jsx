@@ -9,8 +9,6 @@ import '../assets/css/progress.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// --- COMPONENTES ATUALIZADOS E NOVOS ---
-
 const StatCard = ({ label, value, icon, loading, color }) => {
     if (loading) {
         return <div className="stat-card skeleton"></div>;
@@ -128,7 +126,6 @@ const InsightsSection = () => {
 
     return (
         <section className="insights-grid">
-            {/* Card 1: Difficult Decks */}
             <div className="card-custom" id="difficult-decks-card">
                 <div className="card-header">
                      <h2>Baralhos a Focar</h2>
@@ -153,7 +150,6 @@ const InsightsSection = () => {
                     </ul>
                 )}
             </div>
-            {/* Card 2: AI Tutor */}
             <div className="card-custom" id="ai-tutor-card">
                 <div className="card-header">
                     <h2>Seu Tutor IA</h2>
@@ -207,8 +203,6 @@ const Achievements = () => {
         </div>
     );
 };
-
-// --- COMPONENTE PRINCIPAL ATUALIZADO ---
 
 function Progress() {
     return (
