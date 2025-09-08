@@ -252,6 +252,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
           />
           <div className="user-info">
             <h3>{formData.fullName || 'Usuário'}</h3>
+            {user?.username && <p className="user-username">@{user.username}</p>}
             <p className="user-email">{user?.email}</p>
           </div>
         </div>
