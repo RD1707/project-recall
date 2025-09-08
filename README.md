@@ -52,23 +52,6 @@
 
 ---
 
-## 📊 Estatísticas do Projeto
-
-<div align="center">
-
-![GitHub Stars](https://img.shields.io/github/stars/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=yellow)
-![GitHub Forks](https://img.shields.io/github/forks/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=blue)
-![GitHub Issues](https://img.shields.io/github/issues/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=red)
-![GitHub Last Commit](https://img.shields.io/github/last-commit/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=git&color=green)
-
-![GitHub License](https://img.shields.io/github/license/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=open-source-initiative&color=orange)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=purple)
-![GitHub Contributors](https://img.shields.io/github/contributors/SEU_USUARIO/SEU_REPOSITORIO?style=for-the-badge&logo=github&color=brightgreen)
-
-</div>
-
----
-
 ## 👥 Nossa Equipe
 
 <div align="center">
