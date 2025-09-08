@@ -251,10 +251,9 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
             className="sr-only"
           />
           <div className="user-info">
-            <h3>{formData.fullName || 'Usuário'}</h3>
-            {user?.username && <p className="user-username">@{user.username}</p>}
-            <p className="user-email">{user?.email}</p>
-          </div>
+          <h3>{user?.username || 'Usuário'}</h3>
+          <p className="user-username">{user?.username}</p>
+        </div>
         </div>
 
         <div className="profile-tabs">
