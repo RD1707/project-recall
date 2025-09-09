@@ -225,10 +225,25 @@
     font-size: 1.1rem;
 }
 
-.achievement-icon.primary { background-color: var(--color-primary-100); color: var(--color-primary-500); }
-.achievement-icon.success { background-color: var(--color-success-100); color: var(--color-success-500); }
-.achievement-icon.warning { background-color: var(--color-warning-100); color: var(--color-warning-500); }
-.achievement-icon.info { background-color: var(--color-info-100); color: var(--color-info-500); }
+.achievement-icon.primary {
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-500);
+}
+
+.achievement-icon.success {
+    background-color: var(--color-success-100);
+    color: var(--color-success-500);
+}
+
+.achievement-icon.warning {
+    background-color: var(--color-warning-100);
+    color: var(--color-warning-500);
+}
+
+.achievement-icon.info {
+    background-color: var(--color-info-100);
+    color: var(--color-info-500);
+}
 
 .achievement-details {
     flex-grow: 1;
@@ -280,18 +295,44 @@
     border-radius: var(--border-radius-md);
 }
 
-.stat-card.skeleton { height: 94px; padding: 0; }
-.chart-container.skeleton { height: 350px; }
-.skeleton-list-item { height: 66px; margin-bottom: 1rem; border-radius: var(--border-radius-sm); }
-.skeleton-text-block .skeleton-line { height: 16px; margin-bottom: 1rem; border-radius: var(--border-radius-sm); }
-.skeleton-text-block .skeleton-line.short { width: 70%; }
+.stat-card.skeleton {
+    height: 94px;
+    padding: 0;
+}
 
-@keyframes shimmer { to { background-position: -200% 0; } }
+.chart-container.skeleton {
+    height: 350px;
+}
+
+.skeleton-list-item {
+    height: 66px;
+    margin-bottom: 1rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.skeleton-text-block .skeleton-line {
+    height: 16px;
+    margin-bottom: 1rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.skeleton-text-block .skeleton-line.short {
+    width: 70%;
+}
+
+@keyframes shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
 
 @media (max-width: 992px) {
-    .progress-layout, .insights-grid {
+
+    .progress-layout,
+    .insights-grid {
         grid-template-columns: 1fr;
     }
+
     .sidebar-column {
         position: static;
     }

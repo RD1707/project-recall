@@ -147,8 +147,8 @@ function Landing() {
                                 <span className="text-gradient"> Inteligência Artificial</span>
                             </h1>
                             <p className="hero-subtitle">
-                                Transforme PDFs, vídeos e anotações em flashcards otimizados. 
-                                Nosso algoritmo de repetição espaçada garante que você nunca 
+                                Transforme PDFs, vídeos e anotações em flashcards otimizados.
+                                Nosso algoritmo de repetição espaçada garante que você nunca
                                 esqueça o que aprendeu.
                             </p>
                             <div className="hero-actions">
@@ -205,7 +205,7 @@ function Landing() {
                             <span className="section-tag">RECURSOS</span>
                             <h2>Tudo que você precisa para dominar qualquer assunto</h2>
                             <p className="section-subtitle">
-                                Combinamos neurociência e tecnologia para criar a plataforma 
+                                Combinamos neurociência e tecnologia para criar a plataforma
                                 de estudos mais eficiente do mercado.
                             </p>
                         </div>
@@ -285,20 +285,20 @@ function Landing() {
                         </div>
                         <div className="tabs">
                             <div className="tab-buttons">
-                                <button 
-                                    className={activeTab === 'students' ? 'active' : ''} 
+                                <button
+                                    className={activeTab === 'students' ? 'active' : ''}
                                     onClick={() => setActiveTab('students')}
                                 >
                                     <i className="fas fa-user-graduate"></i> Estudantes
                                 </button>
-                                <button 
-                                    className={activeTab === 'professionals' ? 'active' : ''} 
+                                <button
+                                    className={activeTab === 'professionals' ? 'active' : ''}
                                     onClick={() => setActiveTab('professionals')}
                                 >
                                     <i className="fas fa-briefcase"></i> Profissionais
                                 </button>
-                                <button 
-                                    className={activeTab === 'languages' ? 'active' : ''} 
+                                <button
+                                    className={activeTab === 'languages' ? 'active' : ''}
                                     onClick={() => setActiveTab('languages')}
                                 >
                                     <i className="fas fa-language"></i> Idiomas
@@ -309,8 +309,8 @@ function Landing() {
                                     <div className="tab-pane">
                                         <h3>Aprovação garantida em vestibulares e concursos</h3>
                                         <p>
-                                            Domine matérias complexas com flashcards que cobrem exatamente 
-                                            o que cai nas provas. Nossos usuários relatam aumento médio de 
+                                            Domine matérias complexas com flashcards que cobrem exatamente
+                                            o que cai nas provas. Nossos usuários relatam aumento médio de
                                             40% nas notas após 30 dias de uso.
                                         </p>
                                         <ul className="check-list">
@@ -324,8 +324,8 @@ function Landing() {
                                     <div className="tab-pane">
                                         <h3>Mantenha-se atualizado e acelere sua carreira</h3>
                                         <p>
-                                            Aprenda novas habilidades, certificações e conceitos técnicos 
-                                            em tempo recorde. Ideal para quem precisa absorver muito 
+                                            Aprenda novas habilidades, certificações e conceitos técnicos
+                                            em tempo recorde. Ideal para quem precisa absorver muito
                                             conteúdo rapidamente.
                                         </p>
                                         <ul className="check-list">
@@ -339,8 +339,8 @@ function Landing() {
                                     <div className="tab-pane">
                                         <h3>Fluência mais rápida com vocabulário sólido</h3>
                                         <p>
-                                            Memorize vocabulário, gramática e expressões idiomáticas 
-                                            de forma natural. Nosso sistema adapta-se ao seu nível e 
+                                            Memorize vocabulário, gramática e expressões idiomáticas
+                                            de forma natural. Nosso sistema adapta-se ao seu nível e
                                             velocidade de aprendizado.
                                         </p>
                                         <ul className="check-list">
@@ -508,23 +508,22 @@ function Landing() {
                             <div className="footer-column">
                                 <h4>Empresa</h4>
                                 <ul>
-                                    <li><a href="Sobre.jsx">Sobre</a></li>
-                                    <li><a href="#">Contato</a></li>
+                                    <li><Link to="/sobre">Sobre</Link></li>
+                                    <li><Link to="/contato">Contato</Link></li>
                                 </ul>
                             </div>
                             <div className="footer-column">
                                 <h4>Suporte</h4>
                                 <ul>
                                     <li><Link to="/ajuda">Central de Ajuda</Link></li>
-                                    <li><a href="#">API Docs</a></li>
+                                    <li><Link to="/api-docs">API Docs</Link></li>
                                 </ul>
                             </div>
                             <div className="footer-column">
                                 <h4>Legal</h4>
                                 <ul>
-                                    <li><a href="#">Privacidade</a></li>
-                                    <li><a href="#">Termos</a></li>
-                                    <li><a href="#">Cookies</a></li>
+                                    <li><Link to="/privacidade">Privacidade</Link></li>
+                                    <li><Link to="/termos">Termos</Link></li>
                                 </ul>
                             </div>
                         </div>

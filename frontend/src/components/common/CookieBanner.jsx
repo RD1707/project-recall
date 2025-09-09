@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const PreferencesModal = ({ onClose, onSave }) => {
     const [preferences, setPreferences] = useState({
@@ -117,14 +118,18 @@ function CookieBanner() {
     <>
         <div className="cookie-banner">
           <div className="cookie-content">
-            <div className="cookie-icon">🍪</div>
+            <div className="cookie-icon">
+                <i className="fas fa-cookie-bite"></i>
+            </div>
             <div className="cookie-text">
-              <h3>Nós usamos cookies</h3>
-              <p>Utilizamos cookies para otimizar sua experiência em nosso site. Você pode personalizar suas preferências.</p>
+              <h3>Sua privacidade é importante</h3>
+              <p>
+                Utilizamos cookies para otimizar sua experiência e analisar o tráfego do site. 
+                Saiba mais em nossa <Link to="/privacidade">Política de Privacidade</Link>.
+              </p>
             </div>
             <div className="cookie-actions">
               <button className="btn btn-secondary" onClick={() => setIsModalOpen(true)}>Personalizar</button>
-              <button className="btn btn-secondary" onClick={handleRejectAll}>Rejeitar Todos</button>
               <button className="btn btn-primary" onClick={handleAcceptAll}>Aceitar Todos</button>
             </div>
           </div>
