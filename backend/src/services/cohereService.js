@@ -117,14 +117,15 @@ const getChatResponse = async (question, answer, chatHistory) => {
         Responda às perguntas do aluno de forma clara, concisa e didática, mantendo-se sempre dentro do contexto do flashcard. Não desvie do assunto.
     `;
 
-    const userMessage = chatHistory.pop(); 
+    const userMessage = chatHistory[chatHistory.length - 1];
+    const historyForApi = chatHistory.slice(0, chatHistory.length - 1);
 
     try {
         const response = await cohere.chat({
             model: 'command-r',
             preamble: preamble,
-            chatHistory: chatHistory, 
-            message: userMessage.message, 
+            chatHistory: historyForApi,      
+            message: userMessage.message,    
             temperature: 0.5,
         });
 
