@@ -5,8 +5,8 @@ const pdf = require('pdf-parse');
 const { YoutubeTranscript } = require('youtube-transcript');
 const { flashcardGenerationQueue, isRedisConnected } = require('../config/queue');
 const { processGenerationAndSave } = require('../services/generationService');
-
 const FileProcessingService = require('../services/fileProcessingService');
+const { updateAchievementProgress } = require('../services/achievementService');
 
 const SUPPORTED_MIME_TYPES = {
     'text/plain': { extension: 'txt', category: 'text' },
@@ -29,9 +29,10 @@ const deckSchema = z.object({
 });
 
 const generateSchema = z.object({
-    textContent: z.string().min(1, 'O conteúdo de texto é obrigatório.'),
+    textContent: z.string().min(50, 'O conteúdo de texto precisa ter pelo menos 50 caracteres.'),
     count: z.coerce.number().int().min(1).max(15),
-    type: z.enum(['Pergunta e Resposta', 'Múltipla Escolha'])
+    type: z.enum(['Pergunta e Resposta', 'Múltipla Escolha']),
+    difficulty: z.enum(['facil', 'medio', 'dificil']) 
 });
 
 const getDecks = async (req, res) => {
@@ -72,6 +73,24 @@ const createDeck = async (req, res) => {
       .single();
 
     if (error) throw error;
+    
+    try {
+        const { count, error: countError } = await supabase
+            .from('decks')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+        
+        if (countError) throw countError;
+
+        updateAchievementProgress(userId, 'decks_created_total', count);
+
+        if (count === 1) {
+            updateAchievementProgress(userId, 'decks_created', 1);
+        }
+    } catch (achievementError) {
+        logger.error(`Falha ao atualizar conquistas para o usuário ${userId} após criar baralho:`, achievementError);
+    }
+
     res.status(201).json({ message: 'Baralho criado com sucesso!', deck: data });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -145,8 +164,8 @@ const generateCardsForDeck = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        const { textContent, count, type } = generateSchema.parse(req.body);
-        const jobData = { deckId, textContent, count, type };
+        const { textContent, count, type, difficulty } = generateSchema.parse(req.body);
+        const jobData = { deckId, textContent, count, type, difficulty };
 
         const { data: deck, error: deckError } = await supabase
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
@@ -221,31 +240,16 @@ const generateCardsFromFile = async (req, res) => {
 
         const { text: textContent, originalLength, wasOptimized, processingInfo } = extractionResult;
 
-        const rawCount = req.body.count;
-        const rawType = req.body.type;
-
-        const count = rawCount ? parseInt(rawCount, 10) : 5;
-        const type = rawType || 'Pergunta e Resposta';
-
-        if (count < 1 || count > 15) {
-            return res.status(400).json({ 
-                message: 'Quantidade deve estar entre 1 e 15.', 
-                code: 'VALIDATION_ERROR' 
-            });
-        }
-
-        if (!['Pergunta e Resposta', 'Múltipla Escolha'].includes(type)) {
-            return res.status(400).json({ 
-                message: 'Tipo deve ser "Pergunta e Resposta" ou "Múltipla Escolha".', 
-                code: 'VALIDATION_ERROR' 
-            });
-        }
+        const { count, type, difficulty } = generateSchema
+            .pick({ count: true, type: true, difficulty: true })
+            .parse(req.body);
 
         const jobData = {
             deckId,
             textContent,
             count,
             type,
+            difficulty,
             fileInfo: {
                 ...processingInfo,
                 originalLength,
@@ -253,14 +257,6 @@ const generateCardsFromFile = async (req, res) => {
                 category: SUPPORTED_MIME_TYPES[req.file.mimetype].category
             }
         };
-
-        console.log('DEBUG - jobData preparado:', {
-            deckId,
-            textLength: textContent.length,
-            count,
-            type,
-            filename: processingInfo.filename
-        });
 
         if (isRedisConnected) {
             await flashcardGenerationQueue.add('generate-file', jobData);
@@ -273,11 +269,6 @@ const generateCardsFromFile = async (req, res) => {
                 processing: true, 
                 message: responseMessage,
                 fileInfo: jobData.fileInfo,
-                textStats: {
-                    extractedLength: originalLength,
-                    finalLength: textContent.length,
-                    wasOptimized
-                }
             });
         } else {
             const savedFlashcards = await processGenerationAndSave(jobData);
@@ -285,15 +276,13 @@ const generateCardsFromFile = async (req, res) => {
                 message: 'Flashcards gerados com sucesso!', 
                 flashcards: savedFlashcards,
                 fileInfo: jobData.fileInfo,
-                textStats: {
-                    extractedLength: originalLength,
-                    finalLength: textContent.length,
-                    wasOptimized
-                }
             });
         }
 
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: error.errors[0].message, code: 'VALIDATION_ERROR' });
+        }
         console.error('ERRO COMPLETO na generateCardsFromFile:', error);
         logger.error(`Erro na geração via arquivo: ${error.message}`);
         res.status(500).json({ 
@@ -308,7 +297,7 @@ const generateCardsFromYouTube = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        const { youtubeUrl, count, type } = generateSchema.omit({ textContent: true })
+        const { youtubeUrl, count, type, difficulty } = generateSchema.omit({ textContent: true })
             .extend({ youtubeUrl: z.string().url() })
             .parse(req.body);
 
@@ -337,7 +326,7 @@ const generateCardsFromYouTube = async (req, res) => {
             });
         }
 
-        const jobData = { deckId, textContent: transcript, count, type, source: 'youtube', sourceUrl: youtubeUrl };
+        const jobData = { deckId, textContent: transcript, count, type, difficulty, source: 'youtube', sourceUrl: youtubeUrl };
 
         if (isRedisConnected) {
             await flashcardGenerationQueue.add('generate-youtube', jobData);

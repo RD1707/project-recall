@@ -2,9 +2,10 @@ const supabase = require('../config/supabaseClient');
 const { generateFlashcardsFromText } = require('./cohereService');
 const logger = require('../config/logger');
 
-async function processGenerationAndSave({ deckId, textContent, count, type }) {
+async function processGenerationAndSave({ deckId, textContent, count, type, difficulty }) {
   try {
-    logger.info(`Iniciando geração de IA para o baralho ${deckId}`);
+    logger.info(`Iniciando geração de IA para o baralho ${deckId} (Tipo: ${type}, Dificuldade: ${difficulty})`);
+    
     const generatedFlashcards = await generateFlashcardsFromText(textContent, count, type);
 
     if (!generatedFlashcards || generatedFlashcards.length === 0) {

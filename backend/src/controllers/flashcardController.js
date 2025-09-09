@@ -2,7 +2,9 @@ const supabase = require('../config/supabaseClient');
 const { calculateSm2 } = require('../services/srsService');
 const { z } = require('zod');
 const logger = require('../config/logger'); 
-const { getExplanationForFlashcard } = require('../services/cohereService');
+const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService'); 
+const { updateAchievementProgress } = require('../services/achievementService');
+
 
 const flashcardSchema = z.object({
     question: z.string().min(1, 'A pergunta é obrigatória.'),
@@ -223,6 +225,31 @@ const reviewFlashcard = async (req, res) => {
                         last_studied_at: new Date().toISOString()
                     })
                     .eq('id', userId);
+                
+                try {
+                    updateAchievementProgress(userId, 'streak_days', newStreak);
+
+                    const { count: totalReviews } = await supabase
+                        .from('review_history')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('user_id', userId);
+                    if (totalReviews !== null) {
+                        updateAchievementProgress(userId, 'reviews_total', totalReviews);
+                    }
+
+                    const { count: masteredCards } = await supabase
+                        .from('flashcards')
+                        .select('id, decks!inner(user_id)', { count: 'exact', head: true })
+                        .eq('decks.user_id', userId)
+                        .gt('interval', 21);
+                    if (masteredCards !== null) {
+                        updateAchievementProgress(userId, 'cards_mastered', masteredCards);
+                    }
+
+                } catch (achievementError) {
+                     logger.error(`Falha ao atualizar conquistas para o usuário ${userId} após revisão:`, achievementError);
+                }
+
 
             } catch (gamificationError) {
                 console.error('Erro na lógica de gamificação:', gamificationError);

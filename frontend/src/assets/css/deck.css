@@ -478,6 +478,40 @@
     padding: 1.25rem 1.5rem;
 }
 
+.flashcard-options {
+    list-style: none;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.option-item i {
+    font-size: 0.9rem;
+}
+
+.option-item.correct {
+    border-color: #d1fae5; 
+    background-color: #f0fdf4; 
+    color: #059669; 
+    font-weight: 500;
+}
+
+.option-item.correct i {
+    color: #10b981; 
+}
+
 .modal form .modal-footer {
     padding-top: 0.5rem;
 }

@@ -4,6 +4,9 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Header from '../components/common/Header';
 import { fetchAnalyticsSummary, fetchReviewsOverTime, fetchPerformanceInsights } from '../api/analytics';
+// --- NOSSA NOVA IMPORTAÇÃO ---
+import { fetchAchievements } from '../api/achievements';
+
 
 import '../assets/css/progress.css';
 
@@ -58,6 +61,7 @@ const ActivityChart = () => {
 
     useEffect(() => {
         setStatus('loading');
+        // A API de analytics foi atualizada para usar RPC, então o fetch foi ajustado
         fetchReviewsOverTime(timeRange)
             .then(reviewsData => {
                 if (!reviewsData || reviewsData.length === 0) {
@@ -170,39 +174,76 @@ const InsightsSection = () => {
     );
 };
 
+// --- COMPONENTE DE CONQUISTAS ATUALIZADO ---
+
 const Achievements = () => {
-    const achievements = [
-        { icon: 'fa-fire', title: 'Estudante Dedicado', description: 'Mantenha uma sequência de 7 dias.', progress: 5, total: 7, color: 'warning' },
-        { icon: 'fa-book-reader', title: 'Leitor Voraz', description: 'Revise 100 flashcards.', progress: 80, total: 100, color: 'info' },
-        { icon: 'fa-brain', title: 'Mestre do Saber', description: 'Domine 50 flashcards.', progress: 25, total: 50, color: 'success' },
-        { icon: 'fa-users', title: 'Criador de Conteúdo', description: 'Crie 5 baralhos.', progress: 2, total: 5, color: 'primary' }
-    ];
+    const [achievements, setAchievements] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadAchievements = async () => {
+            try {
+                const data = await fetchAchievements();
+                setAchievements(data);
+            } catch (error) {
+                // O toast de erro já é mostrado na função da API
+                console.error("Falha ao carregar conquistas", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadAchievements();
+    }, []);
+    
+    // Define a cor com base no ícone para manter a consistência visual
+    const getColorFromIcon = (icon) => {
+        if (icon.includes('fire')) return 'warning';
+        if (icon.includes('book')) return 'info';
+        if (icon.includes('brain')) return 'success';
+        return 'primary';
+    };
 
     return (
         <div className="card-custom">
             <div className="card-header">
                 <h2>Conquistas</h2>
             </div>
-            <ul className="achievements-list">
-                {achievements.map((ach, index) => (
-                    <li key={index} className="achievement-item">
-                        <div className={`achievement-icon ${ach.color}`}><i className={`fas ${ach.icon}`}></i></div>
-                        <div className="achievement-details">
-                            <div className="achievement-info">
-                                <h4>{ach.title}</h4>
-                                <span className="achievement-progress-text">{ach.progress}/{ach.total}</span>
-                            </div>
-                            <p>{ach.description}</p>
-                            <div className="progress-bar">
-                                <div className="progress-bar-fill" style={{ width: `${(ach.progress / ach.total) * 100}%` }}></div>
-                            </div>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            {loading ? (
+                <div className="skeleton-list">
+                    {[...Array(4)].map((_, i) => <div key={i} className="skeleton-list-item" style={{height: '80px'}}></div>)}
+                </div>
+            ) : (
+                 <ul className="achievements-list">
+                    {achievements.map((ach) => {
+                        const isUnlocked = !!ach.unlocked_at;
+                        const progress = Math.min(ach.progress, ach.goal); // Garante que a barra não passe de 100%
+                        const progressPercent = ach.goal > 0 ? (progress / ach.goal) * 100 : 0;
+                        const color = getColorFromIcon(ach.icon);
+
+                        return (
+                            <li key={ach.id} className={`achievement-item ${isUnlocked ? 'unlocked' : ''}`}>
+                                <div className={`achievement-icon ${color}`}>
+                                    <i className={`fas ${isUnlocked ? 'fa-check' : ach.icon}`}></i>
+                                </div>
+                                <div className="achievement-details">
+                                    <div className="achievement-info">
+                                        <h4>{ach.name}</h4>
+                                        <span className="achievement-progress-text">{progress}/{ach.goal}</span>
+                                    </div>
+                                    <p>{ach.description}</p>
+                                    <div className="progress-bar">
+                                        <div className="progress-bar-fill" style={{ width: `${progressPercent}%`, backgroundColor: `var(--color-${color}-500)` }}></div>
+                                    </div>
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
         </div>
     );
 };
+
 
 function Progress() {
     return (

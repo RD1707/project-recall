@@ -7,17 +7,18 @@ const cohere = new CohereClient({
 const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergunta e Resposta') => {
     
     let promptInstruction = '';
+    
     if (type === 'Múltipla Escolha') {
-        promptInstruction = `Cada flashcard deve ser um objeto com as chaves "question", "options" (um array de 4 strings), e "answer" (a string da resposta correta).`;
-    } else {
-        promptInstruction = `Cada flashcard deve ser um objeto com as chaves "question" e "answer".`;
+        promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string), "options" (um array de 4 strings com as alternativas), e "answer" (uma string contendo a resposta correta, que deve ser uma das strings de "options").`;
+    } else { 
+        promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string) e "answer" (string).`;
     }
     
     const message = `
-        Baseado no texto a seguir, gere ${count} flashcards no formato de um array JSON.
+        Baseado no texto a seguir, gere ${count} flashcards no formato de um array de objetos JSON.
         ${promptInstruction}
-        A pergunta deve ser clara e direta, e a resposta deve ser concisa.
-        Não inclua nenhuma explicação ou texto adicional fora do array JSON.
+        As perguntas devem ser claras e diretas, e as respostas concisas.
+        Não inclua nenhuma explicação ou texto adicional fora do array JSON. Sua resposta deve ser apenas o array JSON puro.
 
         Texto: "${textContent}"
 
@@ -42,11 +43,19 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
             throw new Error("A resposta da IA não é um array JSON válido.");
         }
 
+        if (type === 'Múltipla Escolha') {
+            for (const card of flashcards) {
+                if (!card.question || !Array.isArray(card.options) || card.options.length !== 4 || !card.answer) {
+                     throw new Error("Um ou mais flashcards de múltipla escolha gerados pela IA estão com formato inválido.");
+                }
+            }
+        }
+
         return flashcards;
 
     } catch (error) {
         console.error("Erro detalhado da API Cohere ao gerar flashcards:", error);
-        return null;
+        throw new Error(`Falha ao gerar ou processar flashcards da IA: ${error.message}`);
     }
 };
 

@@ -47,19 +47,21 @@ function AIGenerator({ deckId, onGenerationStart }) {
     const [activeTab, setActiveTab] = useState('text');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
+    
     const [formData, setFormData] = useState({
         text: '',
         file: null,
         url: '',
         count: 5,
         difficulty: 'medio',
+        type: 'Pergunta e Resposta', 
     });
 
     const processFile = useCallback((file) => {
         if (!file) return;
 
         const validTypes = ['text/plain', 'text/markdown', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024; 
 
         if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|txt|md|docx)$/i)) {
             toast.error('Formato de arquivo não suportado. Use PDF, TXT, MD ou DOCX.');
@@ -105,7 +107,11 @@ function AIGenerator({ deckId, onGenerationStart }) {
         setIsLoading(true);
 
         try {
-            const params = { count: formData.count, difficulty: formData.difficulty };
+            const params = { 
+                count: formData.count, 
+                difficulty: formData.difficulty,
+                type: formData.type 
+            };
             let generationStarted = false;
 
             if (activeTab === 'text') {
@@ -125,7 +131,7 @@ function AIGenerator({ deckId, onGenerationStart }) {
                 fileFormData.append('file', formData.file);
                 fileFormData.append('count', params.count);
                 fileFormData.append('difficulty', params.difficulty);
-                fileFormData.append('type', 'Pergunta e Resposta');
+                fileFormData.append('type', params.type);
 
                 await generateFlashcardsFromFile(deckId, fileFormData);
                 generationStarted = true;
@@ -142,7 +148,7 @@ function AIGenerator({ deckId, onGenerationStart }) {
             if(generationStarted) {
                 toast.success('Geração iniciada! Os novos cards aparecerão em breve.');
                 onGenerationStart();
-                setFormData({ text: '', file: null, url: '', count: 5, difficulty: 'medio' });
+                setFormData({ text: '', file: null, url: '', count: 5, difficulty: 'medio', type: 'Pergunta e Resposta' });
                 setFileName('');
             }
         } catch (error) {
@@ -173,7 +179,7 @@ function AIGenerator({ deckId, onGenerationStart }) {
                     <div className="tab-content">
                         {activeTab === 'text' && (
                             <div className="tab-pane active">
-                                <label htmlFor="text" className="input-label">Cole ou digite seu texto</label>
+                                <label htmlFor="text" className="input-label sr-only">Cole ou digite seu texto</label>
                                 <textarea id="text" value={formData.text} onChange={handleInputChange} rows="6" placeholder="Ex: O sistema solar é composto por oito planetas..."></textarea>
                             </div>
                         )}
@@ -201,7 +207,7 @@ function AIGenerator({ deckId, onGenerationStart }) {
                         )}
                         {activeTab === 'youtube' && (
                             <div className="tab-pane active">
-                                <label htmlFor="url" className="input-label">URL do vídeo</label>
+                                <label htmlFor="url" className="input-label sr-only">URL do vídeo</label>
                                 <div className="url-input-wrapper">
                                     <input type="url" id="url" value={formData.url} onChange={handleInputChange} placeholder="https://www.youtube.com/watch?v=..." />
                                 </div>
@@ -211,22 +217,32 @@ function AIGenerator({ deckId, onGenerationStart }) {
 
                     <div className="generation-options">
                         <div className="option-group">
-                            <label className="option-label">Quantidade</label>
+                            <label className="option-label" htmlFor="count-input">Quantidade</label>
                             <div className="number-input">
-                                <button type="button" className="number-btn" onClick={() => handleNumberChange(-1)}><i className="fas fa-minus"></i></button>
-                                <input type="number" id="count" value={formData.count} readOnly />
-                                <button type="button" className="number-btn" onClick={() => handleNumberChange(1)}><i className="fas fa-plus"></i></button>
+                                <button type="button" className="number-btn" onClick={() => handleNumberChange(-1)} aria-label="Diminuir quantidade"><i className="fas fa-minus"></i></button>
+                                <input type="number" id="count-input" value={formData.count} readOnly />
+                                <button type="button" className="number-btn" onClick={() => handleNumberChange(1)} aria-label="Aumentar quantidade"><i className="fas fa-plus"></i></button>
                             </div>
                         </div>
                         <div className="option-group">
-                            <label className="option-label">Dificuldade</label>
+                            <label className="option-label" htmlFor="type">Tipo de Card</label>
+                            <select id="type" value={formData.type} onChange={handleInputChange} className="custom-select">
+                                <option value="Pergunta e Resposta">Pergunta e Resposta</option>
+                                <option value="Múltipla Escolha">Múltipla Escolha</option>
+                            </select>
+                        </div>
+                    </div>
+                     <div className="generation-options" style={{marginTop: 0}}>
+                        <div className="option-group">
+                            <label className="option-label" htmlFor="difficulty">Dificuldade</label>
                             <select id="difficulty" value={formData.difficulty} onChange={handleInputChange} className="custom-select">
                                 <option value="facil">Fácil</option>
                                 <option value="medio">Médio</option>
                                 <option value="dificil">Difícil</option>
                             </select>
                         </div>
-                    </div>
+                     </div>
+
 
                     <button type="submit" className="btn btn-primary btn-full" disabled={isLoading}>
                         {isLoading ? 'Gerando...' : 'Gerar Flashcards'}

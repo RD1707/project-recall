@@ -27,7 +27,7 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
         datasets: [{
             label: 'Respostas da Sessão',
             data: [stats.easy, stats.good, stats.hard, stats.wrong],
-            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+            backgroundColor: ['#123cc4ff', '#1037b9ff', '#1037b9ff', '#1037b9ff'],
             borderRadius: 6,
             borderWidth: 0,
         }],
@@ -121,50 +121,87 @@ const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats 
     );
 };
 
-const StudyCard = ({ card, isFlipped, onFlip, onExplain, feedback }) => (
-    <div className="main-card-container">
-        <div className={`flip-card ${isFlipped ? 'is-flipped' : ''}`} onClick={onFlip}>
-            <div className="flip-card-inner">
-                <article className="card-face card-front">
-                    <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.question}</p></div></div>
-                    <div className="card-footer"><div className="card-prompt">Pressione <kbd>Espaço</kbd> para revelar</div></div>
-                </article>
-                <article className="card-face card-back">
-                    <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.answer}</p></div></div>
-                    <div className="card-footer">
-                        <button className="btn btn-secondary btn-small explain-btn" onClick={(e) => { e.stopPropagation(); onExplain(); }}>
-                            <i className="fas fa-lightbulb"></i> Explique Melhor
-                        </button>
-                    </div>
-                </article>
-            </div>
-            <div className={`feedback-overlay ${feedback.type} ${feedback.show ? 'active' : ''}`}>
-                <div className="feedback-content">{feedback.text}</div>
+const StudyCard = ({ card, isFlipped, onFlip, onExplain, feedback, isMultipleChoice }) => {
+    const handleCardClick = () => {
+        if (!isMultipleChoice) {
+            onFlip();
+        }
+    };
+    
+    return (
+        <div className="main-card-container">
+            <div className={`flip-card ${isFlipped ? 'is-flipped' : ''}`} onClick={handleCardClick}>
+                <div className="flip-card-inner">
+                    <article className="card-face card-front">
+                        <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.question}</p></div></div>
+                        <div className="card-footer">
+                            <div className="card-prompt">
+                                {isMultipleChoice ? 'Escolha uma das opções abaixo' : 'Pressione Espaço para revelar'}
+                            </div>
+                        </div>
+                    </article>
+                    <article className="card-face card-back">
+                        <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.answer}</p></div></div>
+                        <div className="card-footer">
+                            <button className="btn btn-secondary btn-small explain-btn" onClick={(e) => { e.stopPropagation(); onExplain(); }}>
+                                <i className="fas fa-lightbulb"></i> Explique Melhor
+                            </button>
+                        </div>
+                    </article>
+                </div>
+                <div className={`feedback-overlay ${feedback.type} ${feedback.show ? 'active' : ''}`}>
+                    <div className="feedback-content">{feedback.text}</div>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
-const ResponseControls = ({ isFlipped, onFlip, onQualitySelect }) => {
-    if (!isFlipped) {
+const ResponseControls = ({ isFlipped, onFlip, onQualitySelect, card, onOptionSelect, answerStatus }) => {
+    const isMultipleChoice = card.card_type === 'Múltipla Escolha' && Array.isArray(card.options);
+
+    if (isFlipped) {
         return (
-            <button onClick={onFlip} className="btn btn-primary btn-large flip-btn">
-                <i className="fas fa-sync-alt"></i>
-                <span>Revelar Resposta</span>
-                <kbd>Espaço</kbd>
-            </button>
+             <div className="quality-buttons">
+                <div className="quality-grid">
+                    <button onClick={() => onQualitySelect(1)} className="quality-btn" data-feedback="again"><div className="quality-icon"><i className="fas fa-redo"></i></div><div className="quality-info"><span className="quality-label">Errei</span><span className="quality-time">&lt; 1 min</span></div><kbd>1</kbd></button>
+                    <button onClick={() => onQualitySelect(2)} className="quality-btn" data-feedback="hard"><div className="quality-icon"><i className="fas fa-brain"></i></div><div className="quality-info"><span className="quality-label">Difícil</span><span className="quality-time">~6 min</span></div><kbd>2</kbd></button>
+                    <button onClick={() => onQualitySelect(3)} className="quality-btn" data-feedback="good"><div className="quality-icon"><i className="fas fa-check"></i></div><div className="quality-info"><span className="quality-label">Bom</span><span className="quality-time">~10 min</span></div><kbd>3</kbd></button>
+                    <button onClick={() => onQualitySelect(4)} className="quality-btn" data-feedback="easy"><div className="quality-icon"><i className="fas fa-star"></i></div><div className="quality-info"><span className="quality-label">Fácil</span><span className="quality-time">~4 dias</span></div><kbd>4</kbd></button>
+                </div>
+            </div>
+        );
+    }
+    
+    if (isMultipleChoice) {
+        return (
+            <div className="multiple-choice-options">
+                {card.options.map((option, index) => {
+                    let buttonClass = 'btn btn-outline option-btn';
+                    if (answerStatus && answerStatus.selected === option) {
+                        buttonClass += answerStatus.isCorrect ? ' correct' : ' incorrect';
+                    }
+                    return (
+                        <button 
+                            key={index} 
+                            className={buttonClass}
+                            onClick={() => onOptionSelect(option)}
+                            disabled={!!answerStatus}
+                        >
+                            {option}
+                        </button>
+                    );
+                })}
+            </div>
         );
     }
 
     return (
-        <div className="quality-buttons">
-            <div className="quality-grid">
-                <button onClick={() => onQualitySelect(1)} className="quality-btn" data-feedback="again"><div className="quality-icon"><i className="fas fa-redo"></i></div><div className="quality-info"><span className="quality-label">Errei</span><span className="quality-time">&lt; 1 min</span></div><kbd>1</kbd></button>
-                <button onClick={() => onQualitySelect(2)} className="quality-btn" data-feedback="hard"><div className="quality-icon"><i className="fas fa-brain"></i></div><div className="quality-info"><span className="quality-label">Difícil</span><span className="quality-time">~6 min</span></div><kbd>2</kbd></button>
-                <button onClick={() => onQualitySelect(3)} className="quality-btn" data-feedback="good"><div className="quality-icon"><i className="fas fa-check"></i></div><div className="quality-info"><span className="quality-label">Bom</span><span className="quality-time">~10 min</span></div><kbd>3</kbd></button>
-                <button onClick={() => onQualitySelect(4)} className="quality-btn" data-feedback="easy"><div className="quality-icon"><i className="fas fa-star"></i></div><div className="quality-info"><span className="quality-label">Fácil</span><span className="quality-time">~4 dias</span></div><kbd>4</kbd></button>
-            </div>
-        </div>
+        <button onClick={onFlip} className="btn btn-primary btn-large flip-btn">
+            <i className="fas fa-sync-alt"></i>
+            <span>Revelar Resposta</span>
+            <kbd>Espaço</kbd>
+        </button>
     );
 };
 
@@ -180,13 +217,14 @@ function StudySession() {
     const [status, setStatus] = useState('loading');
     const [timer, setTimer] = useState(0);
     const [feedback, setFeedback] = useState({ show: false, type: '', text: '' });
+    const [answerStatus, setAnswerStatus] = useState(null); 
+    
     const [sessionStats, setSessionStats] = useState({
         wrong: 0, hard: 0, good: 0, easy: 0,
         totalTime: 0, totalCardsStudied: 0,
         mistakes: new Set(),
     });
 
-    // Estados para a funcionalidade de IA
     const [isExplanationModalOpen, setExplanationModalOpen] = useState(false);
     const [explanation, setExplanation] = useState({ text: '', isLoading: false });
     const [isChatOpen, setChatOpen] = useState(false);
@@ -199,6 +237,9 @@ function StudySession() {
     const currentIndexRef = useRef(currentIndex);
     const cardsToStudyRef = useRef(cardsToStudy);
     const timerValueRef = useRef(timer);
+    
+    const currentCard = useMemo(() => cardsToStudy[currentIndex], [cardsToStudy, currentIndex]);
+    const isMultipleChoice = useMemo(() => currentCard?.card_type === 'Múltipla Escolha' && Array.isArray(currentCard.options), [currentCard]);
 
     useEffect(() => {
         currentIndexRef.current = currentIndex;
@@ -224,9 +265,16 @@ function StudySession() {
                     navigate(`/deck/${deckId}`);
                     return;
                 }
+                
+                const processedCards = reviewCards.map(card => {
+                    if (card.card_type === 'Múltipla Escolha' && Array.isArray(card.options)) {
+                        return { ...card, options: [...card.options].sort(() => Math.random() - 0.5) };
+                    }
+                    return card;
+                });
 
-                setAllCards(reviewCards);
-                setCardsToStudy(reviewCards);
+                setAllCards(processedCards);
+                setCardsToStudy(processedCards);
                 setDeck(deckData);
                 setStatus('studying');
             } catch (error) {
@@ -236,8 +284,8 @@ function StudySession() {
         };
         loadData();
     }, [deckId, navigate]);
-
-    useEffect(() => {
+    
+     useEffect(() => {
         if (status === 'studying') {
             timerRef.current = setInterval(() => setTimer(prev => prev + 1), 1000);
         } else {
@@ -246,13 +294,12 @@ function StudySession() {
         return () => clearInterval(timerRef.current);
     }, [status]);
 
-    const currentCard = useMemo(() => cardsToStudy[currentIndex], [cardsToStudy, currentIndex]);
-
     const resetSession = useCallback((cards) => {
         setCardsToStudy(cards);
         setCurrentIndex(0);
         setIsFlipped(false);
         setTimer(0);
+        setAnswerStatus(null);
         setSessionStats({
             wrong: 0, hard: 0, good: 0, easy: 0,
             totalTime: 0, totalCardsStudied: 0,
@@ -264,10 +311,11 @@ function StudySession() {
     const handleFlip = useCallback(() => !isFlipped && setIsFlipped(true), [isFlipped]);
 
     const handleNextCard = useCallback(() => {
-        setChatOpen(false); // Fecha o chat ao avançar para o próximo card
+        setChatOpen(false); 
         if (currentIndexRef.current < cardsToStudyRef.current.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
+            setAnswerStatus(null);
         } else {
             setSessionStats(prev => ({
                 ...prev,
@@ -310,6 +358,20 @@ function StudySession() {
                 setTimeout(handleNextCard, 300);
             });
     }, [isFlipped, currentCard, handleNextCard]);
+
+    const handleOptionSelect = (selectedOption) => {
+        if (answerStatus) return;
+
+        const isCorrect = selectedOption === currentCard.answer;
+        setAnswerStatus({ selected: selectedOption, isCorrect });
+
+        setTimeout(() => {
+            setIsFlipped(true);
+            if (!isCorrect) {
+                 handleQualitySelection(1);
+            }
+        }, 1000);
+    };
 
     const handleExplain = async () => {
         if (!currentCard) return;
@@ -362,7 +424,7 @@ function StudySession() {
         const handleKeyDown = (e) => {
             if (status !== 'studying' || isChatOpen || isExplanationModalOpen) return;
             
-            if (e.code === 'Space' && !isFlipped) {
+            if (e.code === 'Space' && !isFlipped && !isMultipleChoice) {
                 e.preventDefault();
                 handleFlip();
             }
@@ -373,7 +435,8 @@ function StudySession() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status, isFlipped, isChatOpen, isExplanationModalOpen, handleFlip, handleQualitySelection]);
+    }, [status, isFlipped, isMultipleChoice, isChatOpen, isExplanationModalOpen, handleFlip, handleQualitySelection]);
+
 
     if (status === 'loading') return <LoadingScreen />;
 
@@ -390,7 +453,7 @@ function StudySession() {
             />
         );
     }
-
+    
     return (
         <>
             <StudyHeader
@@ -408,12 +471,16 @@ function StudySession() {
                         onFlip={handleFlip}
                         onExplain={handleExplain}
                         feedback={feedback}
+                        isMultipleChoice={isMultipleChoice}
                     />
                     <div className="response-controls">
                         <ResponseControls
                             isFlipped={isFlipped}
                             onFlip={handleFlip}
                             onQualitySelect={handleQualitySelection}
+                            card={currentCard}
+                            onOptionSelect={handleOptionSelect}
+                            answerStatus={answerStatus}
                         />
                     </div>
                 </div>

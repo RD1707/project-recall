@@ -56,18 +56,38 @@ const DeckStats = ({ stats }) => (
     </div>
 );
 
-const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => (
-    <div className="flashcard-item" tabIndex={0}>
-        <div className="flashcard-content">
-            <h3 className="flashcard-question">{card.question}</h3>
-            <p className="flashcard-answer">{card.answer}</p>
+const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => {
+    const isMultipleChoice = card.card_type === 'Múltipla Escolha' && Array.isArray(card.options);
+
+    return (
+        <div className="flashcard-item" tabIndex={0}>
+            <div className="flashcard-content">
+                <h3 className="flashcard-question">{card.question}</h3>
+                
+                {isMultipleChoice ? (
+                    <ul className="flashcard-options">
+                        {card.options.map((option, index) => (
+                            <li 
+                                key={index} 
+                                className={`option-item ${option === card.answer ? 'correct' : ''}`}
+                            >
+                                <i className={`fas ${option === card.answer ? 'fa-check-circle' : 'fa-circle'}`}></i>
+                                {option}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="flashcard-answer">{card.answer}</p>
+                )}
+            </div>
+            <div className="flashcard-actions">
+                <button className="action-btn" onClick={() => onEdit(card)} title="Editar Card"><i className="fas fa-pencil-alt"></i></button>
+                <button className="action-btn" onClick={() => onDelete(card.id)} title="Excluir Card"><i className="fas fa-trash"></i></button>
+            </div>
         </div>
-        <div className="flashcard-actions">
-            <button className="action-btn" onClick={() => onEdit(card)} title="Editar Card"><i className="fas fa-pencil-alt"></i></button>
-            <button className="action-btn" onClick={() => onDelete(card.id)} title="Excluir Card"><i className="fas fa-trash"></i></button>
-        </div>
-    </div>
-));
+    );
+});
+
 
 const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
     <section className="flashcards-section">
