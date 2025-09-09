@@ -3,9 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { fetchReviewCards, submitReview } from '../api/flashcards';
 import { fetchDeckById } from '../api/decks';
-import Modal from '../components/common/Modal';       
+import Modal from '../components/common/Modal';
 import { fetchReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
 
 import '../assets/css/study.css';
@@ -48,7 +47,6 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
                     <h1>Sessão Concluída!</h1>
                     <p>Excelente trabalho! Você está um passo mais perto de dominar este assunto.</p>
                 </header>
-
                 <div className="session-stats">
                     <div className="stats-grid">
                         <div className="stat-block">
@@ -67,7 +65,6 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
                         </div>
                     </div>
                 </div>
-
                 <div className="completion-actions">
                     {stats.wrong > 0 && (
                         <button onClick={onReviewMistakes} className="btn btn-outline">
@@ -107,8 +104,7 @@ const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats 
                         <time>{`${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}`}</time>
                     </div>
                 </div>
-                <div className="header-right">
-                </div>
+                <div className="header-right"></div>
             </div>
             <div className="global-progress">
                 <div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%` }}></div></div>
@@ -125,7 +121,7 @@ const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats 
     );
 };
 
-const StudyCard = ({ card, isFlipped, onFlip, feedback }) => (
+const StudyCard = ({ card, isFlipped, onFlip, onExplain, feedback }) => (
     <div className="main-card-container">
         <div className={`flip-card ${isFlipped ? 'is-flipped' : ''}`} onClick={onFlip}>
             <div className="flip-card-inner">
@@ -189,29 +185,30 @@ function StudySession() {
         totalTime: 0, totalCardsStudied: 0,
         mistakes: new Set(),
     });
-    const [messages, setMessages] = useState([]);
-    const [userInput, setUserInput] = useState('');
-    const [isChatLoading, setChatLoading] = useState(false);
-    const messagesEndRef = useRef(null);
+
+    // Estados para a funcionalidade de IA
     const [isExplanationModalOpen, setExplanationModalOpen] = useState(false);
     const [explanation, setExplanation] = useState({ text: '', isLoading: false });
     const [isChatOpen, setChatOpen] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [userInput, setUserInput] = useState('');
+    const [isChatLoading, setChatLoading] = useState(false);
     
-
+    const messagesEndRef = useRef(null);
     const timerRef = useRef(null);
     const currentIndexRef = useRef(currentIndex);
     const cardsToStudyRef = useRef(cardsToStudy);
     const timerValueRef = useRef(timer);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    useEffect(() => {
         currentIndexRef.current = currentIndex;
         cardsToStudyRef.current = cardsToStudy;
         timerValueRef.current = timer;
     }, [currentIndex, cardsToStudy, timer]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -266,56 +263,8 @@ function StudySession() {
 
     const handleFlip = useCallback(() => !isFlipped && setIsFlipped(true), [isFlipped]);
 
-    const handleExplain = async () => {
-    if (!currentCard) return;
-
-    setExplanation({ text: '', isLoading: true });
-    setExplanationModalOpen(true);
-
-    try {
-        const data = await getExplanation(currentCard.id);
-        setExplanation({ text: data.explanation, isLoading: false });
-    } catch (error) {
-        toast.error("Não foi possível carregar a explicação.");
-        setExplanation({ text: '', isLoading: false });
-        setExplanationModalOpen(false);
-    }
-    };
-
-    const handleOpenChat = () => {
-        setExplanationModalOpen(false);
-        setChatOpen(true);
-        setMessages([
-            {
-                role: 'CHATBOT',
-                message: `Olá! Sobre o que você gostaria de saber mais a respeito de "${currentCard.question}"?`
-            }
-        ]);
-    };
-
-    const handleSendMessage = async (e) => {
-        e.preventDefault();
-        if (!userInput.trim() || isChatLoading) return;
-
-        const newUserMessage = { role: 'USER', message: userInput.trim() };
-        const updatedMessages = [...messages, newUserMessage];
-        setMessages(updatedMessages);
-        setUserInput('');
-        setChatLoading(true);
-
-        try {
-            const data = await chatWithTutor(currentCard.id, updatedMessages);
-            const aiResponseMessage = { role: 'CHATBOT', message: data.reply };
-            setMessages(prev => [...prev, aiResponseMessage]);
-        } catch (error) {
-            toast.error("A IA não conseguiu responder. Tente novamente.");
-            setMessages(messages);
-        } finally {
-            setChatLoading(false);
-        }
-    };
-
     const handleNextCard = useCallback(() => {
+        setChatOpen(false); // Fecha o chat ao avançar para o próximo card
         if (currentIndexRef.current < cardsToStudyRef.current.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
@@ -362,10 +311,58 @@ function StudySession() {
             });
     }, [isFlipped, currentCard, handleNextCard]);
 
+    const handleExplain = async () => {
+        if (!currentCard) return;
+        setExplanation({ text: '', isLoading: true });
+        setExplanationModalOpen(true);
+        try {
+            const data = await getExplanation(currentCard.id);
+            setExplanation({ text: data.explanation, isLoading: false });
+        } catch (error) {
+            toast.error("Não foi possível carregar a explicação.");
+            setExplanation({ text: '', isLoading: false });
+            setExplanationModalOpen(false);
+        }
+    };
+
+    const handleOpenChat = () => {
+        setExplanationModalOpen(false);
+        setChatOpen(true);
+        setMessages([
+            {
+                role: 'CHATBOT',
+                message: `Olá! Sobre o que você gostaria de saber mais a respeito de "${currentCard.question}"?`
+            }
+        ]);
+    };
+
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        if (!userInput.trim() || isChatLoading) return;
+
+        const newUserMessage = { role: 'USER', message: userInput.trim() };
+        const updatedMessages = [...messages, newUserMessage];
+        setMessages(updatedMessages);
+        setUserInput('');
+        setChatLoading(true);
+
+        try {
+            const data = await chatWithTutor(currentCard.id, updatedMessages);
+            const aiResponseMessage = { role: 'CHATBOT', message: data.reply };
+            setMessages(prev => [...prev, aiResponseMessage]);
+        } catch (error) {
+            toast.error("A IA não conseguiu responder. Tente novamente.");
+            setMessages(messages); 
+        } finally {
+            setChatLoading(false);
+        }
+    };
+
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (status !== 'studying') return;
-            if (e.code === 'Space') {
+            if (status !== 'studying' || isChatOpen || isExplanationModalOpen) return;
+            
+            if (e.code === 'Space' && !isFlipped) {
                 e.preventDefault();
                 handleFlip();
             }
@@ -376,7 +373,7 @@ function StudySession() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status, isFlipped, handleFlip, handleQualitySelection]);
+    }, [status, isFlipped, isChatOpen, isExplanationModalOpen, handleFlip, handleQualitySelection]);
 
     if (status === 'loading') return <LoadingScreen />;
 
@@ -403,13 +400,14 @@ function StudySession() {
                 totalCards={cardsToStudy.length}
                 sessionStats={sessionStats}
             />
-            <main className="study-main">
+            <main className={`study-main ${isChatOpen ? 'chat-visible' : ''}`}>
                 <div className="study-container">
                     <StudyCard
                         card={currentCard}
                         isFlipped={isFlipped}
                         onFlip={handleFlip}
-                        onExplain={handleExplain} // Passe a função aqui
+                        onExplain={handleExplain}
+                        feedback={feedback}
                     />
                     <div className="response-controls">
                         <ResponseControls
@@ -419,7 +417,64 @@ function StudySession() {
                         />
                     </div>
                 </div>
+
+                {isChatOpen && (
+                    <div className="ai-chat-container">
+                        <div className="chat-header">
+                            <h3>Tire suas dúvidas</h3>
+                            <button onClick={() => setChatOpen(false)} className="close-chat-btn"><i className="fas fa-times"></i></button>
+                        </div>
+                        <div className="chat-messages">
+                            {messages.map((msg, index) => (
+                                <div key={index} className={`chat-bubble ${msg.role.toLowerCase()}`}>
+                                    {msg.message}
+                                </div>
+                            ))}
+                            {isChatLoading && (
+                                <div className="chat-bubble chatbot loading">
+                                    <span></span><span></span><span></span>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+                        <form onSubmit={handleSendMessage} className="chat-input-form">
+                            <input
+                                type="text"
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                placeholder="Digite sua pergunta..."
+                                disabled={isChatLoading}
+                                autoFocus
+                            />
+                            <button type="submit" className="btn btn-primary" disabled={isChatLoading}>
+                                {isChatLoading ? <div className="chat-loading-spinner"></div> : <i className="fas fa-paper-plane"></i>}
+                            </button>
+                        </form>
+                    </div>
+                )}
             </main>
+
+            <Modal
+                isOpen={isExplanationModalOpen}
+                onClose={() => setExplanationModalOpen(false)}
+                title="Explicação da IA"
+            >
+                <div className="explanation-content">
+                    {explanation.isLoading ? (
+                        <div className="loading-spinner"></div>
+                    ) : (
+                        <p>{explanation.text}</p>
+                    )}
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-secondary" onClick={handleOpenChat}>
+                        <i className="fas fa-comments"></i> Tirar mais dúvidas
+                    </button>
+                    <button className="btn btn-primary" onClick={() => setExplanationModalOpen(false)}>
+                        Entendi!
+                    </button>
+                </div>
+            </Modal>
         </>
     );
 }
