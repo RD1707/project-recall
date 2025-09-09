@@ -1,482 +1,544 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { fetchDeckById } from '../api/decks';
-import Modal from '../components/common/Modal';
-import { fetchReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import VideoModal from '../components/common/VideoModal';
 
-import '../assets/css/study.css';
+import '../assets/css/landing.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const LoadingScreen = () => (
-    <div className="state-container loading-state">
-        <div className="loading-animation">
-            <div className="loading-spinner"></div>
+const FeatureCard = ({ icon, title, description, badge }) => (
+    <div className="feature-card">
+        {badge && <span className="feature-badge">{badge}</span>}
+        <div className="feature-icon">
+            <i className={`fas ${icon}`}></i>
         </div>
-        <h2>Preparando sua sessão</h2>
-        <p>Carregando os flashcards para sua revisão...</p>
+        <h3>{title}</h3>
+        <p>{description}</p>
     </div>
 );
 
-const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
-    const chartData = {
-        labels: ['Fácil', 'Bom', 'Difícil', 'Errei'],
-        datasets: [{
-            label: 'Respostas da Sessão',
-            data: [stats.easy, stats.good, stats.hard, stats.wrong],
-            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
-            borderRadius: 6,
-            borderWidth: 0,
-        }],
-    };
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-    };
-
-    return (
-        <div className="state-container completion-state">
-            <div className="completion-content">
-                <div className="trophy-icon"><i className="fas fa-trophy"></i></div>
-                <header className="completion-header">
-                    <h1>Sessão Concluída!</h1>
-                    <p>Excelente trabalho! Você está um passo mais perto de dominar este assunto.</p>
-                </header>
-                <div className="session-stats">
-                    <div className="stats-grid">
-                        <div className="stat-block">
-                            <div className="stat-icon primary"><i className="fas fa-layer-group"></i></div>
-                            <div className="stat-details"><span className="stat-number">{stats.totalCardsStudied}</span><span className="stat-description">Cards revisados</span></div>
-                        </div>
-                        <div className="stat-block">
-                            <div className="stat-icon success"><i className="fas fa-clock"></i></div>
-                            <div className="stat-details"><span className="stat-number">{`${Math.floor(stats.totalTime / 60)}m ${stats.totalTime % 60}s`}</span><span className="stat-description">Tempo total</span></div>
-                        </div>
-                    </div>
-                    <div className="performance-chart">
-                        <h3>Desempenho da Sessão</h3>
-                        <div className="chart-container">
-                            <Bar data={chartData} options={chartOptions} />
-                        </div>
-                    </div>
-                </div>
-                <div className="completion-actions">
-                    {stats.wrong > 0 && (
-                        <button onClick={onReviewMistakes} className="btn btn-outline">
-                            <i className="fas fa-redo"></i> Revisar Erros ({stats.wrong})
-                        </button>
-                    )}
-                    <button onClick={onRestart} className="btn btn-primary">
-                        <i className="fas fa-play"></i> Estudar Novamente
-                    </button>
-                    <Link to={`/deck/${deckId}`} className="btn btn-secondary">
-                        <i className="fas fa-home"></i> Voltar ao Baralho
-                    </Link>
-                </div>
-            </div>
+const TestimonialCard = ({ name, role, institution, image, rating, text }) => (
+    <div className="testimonial-card">
+        <div className="testimonial-rating">
+            {[...Array(rating)].map((_, i) => (
+                <i key={i} className="fas fa-star"></i>
+            ))}
         </div>
-    );
-};
-
-const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats }) => {
-    const { deckId } = useParams();
-    const progress = totalCards > 0 ? ((currentIndex + 1) / totalCards) * 100 : 0;
-
-    return (
-        <header className="study-header">
-            <div className="header-container">
-                <div className="header-left">
-                    <Link to={`/deck/${deckId}`} className="icon-btn ghost" aria-label="Voltar ao baralho">
-                        <i className="fas fa-arrow-left"></i>
-                    </Link>
-                    <div className="deck-info">
-                        <h1 className="deck-title">{deckTitle}</h1>
-                    </div>
-                </div>
-                <div className="header-center">
-                    <div className="study-timer">
-                        <i className="fas fa-clock"></i>
-                        <time>{`${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}`}</time>
-                    </div>
-                </div>
-                <div className="header-right"></div>
-            </div>
-            <div className="global-progress">
-                <div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%` }}></div></div>
-                <div className="progress-info">
-                    <span className="progress-text">{currentIndex + 1} / {totalCards}</span>
-                    <div className="progress-stats">
-                        <span className="stat success" title="Bom/Fácil"><i className="fas fa-check-circle"></i>{sessionStats.good + sessionStats.easy}</span>
-                        <span className="stat warning" title="Difícil"><i className="fas fa-exclamation-circle"></i>{sessionStats.hard}</span>
-                        <span className="stat danger" title="Errou"><i className="fas fa-times-circle"></i>{sessionStats.wrong}</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-    );
-};
-
-const StudyCard = ({ card, isFlipped, onFlip, onExplain, feedback }) => (
-    <div className="main-card-container">
-        <div className={`flip-card ${isFlipped ? 'is-flipped' : ''}`} onClick={onFlip}>
-            <div className="flip-card-inner">
-                <article className="card-face card-front">
-                    <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.question}</p></div></div>
-                    <div className="card-footer"><div className="card-prompt">Pressione <kbd>Espaço</kbd> para revelar</div></div>
-                </article>
-                <article className="card-face card-back">
-                    <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.answer}</p></div></div>
-                    <div className="card-footer">
-                        <button className="btn btn-secondary btn-small explain-btn" onClick={(e) => { e.stopPropagation(); onExplain(); }}>
-                            <i className="fas fa-lightbulb"></i> Explique Melhor
-                        </button>
-                    </div>
-                </article>
-            </div>
-            <div className={`feedback-overlay ${feedback.type} ${feedback.show ? 'active' : ''}`}>
-                <div className="feedback-content">{feedback.text}</div>
+        <p className="testimonial-text">"{text}"</p>
+        <div className="testimonial-author">
+            <img src={image} alt={name} className="author-avatar" />
+            <div className="author-info">
+                <h4>{name}</h4>
+                <p>{role} • {institution}</p>
             </div>
         </div>
     </div>
 );
 
-const ResponseControls = ({ isFlipped, onFlip, onQualitySelect }) => {
-    if (!isFlipped) {
-        return (
-            <button onClick={onFlip} className="btn btn-primary btn-large flip-btn">
-                <i className="fas fa-sync-alt"></i>
-                <span>Revelar Resposta</span>
-                <kbd>Espaço</kbd>
-            </button>
-        );
-    }
+const StatCard = ({ number, label, suffix = "" }) => (
+    <div className="stat-card">
+        <div className="stat-number">
+            {number}<span className="stat-suffix">{suffix}</span>
+        </div>
+        <div className="stat-label">{label}</div>
+    </div>
+);
 
-    return (
-        <div className="quality-buttons">
-            <div className="quality-grid">
-                <button onClick={() => onQualitySelect(1)} className="quality-btn" data-feedback="again"><div className="quality-icon"><i className="fas fa-redo"></i></div><div className="quality-info"><span className="quality-label">Errei</span><span className="quality-time">&lt; 1 min</span></div><kbd>1</kbd></button>
-                <button onClick={() => onQualitySelect(2)} className="quality-btn" data-feedback="hard"><div className="quality-icon"><i className="fas fa-brain"></i></div><div className="quality-info"><span className="quality-label">Difícil</span><span className="quality-time">~6 min</span></div><kbd>2</kbd></button>
-                <button onClick={() => onQualitySelect(3)} className="quality-btn" data-feedback="good"><div className="quality-icon"><i className="fas fa-check"></i></div><div className="quality-info"><span className="quality-label">Bom</span><span className="quality-time">~10 min</span></div><kbd>3</kbd></button>
-                <button onClick={() => onQualitySelect(4)} className="quality-btn" data-feedback="easy"><div className="quality-icon"><i className="fas fa-star"></i></div><div className="quality-info"><span className="quality-label">Fácil</span><span className="quality-time">~4 dias</span></div><kbd>4</kbd></button>
+const StepCard = ({ number, icon, title, description }) => (
+    <div className="step">
+        <div className="step-number">{number}</div>
+        <div className="step-icon">
+            <i className={`fas ${icon}`}></i>
+        </div>
+        <h3>{title}</h3>
+        <p>{description}</p>
+    </div>
+);
+
+const PricingCard = ({ name, price, period, features, highlighted, ctaText }) => (
+    <div className={`pricing-card ${highlighted ? 'highlighted' : ''}`}>
+        {highlighted && <span className="pricing-badge">Mais Popular</span>}
+        <div className="pricing-header">
+            <h3>{name}</h3>
+            <div className="pricing-price">
+                <span className="price-currency">R$</span>
+                <span className="price-value">{price}</span>
+                <span className="price-period">/{period}</span>
             </div>
         </div>
-    );
-};
+        <ul className="pricing-features">
+            {features.map((feature, index) => (
+                <li key={index}>
+                    <i className="fas fa-check"></i>
+                    {feature}
+                </li>
+            ))}
+        </ul>
+        <Link to="/register" className={`btn ${highlighted ? 'btn-primary' : 'btn-secondary'} btn-block`}>
+            {ctaText}
+        </Link>
+    </div>
+);
 
-function StudySession() {
-    const { deckId } = useParams();
-    const navigate = useNavigate();
-
-    const [deck, setDeck] = useState(null);
-    const [allCards, setAllCards] = useState([]);
-    const [cardsToStudy, setCardsToStudy] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isFlipped, setIsFlipped] = useState(false);
-    const [status, setStatus] = useState('loading');
-    const [timer, setTimer] = useState(0);
-    const [feedback, setFeedback] = useState({ show: false, type: '', text: '' });
-    const [sessionStats, setSessionStats] = useState({
-        wrong: 0, hard: 0, good: 0, easy: 0,
-        totalTime: 0, totalCardsStudied: 0,
-        mistakes: new Set(),
-    });
-
-    // Estados para a funcionalidade de IA
-    const [isExplanationModalOpen, setExplanationModalOpen] = useState(false);
-    const [explanation, setExplanation] = useState({ text: '', isLoading: false });
-    const [isChatOpen, setChatOpen] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [userInput, setUserInput] = useState('');
-    const [isChatLoading, setChatLoading] = useState(false);
-    
-    const messagesEndRef = useRef(null);
-    const timerRef = useRef(null);
-    const currentIndexRef = useRef(currentIndex);
-    const cardsToStudyRef = useRef(cardsToStudy);
-    const timerValueRef = useRef(timer);
+function Landing() {
+    const [isMenuOpen, setMenuOpen] = useState(false);
+    const [isVideoModalOpen, setVideoModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('students');
+    const headerRef = useRef(null);
 
     useEffect(() => {
-        currentIndexRef.current = currentIndex;
-        cardsToStudyRef.current = cardsToStudy;
-        timerValueRef.current = timer;
-    }, [currentIndex, cardsToStudy, timer]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    useEffect(() => {
-        const loadData = async () => {
-            setStatus('loading');
-            try {
-                const [reviewCards, deckData] = await Promise.all([
-                    fetchReviewCards(deckId),
-                    fetchDeckById(deckId)
-                ]);
-
-                if (reviewCards.length === 0) {
-                    toast.success("Tudo em dia! Não há cards para revisar agora.");
-                    navigate(`/deck/${deckId}`);
-                    return;
-                }
-
-                setAllCards(reviewCards);
-                setCardsToStudy(reviewCards);
-                setDeck(deckData);
-                setStatus('studying');
-            } catch (error) {
-                toast.error("Não foi possível carregar a sessão de estudo.");
-                navigate(`/deck/${deckId}`);
+        const handleScroll = () => {
+            if (window.scrollY > 80) {
+                headerRef.current?.classList.add('scrolled');
+            } else {
+                headerRef.current?.classList.remove('scrolled');
             }
         };
-        loadData();
-    }, [deckId, navigate]);
-
-    useEffect(() => {
-        if (status === 'studying') {
-            timerRef.current = setInterval(() => setTimer(prev => prev + 1), 1000);
-        } else {
-            clearInterval(timerRef.current);
-        }
-        return () => clearInterval(timerRef.current);
-    }, [status]);
-
-    const currentCard = useMemo(() => cardsToStudy[currentIndex], [cardsToStudy, currentIndex]);
-
-    const resetSession = useCallback((cards) => {
-        setCardsToStudy(cards);
-        setCurrentIndex(0);
-        setIsFlipped(false);
-        setTimer(0);
-        setSessionStats({
-            wrong: 0, hard: 0, good: 0, easy: 0,
-            totalTime: 0, totalCardsStudied: 0,
-            mistakes: new Set(),
-        });
-        setStatus('studying');
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const handleFlip = useCallback(() => !isFlipped && setIsFlipped(true), [isFlipped]);
-
-    const handleNextCard = useCallback(() => {
-        setChatOpen(false); // Fecha o chat ao avançar para o próximo card
-        if (currentIndexRef.current < cardsToStudyRef.current.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-            setIsFlipped(false);
-        } else {
-            setSessionStats(prev => ({
-                ...prev,
-                totalTime: timerValueRef.current,
-                totalCardsStudied: cardsToStudyRef.current.length
-            }));
-            setStatus('complete');
-        }
-    }, []);
-
-    const handleQualitySelection = useCallback((quality) => {
-        if (!isFlipped) return;
-
-        const feedbackMap = {
-            1: { type: 'error', text: 'Vamos revisar em breve' },
-            2: { type: 'warning', text: 'Quase lá!' },
-            3: { type: 'success', text: 'Muito bem!' },
-            4: { type: 'perfect', text: 'Excelente!' }
-        };
-        setFeedback({ show: true, ...feedbackMap[quality] });
-        setTimeout(() => setFeedback({ show: false, type: '', text: '' }), 600);
-
-        setSessionStats(prev => {
-            const newMistakes = new Set(prev.mistakes);
-            const statsUpdate = { ...prev };
-            if (quality === 1) {
-                statsUpdate.wrong++;
-                newMistakes.add(currentCard.id);
-            }
-            if (quality === 2) statsUpdate.hard++;
-            if (quality === 3) statsUpdate.good++;
-            if (quality === 4) statsUpdate.easy++;
-            statsUpdate.mistakes = newMistakes;
-            return statsUpdate;
-        });
-
-        submitReview(currentCard.id, quality)
-            .catch(() => toast.error("Não foi possível salvar sua resposta."))
-            .finally(() => {
-                setTimeout(handleNextCard, 300);
-            });
-    }, [isFlipped, currentCard, handleNextCard]);
-
-    const handleExplain = async () => {
-        if (!currentCard) return;
-        setExplanation({ text: '', isLoading: true });
-        setExplanationModalOpen(true);
-        try {
-            const data = await getExplanation(currentCard.id);
-            setExplanation({ text: data.explanation, isLoading: false });
-        } catch (error) {
-            toast.error("Não foi possível carregar a explicação.");
-            setExplanation({ text: '', isLoading: false });
-            setExplanationModalOpen(false);
-        }
-    };
-
-    const handleOpenChat = () => {
-        setExplanationModalOpen(false);
-        setChatOpen(true);
-        setMessages([
-            {
-                role: 'CHATBOT',
-                message: `Olá! Sobre o que você gostaria de saber mais a respeito de "${currentCard.question}"?`
-            }
-        ]);
-    };
-
-    const handleSendMessage = async (e) => {
-        e.preventDefault();
-        if (!userInput.trim() || isChatLoading) return;
-
-        const newUserMessage = { role: 'USER', message: userInput.trim() };
-        const updatedMessages = [...messages, newUserMessage];
-        setMessages(updatedMessages);
-        setUserInput('');
-        setChatLoading(true);
-
-        try {
-            const data = await chatWithTutor(currentCard.id, updatedMessages);
-            const aiResponseMessage = { role: 'CHATBOT', message: data.reply };
-            setMessages(prev => [...prev, aiResponseMessage]);
-        } catch (error) {
-            toast.error("A IA não conseguiu responder. Tente novamente.");
-            setMessages(messages); // Reverte para o estado anterior em caso de erro
-        } finally {
-            setChatLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (status !== 'studying' || isChatOpen || isExplanationModalOpen) return;
-            
-            if (e.code === 'Space' && !isFlipped) {
-                e.preventDefault();
-                handleFlip();
-            }
-            if (isFlipped && e.key >= '1' && e.key <= '4') {
-                e.preventDefault();
-                handleQualitySelection(Number(e.key));
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status, isFlipped, isChatOpen, isExplanationModalOpen, handleFlip, handleQualitySelection]);
-
-    if (status === 'loading') return <LoadingScreen />;
-
-    if (status === 'complete') {
-        return (
-            <CompletionScreen
-                stats={sessionStats}
-                deckId={deckId}
-                onRestart={() => resetSession(allCards)}
-                onReviewMistakes={() => {
-                    const mistakeCards = allCards.filter(card => sessionStats.mistakes.has(card.id));
-                    resetSession(mistakeCards);
-                }}
-            />
-        );
-    }
+    const toggleMenu = () => setMenuOpen(!isMenuOpen);
+    const closeMenu = () => setMenuOpen(false);
 
     return (
         <>
-            <StudyHeader
-                deckTitle={deck?.title ?? 'Carregando...'}
-                timer={timer}
-                currentIndex={currentIndex}
-                totalCards={cardsToStudy.length}
-                sessionStats={sessionStats}
-            />
-            <main className={`study-main ${isChatOpen ? 'chat-visible' : ''}`}>
-                <div className="study-container">
-                    <StudyCard
-                        card={currentCard}
-                        isFlipped={isFlipped}
-                        onFlip={handleFlip}
-                        onExplain={handleExplain}
-                        feedback={feedback}
-                    />
-                    <div className="response-controls">
-                        <ResponseControls
-                            isFlipped={isFlipped}
-                            onFlip={handleFlip}
-                            onQualitySelect={handleQualitySelection}
-                        />
+            <header className="landing-header" ref={headerRef}>
+                <div className="header-container landing-container">
+                    <div className="logo">
+                        <Link to="/">
+                            <span className="logo-icon"><i className="fas fa-brain"></i></span>
+                            <span className="logo-text">Recall</span>
+                        </Link>
                     </div>
+                    <nav className={`main-nav ${isMenuOpen ? 'is-open' : ''}`}>
+                        <ul>
+                            <li><a href="#features" onClick={closeMenu}>Recursos</a></li>
+                            <li><a href="#how-it-works" onClick={closeMenu}>Como Funciona</a></li>
+                            <li><a href="#testimonials" onClick={closeMenu}>Depoimentos</a></li>
+                            <li><a href="#pricing" onClick={closeMenu}>Preços</a></li>
+                            <li><Link to="/ajuda" onClick={closeMenu}>Ajuda</Link></li>
+                        </ul>
+                    </nav>
+                    <div className="header-actions">
+                        <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
+                        <Link to="/register" className="btn btn-primary">Começar Grátis</Link>
+                    </div>
+                    <button
+                        className={`mobile-nav-toggle ${isMenuOpen ? 'is-active' : ''}`}
+                        aria-label="Menu"
+                        onClick={toggleMenu}
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
+            </header>
 
-                {isChatOpen && (
-                    <div className="ai-chat-container">
-                        <div className="chat-header">
-                            <h3>Tire suas dúvidas</h3>
-                            <button onClick={() => setChatOpen(false)} className="close-chat-btn"><i className="fas fa-times"></i></button>
+            <main>
+                <section className="hero">
+                    <div className="hero-container landing-container">
+                        <div className="hero-text">
+                            <div className="hero-badge">
+                                <i className="fas fa-sparkles"></i>
+                                Powered by GPT-5
+                            </div>
+                            <h1>
+                                Memorize 10x mais rápido com
+                                <span className="text-gradient"> Inteligência Artificial</span>
+                            </h1>
+                            <p className="hero-subtitle">
+                                Transforme PDFs, vídeos e anotações em flashcards otimizados.
+                                Nosso algoritmo de repetição espaçada garante que você nunca
+                                esqueça o que aprendeu.
+                            </p>
+                            <div className="hero-actions">
+                                <Link to="/register" className="btn btn-primary btn-lg">
+                                    <i className="fas fa-rocket"></i>
+                                    Começar Gratuitamente
+                                </Link>
+                                <button onClick={() => setVideoModalOpen(true)} className="btn-video">
+                                    <span className="play-icon"><i className="fas fa-play"></i></span>
+                                    <span>Ver Demo (2 min)</span>
+                                </button>
+                            </div>
+                            <div className="hero-trust">
+                                <p>
+                                    <i className="fas fa-shield-check"></i>
+                                    Mais de <strong>50.000 estudantes</strong> já aprovados
+                                </p>
+                            </div>
                         </div>
-                        <div className="chat-messages">
-                            {messages.map((msg, index) => (
-                                <div key={index} className={`chat-bubble ${msg.role.toLowerCase()}`}>
-                                    {msg.message}
+                        <div className="hero-visual">
+                            <div className="hero-mockup">
+                                <div className="floating-card card-1">
+                                    <div className="card-header">
+                                        <span className="card-badge">Biologia</span>
+                                        <span className="card-progress">85%</span>
+                                    </div>
+                                    <h4>Mitocôndria</h4>
+                                    <p>Organela responsável pela produção de ATP através da respiração celular</p>
                                 </div>
-                            ))}
-                            {isChatLoading && (
-                                <div className="chat-bubble chatbot loading">
-                                    <span></span><span></span><span></span>
+                                <div className="floating-card card-2">
+                                    <div className="card-header">
+                                        <span className="card-badge">História</span>
+                                        <span className="card-progress">92%</span>
+                                    </div>
+                                    <h4>Revolução Francesa</h4>
+                                    <p>1789 - Queda da Bastilha marca o início do movimento revolucionário</p>
                                 </div>
-                            )}
-                            <div ref={messagesEndRef} />
+                                <div className="floating-card card-3">
+                                    <div className="card-header">
+                                        <span className="card-badge">Matemática</span>
+                                        <span className="card-progress">78%</span>
+                                    </div>
+                                    <h4>Teorema de Pitágoras</h4>
+                                    <p>a² + b² = c²</p>
+                                </div>
+                            </div>
                         </div>
-                        <form onSubmit={handleSendMessage} className="chat-input-form">
-                            <input
-                                type="text"
-                                value={userInput}
-                                onChange={(e) => setUserInput(e.target.value)}
-                                placeholder="Digite sua pergunta..."
-                                disabled={isChatLoading}
-                                autoFocus
-                            />
-                            <button type="submit" className="btn btn-primary" disabled={isChatLoading}>
-                                {isChatLoading ? <div className="chat-loading-spinner"></div> : <i className="fas fa-paper-plane"></i>}
-                            </button>
-                        </form>
                     </div>
-                )}
+                </section>
+
+                <section id="features" className="features">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">RECURSOS</span>
+                            <h2>Tudo que você precisa para dominar qualquer assunto</h2>
+                            <p className="section-subtitle">
+                                Combinamos neurociência e tecnologia para criar a plataforma
+                                de estudos mais eficiente do mercado.
+                            </p>
+                        </div>
+                        <div className="features-grid">
+                            <FeatureCard
+                                icon="fa-cloud"
+                                title="Geração Inteligente"
+                                description="IA analisa seu material e cria flashcards focados nos pontos mais importantes, economizando horas de preparação."
+                                badge="Novo"
+                            />
+                            <FeatureCard
+                                icon="fa-brain"
+                                title="Repetição Espaçada"
+                                description="Algoritmo baseado em neurociência que apresenta cards no momento ideal para maximizar retenção."
+                            />
+                            <FeatureCard
+                                icon="fa-chart-line"
+                                title="Analytics Detalhado"
+                                description="Dashboards em tempo real mostram seu progresso, pontos fracos e previsão de desempenho."
+                            />
+                            <FeatureCard
+                                icon="fa-file-pdf"
+                                title="Multi-formato"
+                                description="Importe PDFs, PowerPoints, vídeos do YouTube ou crie do zero. Suportamos todos os formatos."
+                            />
+                            <FeatureCard
+                                icon="fa-mobile"
+                                title="Estude em Qualquer Lugar"
+                                description="Apps nativos para iOS e Android com sincronização em tempo real. Estude offline quando quiser."
+                            />
+                            <FeatureCard
+                                icon="fa-users"
+                                title="Modo Colaborativo"
+                                description="Compartilhe decks, estude em grupo e compare seu progresso com amigos e colegas."
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <section id="how-it-works" className="how-it-works">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">PROCESSO SIMPLES</span>
+                            <h2>Comece a memorizar em 3 passos</h2>
+                            <p className="section-subtitle">
+                                Setup em menos de 60 segundos. Sem cartão de crédito.
+                            </p>
+                        </div>
+                        <div className="steps-container">
+                            <StepCard
+                                number="1"
+                                icon="fa-upload"
+                                title="Faça upload do material"
+                                description="Arraste PDFs, links ou digite suas anotações diretamente na plataforma."
+                            />
+                            <StepCard
+                                number="2"
+                                icon="fa-star"
+                                title="IA cria flashcards"
+                                description="Nossa IA analisa e gera cards otimizados em segundos, prontos para revisar."
+                            />
+                            <StepCard
+                                number="3"
+                                icon="fa-graduation-cap"
+                                title="Estude e domine"
+                                description="Revise no momento ideal e acompanhe seu progresso até a maestria completa."
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <section className="use-cases">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">PARA TODOS</span>
+                            <h2>Perfeito para cada tipo de aprendizado</h2>
+                        </div>
+                        <div className="tabs">
+                            <div className="tab-buttons">
+                                <button
+                                    className={activeTab === 'students' ? 'active' : ''}
+                                    onClick={() => setActiveTab('students')}
+                                >
+                                    <i className="fas fa-user-graduate"></i> Estudantes
+                                </button>
+                                <button
+                                    className={activeTab === 'professionals' ? 'active' : ''}
+                                    onClick={() => setActiveTab('professionals')}
+                                >
+                                    <i className="fas fa-briefcase"></i> Profissionais
+                                </button>
+                                <button
+                                    className={activeTab === 'languages' ? 'active' : ''}
+                                    onClick={() => setActiveTab('languages')}
+                                >
+                                    <i className="fas fa-language"></i> Idiomas
+                                </button>
+                            </div>
+                            <div className="tab-content">
+                                {activeTab === 'students' && (
+                                    <div className="tab-pane">
+                                        <h3>Aprovação garantida em vestibulares e concursos</h3>
+                                        <p>
+                                            Domine matérias complexas com flashcards que cobrem exatamente
+                                            o que cai nas provas. Nossos usuários relatam aumento médio de
+                                            40% nas notas após 30 dias de uso.
+                                        </p>
+                                        <ul className="check-list">
+                                            <li><i className="fas fa-check"></i> Questões de provas anteriores</li>
+                                            <li><i className="fas fa-check"></i> Simulados personalizados</li>
+                                            <li><i className="fas fa-check"></i> Revisão pré-prova otimizada</li>
+                                        </ul>
+                                    </div>
+                                )}
+                                {activeTab === 'professionals' && (
+                                    <div className="tab-pane">
+                                        <h3>Mantenha-se atualizado e acelere sua carreira</h3>
+                                        <p>
+                                            Aprenda novas habilidades, certificações e conceitos técnicos
+                                            em tempo recorde. Ideal para quem precisa absorver muito
+                                            conteúdo rapidamente.
+                                        </p>
+                                        <ul className="check-list">
+                                            <li><i className="fas fa-check"></i> Certificações profissionais</li>
+                                            <li><i className="fas fa-check"></i> Treinamentos corporativos</li>
+                                            <li><i className="fas fa-check"></i> Desenvolvimento contínuo</li>
+                                        </ul>
+                                    </div>
+                                )}
+                                {activeTab === 'languages' && (
+                                    <div className="tab-pane">
+                                        <h3>Fluência mais rápida com vocabulário sólido</h3>
+                                        <p>
+                                            Memorize vocabulário, gramática e expressões idiomáticas
+                                            de forma natural. Nosso sistema adapta-se ao seu nível e
+                                            velocidade de aprendizado.
+                                        </p>
+                                        <ul className="check-list">
+                                            <li><i className="fas fa-check"></i> 5000+ palavras essenciais</li>
+                                            <li><i className="fas fa-check"></i> Pronúncia com áudio nativo</li>
+                                            <li><i className="fas fa-check"></i> Contexto e exemplos reais</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="testimonials" className="testimonials">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">DEPOIMENTOS</span>
+                            <h2>Histórias de sucesso reais</h2>
+                            <p className="section-subtitle">
+                                Veja como o Recall está transformando a forma como pessoas aprendem
+                            </p>
+                        </div>
+                        <div className="testimonials-grid">
+                            <TestimonialCard
+                                name="Marina Silva"
+                                role="Medicina"
+                                institution="USP"
+                                image="https://i.pravatar.cc/150?img=1"
+                                rating={5}
+                                text="Passei em primeiro lugar no vestibular! O Recall foi essencial para memorizar toda a anatomia e fisiologia. Recomendo demais!"
+                            />
+                            <TestimonialCard
+                                name="Carlos Eduardo"
+                                role="Engenheiro de Software"
+                                institution="Google"
+                                image="https://i.pravatar.cc/150?img=3"
+                                rating={5}
+                                text="Uso para estudar para certificações. Já passei em 3 exames este ano. A repetição espaçada é realmente eficaz."
+                            />
+                            <TestimonialCard
+                                name="Ana Beatriz"
+                                role="Concurseira"
+                                institution="TRF aprovada"
+                                image="https://i.pravatar.cc/150?img=5"
+                                rating={5}
+                                text="Depois de 2 anos tentando, finalmente passei! O Recall organizou meus estudos e me fez reter muito mais conteúdo."
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Preços */}
+                <section id="pricing" className="pricing">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">PLANOS</span>
+                            <h2>Invista no seu futuro</h2>
+                            <p className="section-subtitle">
+                                Comece grátis. Faça upgrade quando quiser.
+                            </p>
+                        </div>
+                        <div className="pricing-grid">
+                            <PricingCard
+                                name="Básico"
+                                price="0"
+                                period="mês"
+                                features={[
+                                    "100 flashcards/mês",
+                                    "IA básica",
+                                    "1 dispositivo",
+                                    "Estatísticas simples"
+                                ]}
+                                ctaText="Começar Grátis"
+                            />
+                            <PricingCard
+                                name="Pro"
+                                price="29"
+                                period="mês"
+                                features={[
+                                    "Flashcards ilimitados",
+                                    "IA avançada (GPT-5",
+                                    "Dispositivos ilimitados",
+                                    "Analytics completo",
+                                    "Modo offline",
+                                    "Suporte prioritário"
+                                ]}
+                                highlighted={true}
+                                ctaText="Teste 7 dias grátis"
+                            />
+                            <PricingCard
+                                name="Equipe"
+                                price="99"
+                                period="mês"
+                                features={[
+                                    "Tudo do Pro",
+                                    "5 usuários inclusos",
+                                    "Colaboração em tempo real",
+                                    "Admin dashboard",
+                                    "API access",
+                                    "Suporte dedicado"
+                                ]}
+                                ctaText="Falar com Vendas"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* FAQ */}
+                <section className="faq">
+                    <div className="landing-container">
+                        <div className="section-header">
+                            <span className="section-tag">FAQ</span>
+                            <h2>Perguntas frequentes</h2>
+                        </div>
+                        <div className="faq-grid">
+                            <div className="faq-item">
+                                <h3>Como funciona o período grátis?</h3>
+                                <p>Você pode usar o plano básico para sempre ou testar o Pro por 7 dias sem compromisso. Não pedimos cartão de crédito.</p>
+                            </div>
+                            <div className="faq-item">
+                                <h3>Posso cancelar a qualquer momento?</h3>
+                                <p>Sim! Sem multas ou pegadinhas. Cancele com 1 clique e continue usando até o fim do período pago.</p>
+                            </div>
+                            <div className="faq-item">
+                                <h3>Funciona para qualquer matéria?</h3>
+                                <p>Absolutamente! De medicina a idiomas, passando por programação e história. Nossa IA adapta-se a qualquer conteúdo.</p>
+                            </div>
+                            <div className="faq-item">
+                                <h3>E se eu já tiver meus próprios flashcards?</h3>
+                                <p>Perfeito! Você pode importar de Anki, Quizlet e outros. Também pode criar cards manualmente quando quiser.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
-            <Modal
-                isOpen={isExplanationModalOpen}
-                onClose={() => setExplanationModalOpen(false)}
-                title="Explicação da IA"
-            >
-                <div className="explanation-content">
-                    {explanation.isLoading ? (
-                        <div className="loading-spinner"></div>
-                    ) : (
-                        <p>{explanation.text}</p>
-                    )}
+            <footer className="landing-footer">
+                <div className="landing-container">
+                    <div className="footer-content">
+                        <div className="footer-brand">
+                            <div className="footer-logo">
+                                <i className="fas fa-brain"></i>
+                                <span>Recall</span>
+                            </div>
+                            <p>Aprendizado acelerado com inteligência artificial.</p>
+                            <div className="footer-social">
+                                <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
+                                <a href="#" aria-label="LinkedIn"><i className="fab fa-linkedin"></i></a>
+                                <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
+                                <a href="#" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
+                            </div>
+                        </div>
+                        <div className="footer-links">
+                            <div className="footer-column">
+                                <h4>Produto</h4>
+                                <ul>
+                                    <li><a href="#features">Recursos</a></li>
+                                    <li><a href="#pricing">Preços</a></li>
+                                    <li><Link to="/login">Login</Link></li>
+                                    <li><Link to="/register">Cadastro</Link></li>
+                                </ul>
+                            </div>
+                            <div className="footer-column">
+                                <h4>Empresa</h4>
+                                <ul>
+                                    <li><Link to="/sobre">Sobre</Link></li>
+                                    <li><Link to="/contato">Contato</Link></li>
+                                </ul>
+                            </div>
+                            <div className="footer-column">
+                                <h4>Suporte</h4>
+                                <ul>
+                                    <li><Link to="/ajuda">Central de Ajuda</Link></li>
+                                    <li><Link to="/api-docs">API Docs</Link></li>
+                                </ul>
+                            </div>
+                            <div className="footer-column">
+                                <h4>Legal</h4>
+                                <ul>
+                                    <li><Link to="/privacidade">Privacidade</Link></li>
+                                    <li><Link to="/termos">Termos</Link></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="footer-bottom">
+                        <p>&copy; {new Date().getFullYear()} Recall. Todos os direitos reservados.</p>
+                        <p className="footer-location">
+                        </p>
+                    </div>
                 </div>
-                <div className="modal-footer">
-                    <button className="btn btn-secondary" onClick={handleOpenChat}>
-                        <i className="fas fa-comments"></i> Tirar mais dúvidas
-                    </button>
-                    <button className="btn btn-primary" onClick={() => setExplanationModalOpen(false)}>
-                        Entendi!
-                    </button>
-                </div>
-            </Modal>
+            </footer>
+
+            <VideoModal isOpen={isVideoModalOpen} onClose={() => setVideoModalOpen(false)} />
         </>
     );
 }
 
-export default StudySession;
+export default Landing;
