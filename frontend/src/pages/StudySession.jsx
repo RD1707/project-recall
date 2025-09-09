@@ -5,6 +5,8 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { fetchReviewCards, submitReview } from '../api/flashcards';
 import { fetchDeckById } from '../api/decks';
+import Modal from '../components/common/Modal';       
+import { fetchReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
 
 import '../assets/css/study.css';
 
@@ -133,7 +135,11 @@ const StudyCard = ({ card, isFlipped, onFlip, feedback }) => (
                 </article>
                 <article className="card-face card-back">
                     <div className="card-body"><div className="card-content-wrapper"><p className="card-content">{card?.answer}</p></div></div>
-                    <div className="card-footer"><p className="quality-prompt">Como foi seu desempenho?</p></div>
+                    <div className="card-footer">
+                        <button className="btn btn-secondary btn-small explain-btn" onClick={(e) => { e.stopPropagation(); onExplain(); }}>
+                            <i className="fas fa-lightbulb"></i> Explique Melhor
+                        </button>
+                    </div>
                 </article>
             </div>
             <div className={`feedback-overlay ${feedback.type} ${feedback.show ? 'active' : ''}`}>
@@ -183,11 +189,23 @@ function StudySession() {
         totalTime: 0, totalCardsStudied: 0,
         mistakes: new Set(),
     });
+    const [messages, setMessages] = useState([]);
+    const [userInput, setUserInput] = useState('');
+    const [isChatLoading, setChatLoading] = useState(false);
+    const messagesEndRef = useRef(null);
+    const [isExplanationModalOpen, setExplanationModalOpen] = useState(false);
+    const [explanation, setExplanation] = useState({ text: '', isLoading: false });
+    const [isChatOpen, setChatOpen] = useState(false);
+    
 
     const timerRef = useRef(null);
     const currentIndexRef = useRef(currentIndex);
     const cardsToStudyRef = useRef(cardsToStudy);
     const timerValueRef = useRef(timer);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     useEffect(() => {
         currentIndexRef.current = currentIndex;
@@ -247,6 +265,55 @@ function StudySession() {
     }, []);
 
     const handleFlip = useCallback(() => !isFlipped && setIsFlipped(true), [isFlipped]);
+
+    const handleExplain = async () => {
+    if (!currentCard) return;
+
+    setExplanation({ text: '', isLoading: true });
+    setExplanationModalOpen(true);
+
+    try {
+        const data = await getExplanation(currentCard.id);
+        setExplanation({ text: data.explanation, isLoading: false });
+    } catch (error) {
+        toast.error("Não foi possível carregar a explicação.");
+        setExplanation({ text: '', isLoading: false });
+        setExplanationModalOpen(false);
+    }
+    };
+
+    const handleOpenChat = () => {
+        setExplanationModalOpen(false);
+        setChatOpen(true);
+        setMessages([
+            {
+                role: 'CHATBOT',
+                message: `Olá! Sobre o que você gostaria de saber mais a respeito de "${currentCard.question}"?`
+            }
+        ]);
+    };
+
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        if (!userInput.trim() || isChatLoading) return;
+
+        const newUserMessage = { role: 'USER', message: userInput.trim() };
+        const updatedMessages = [...messages, newUserMessage];
+        setMessages(updatedMessages);
+        setUserInput('');
+        setChatLoading(true);
+
+        try {
+            const data = await chatWithTutor(currentCard.id, updatedMessages);
+            const aiResponseMessage = { role: 'CHATBOT', message: data.reply };
+            setMessages(prev => [...prev, aiResponseMessage]);
+        } catch (error) {
+            toast.error("A IA não conseguiu responder. Tente novamente.");
+            setMessages(messages);
+        } finally {
+            setChatLoading(false);
+        }
+    };
 
     const handleNextCard = useCallback(() => {
         if (currentIndexRef.current < cardsToStudyRef.current.length - 1) {
@@ -342,7 +409,7 @@ function StudySession() {
                         card={currentCard}
                         isFlipped={isFlipped}
                         onFlip={handleFlip}
-                        feedback={feedback}
+                        onExplain={handleExplain} // Passe a função aqui
                     />
                     <div className="response-controls">
                         <ResponseControls

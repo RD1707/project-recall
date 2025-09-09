@@ -177,3 +177,40 @@ export const submitReview = async (cardId, quality) => {
         throw error;
     }
 };
+
+export const getExplanation = async (cardId) => {
+    try {
+        const response = await fetch(`/api/flashcards/${cardId}/explain`, {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            }
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'getExplanation');
+        }
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const chatWithTutor = async (cardId, chatHistory) => {
+    try {
+        const response = await fetch(`/api/flashcards/${cardId}/chat`, {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            },
+            body: JSON.stringify({ chatHistory })
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'chatWithTutor');
+        }
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};

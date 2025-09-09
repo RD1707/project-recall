@@ -107,8 +107,38 @@ const generateStudyInsight = async (performanceData) => {
     }
 };
 
+const getChatResponse = async (question, answer, chatHistory) => {
+    const preamble = `
+        Você é um tutor de IA amigável e prestativo chamado Recall. Sua função é ajudar um aluno a entender melhor um tópico específico de um flashcard.
+        O contexto do estudo atual é:
+        - Pergunta do Flashcard: "${question}"
+        - Resposta do Flashcard: "${answer}"
+
+        Responda às perguntas do aluno de forma clara, concisa e didática, mantendo-se sempre dentro do contexto do flashcard. Não desvie do assunto.
+    `;
+
+    const userMessage = chatHistory.pop(); 
+
+    try {
+        const response = await cohere.chat({
+            model: 'command-r',
+            preamble: preamble,
+            chatHistory: chatHistory, 
+            message: userMessage.message, 
+            temperature: 0.5,
+        });
+
+        return response.text.trim();
+
+    } catch (error) {
+        console.error("Erro ao gerar resposta do chat da Cohere:", error);
+        return null;
+    }
+};
+
 module.exports = {
     generateFlashcardsFromText,
     getExplanationForFlashcard,
-    generateStudyInsight, 
+    generateStudyInsight,
+    getChatResponse 
 };

@@ -25,6 +25,13 @@ const checkDeckOwnership = async (deckId, userId) => {
     return !error && data;
 };
 
+const chatSchema = z.object({
+    chatHistory: z.array(z.object({
+        role: z.enum(['USER', 'CHATBOT']),
+        message: z.string(),
+    })).min(1, 'O histórico do chat não pode estar vazio.'),
+});
+
 const getFlashcardsInDeck = async (req, res) => {
     const { deckId } = req.params;
     const userId = req.user.id;
@@ -262,11 +269,45 @@ const getExplanation = async (req, res) => {
     }
 };
 
+const chatWithTutor = async (req, res) => {
+    const { cardId } = req.params;
+    const userId = req.user.id;
+    try {
+        const { chatHistory } = chatSchema.parse(req.body);
+
+        const { data: card, error: fetchError } = await supabase
+            .from('flashcards').select('question, answer, decks(user_id)').eq('id', cardId).single();
+
+        if (fetchError || !card) {
+            return res.status(404).json({ message: 'Flashcard não encontrado.', code: 'NOT_FOUND' });
+        }
+        if (card.decks.user_id !== userId) {
+            return res.status(403).json({ message: 'Acesso negado.', code: 'FORBIDDEN' });
+        }
+
+        const responseMessage = await getChatResponse(card.question, card.answer, chatHistory);
+
+        if (!responseMessage) {
+            return res.status(500).json({ message: 'Não foi possível gerar a resposta no momento.', code: 'IA_SERVICE_ERROR' });
+        }
+
+        res.status(200).json({ reply: responseMessage });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: error.errors[0].message, code: 'VALIDATION_ERROR' });
+        }
+        logger.error(`Erro no chat para o card ${cardId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro interno do servidor.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = {
     getFlashcardsInDeck,
     createFlashcard,
     updateFlashcard,
     deleteFlashcard,
     reviewFlashcard,
-    getExplanation
+    getExplanation,
+    chatWithTutor
 };

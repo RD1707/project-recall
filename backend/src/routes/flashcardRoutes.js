@@ -11,5 +11,6 @@ router.route('/:cardId')
 
 router.post('/:cardId/review', flashcardController.reviewFlashcard);
 router.post('/:cardId/explain', flashcardController.getExplanation);
+router.post('/:cardId/chat', flashcardController.chatWithTutor);
 
 module.exports = router;
