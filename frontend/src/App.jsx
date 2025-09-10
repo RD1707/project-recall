@@ -11,40 +11,49 @@ import ApiDocs from './pages/ApiDocs';
 import Privacidade from './pages/Privacidade';
 import Termos from './pages/Termos';
 import SharedDeck from './pages/SharedDeck';
-
 import Dashboard from './pages/Dashboard';
 import DeckDetail from './pages/DeckDetail';
 import StudySession from './pages/StudySession';
 import Progress from './pages/Progress';
 import CompleteProfile from './pages/CompleteProfile';
+import Ranking from './pages/Ranking';
+import QuizLobby from './pages/QuizLobby';
+import QuizGame from './pages/QuizGame'; 
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CookieBanner from './components/common/CookieBanner';
+import { SocketProvider } from './context/SocketContext';
+
 
 function App() {
   return (
-    <BrowserRouter>
-      <CookieBanner />
+    <SocketProvider>
+      <BrowserRouter>
+        <CookieBanner />
 
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/ajuda" element={<Ajuda />} />
-        <Route path="/sobre" element={<Sobre />} />
-        <Route path="/contato" element={<Contato />} />
-        <Route path="/api-docs" element={<ApiDocs />} />
-        <Route path="/privacidade" element={<Privacidade />} />
-        <Route path="/termos" element={<Termos />} />
-        <Route path="/shared-deck/:shareableId" element={<SharedDeck />} />
+        <Routes>
+          <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/ajuda" element={<Ajuda />} />
+            <Route path="/sobre" element={<Sobre />} />
+            <Route path="/contato" element={<Contato />} />
+            <Route path="/api-docs" element={<ApiDocs />} />
+            <Route path="/privacidade" element={<Privacidade />} />
+            <Route path="/termos" element={<Termos />} />
+            <Route path="/shared-deck/:shareableId" element={<SharedDeck />} />
 
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
-        <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
-        <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-        <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
+          <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
+          <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+          <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
+          <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
+          <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} /> 
+          <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </SocketProvider>
   );
 }
 

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Header from '../components/common/Header';
 import AIGenerator from '../components/decks/AIGenerator';
 import Modal from '../components/common/Modal';
+import { useSocket } from '../context/SocketContext'; 
 
 import { fetchDeckById, fetchFlashcardsByDeckId, shareDeck } from '../api/decks';
 import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashcards';
@@ -18,7 +19,7 @@ const LoadingComponent = () => (
     </div>
 );
 
-const DeckHeader = ({ deck, onShare }) => (
+const DeckHeader = ({ deck, onShare, onCreateQuiz, isCreatingQuiz }) => ( 
     <section className="deck-hero">
         <div className="hero-content">
             <Link to="/dashboard" className="back-btn"><i className="fas fa-arrow-left"></i> Voltar aos Baralhos</Link>
@@ -29,8 +30,12 @@ const DeckHeader = ({ deck, onShare }) => (
             <div className="deck-actions">
                 <Link to={`/study/${deck.id}`} className="btn btn-primary btn-large">
                     <i className="fas fa-play-circle"></i>
-                    <span><strong>Estudar Agora</strong></span>
+                    <span><strong>Estudar Sozinho</strong></span>
                 </Link>
+                <button onClick={onCreateQuiz} className="btn btn-secondary btn-large" disabled={isCreatingQuiz}>
+                    <i className={isCreatingQuiz ? "fas fa-spinner fa-spin" : "fas fa-users"}></i>
+                    <span>{isCreatingQuiz ? 'A criar sala...' : 'Jogar Quiz em Grupo'}</span>
+                </button>
                 <button onClick={onShare} className="btn btn-secondary">
                     <i className="fas fa-share-alt"></i> Compartilhar
                 </button>
@@ -116,10 +121,12 @@ const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
 function DeckDetail() {
     const { deckId } = useParams();
     const navigate = useNavigate();
+    const socket = useSocket(); 
 
     const [deck, setDeck] = useState(null);
     const [flashcards, setFlashcards] = useState([]);
-    const [status, setStatus] = useState('loading'); 
+    const [status, setStatus] = useState('loading');
+    const [isCreatingQuiz, setIsCreatingQuiz] = useState(false); 
     
     const [modalState, setModalState] = useState({ type: null, data: null }); 
     const [formData, setFormData] = useState({ question: '', answer: '' });
@@ -206,7 +213,7 @@ function DeckDetail() {
 
         try {
             const resultCard = await toast.promise(action, {
-                loading: 'Salvando card...',
+                loading: 'A salvar card...',
                 success: `Card ${isEditing ? 'atualizado' : 'adicionado'}!`,
                 error: 'Ocorreu um erro.',
             });
@@ -220,10 +227,10 @@ function DeckDetail() {
     };
     
     const handleDeleteCard = async (cardId) => {
-        if (!window.confirm("Tem certeza que quer excluir este flashcard?")) return;
+        if (!window.confirm("Tem a certeza que quer excluir este flashcard?")) return;
         try {
             await toast.promise(deleteFlashcard(cardId), {
-                loading: 'Excluindo...',
+                loading: 'A excluir...',
                 success: 'Flashcard excluído!',
                 error: 'Falha ao excluir.',
             });
@@ -234,8 +241,8 @@ function DeckDetail() {
     const handleShare = async () => {
         try {
             const result = await toast.promise(shareDeck(deckId), {
-                loading: 'Gerando link...',
-                success: 'Link de compartilhamento pronto!',
+                loading: 'A gerar link...',
+                success: 'Link de partilha pronto!',
                 error: 'Falha ao gerar link.',
             });
             if (result.shareableLink) {
@@ -243,6 +250,18 @@ function DeckDetail() {
                 openModal('share');
             }
         } catch (err) {}
+    };
+    
+    const handleCreateQuiz = () => {
+        setIsCreatingQuiz(true);
+        socket.emit('quiz:create', { deckId }, (response) => {
+            setIsCreatingQuiz(false);
+            if (response.success) {
+                navigate(`/quiz/${response.roomId}`);
+            } else {
+                toast.error(response.message || "Não foi possível criar o quiz.");
+            }
+        });
     };
 
     const copyToClipboard = () => {
@@ -276,7 +295,12 @@ function DeckDetail() {
         <>
             <Header />
             <main className="deck-main">
-                <DeckHeader deck={deck} onShare={handleShare} />
+                <DeckHeader 
+                    deck={deck} 
+                    onShare={handleShare} 
+                    onCreateQuiz={handleCreateQuiz} 
+                    isCreatingQuiz={isCreatingQuiz}
+                />
                 <DeckStats stats={stats} />
                 <div className="deck-content-grid">
                     <FlashcardList

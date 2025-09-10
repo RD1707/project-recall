@@ -1,0 +1,274 @@
+.quiz-lobby-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    min-height: calc(100vh - var(--header-height));
+}
+
+.lobby-container {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.lobby-header h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: 0.5rem;
+}
+
+.lobby-header p {
+    color: var(--color-text-muted);
+    margin-bottom: 2.5rem;
+}
+
+.room-code-section {
+    margin-bottom: 2.5rem;
+}
+
+.room-code-section span {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.room-code-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    margin-top: 0.75rem;
+}
+
+.room-code-box strong {
+    font-family: monospace;
+    font-size: 2.5rem;
+    letter-spacing: 0.2em;
+    color: var(--color-primary-500);
+}
+
+.room-code-box button {
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    padding: 0.5rem;
+}
+
+.players-section h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+}
+
+.player-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.player-name {
+    font-weight: 500;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.lobby-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.waiting-text {
+    font-style: italic;
+    color: var(--color-text-muted);
+}
+
+/* --- ESTILOS PARA A PÁGINA DO JOGO --- */
+
+.quiz-game-main {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.game-header {
+    margin-bottom: 2rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.question-container {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    padding: 3rem 2rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.question-container h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.5;
+}
+
+.answers-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.answers-container .option-btn {
+    padding: 1.25rem;
+    font-size: 1.125rem;
+    height: 100%;
+    min-height: 80px;
+}
+
+.answers-container .option-btn.selected {
+    background-color: var(--color-primary-100);
+    border-color: var(--color-primary-500);
+    color: var(--color-primary-600);
+}
+
+.answers-container .option-btn.correct {
+    background-color: #dcfce7;
+    border-color: #22c55e; 
+    color: #166534; 
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.answers-container .option-btn.incorrect {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b; 
+    animation: shake 0.5s ease-in-out;
+}
+
+.answers-container .option-btn.disabled {
+    opacity: 0.6;
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+/* --- ESTILOS PARA A TELA DE CONCLUSÃO DO QUIZ --- */
+
+.completion-container {
+    width: 100%;
+    max-width: 700px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.completion-header {
+    margin-bottom: 2rem;
+}
+
+.completion-header .trophy-icon {
+    font-size: 3rem;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.completion-header h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: 0.5rem;
+}
+
+.completion-header p {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+}
+
+.final-leaderboard {
+    margin-bottom: 2rem;
+}
+
+.final-leaderboard h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.final-leaderboard .ranking-row {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.75rem;
+    border: none;
+}
+
+.final-leaderboard .ranking-row .points-cell {
+    justify-content: flex-end;
+}
+
+.completion-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}

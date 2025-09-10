@@ -103,3 +103,20 @@ export const logout = async () => {
         return handleApiError(error, 'logout');
     }
 };
+
+export const fetchLeaderboard = async (period = 'all_time') => {
+    try {
+        const response = await fetch(`/api/profile/leaderboard?period=${period}`, {
+            headers: {
+                'Authorization': await getAuthHeader(),
+            },
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao buscar o ranking.');
+        }
+        return await response.json();
+    } catch (error) {
+        throw handleApiError(error, 'fetchLeaderboard');
+    }
+};

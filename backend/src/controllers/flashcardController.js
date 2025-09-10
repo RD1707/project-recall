@@ -183,19 +183,20 @@ const reviewFlashcard = async (req, res) => {
             logger.error(`Falha ao guardar no histórico de revisões: ${historyError.message}`);
         }
 
-
         if (quality >= 3) {
             try {
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('points, current_streak, last_studied_at')
+                    .select('points, weekly_points, current_streak, last_studied_at') 
                     .eq('id', userId)
                     .single();
 
                 if (profileError) throw profileError;
 
                 const pointsToAdd = 10;
+                
                 const newPoints = profile.points + pointsToAdd;
+                const newWeeklyPoints = profile.weekly_points + pointsToAdd; 
 
                 let newStreak = profile.current_streak;
                 const today = new Date();
@@ -204,10 +205,8 @@ const reviewFlashcard = async (req, res) => {
                 if (profile.last_studied_at) {
                     const lastStudied = new Date(profile.last_studied_at);
                     lastStudied.setHours(0, 0, 0, 0);
-
                     const diffTime = today - lastStudied;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
                     if (diffDays === 1) {
                         newStreak += 1; 
                     } else if (diffDays > 1) {
@@ -221,6 +220,7 @@ const reviewFlashcard = async (req, res) => {
                     .from('profiles')
                     .update({
                         points: newPoints,
+                        weekly_points: newWeeklyPoints,
                         current_streak: newStreak,
                         last_studied_at: new Date().toISOString()
                     })
@@ -228,28 +228,17 @@ const reviewFlashcard = async (req, res) => {
                 
                 try {
                     updateAchievementProgress(userId, 'streak_days', newStreak);
-
-                    const { count: totalReviews } = await supabase
-                        .from('review_history')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('user_id', userId);
+                    const { count: totalReviews } = await supabase.from('review_history').select('*', { count: 'exact', head: true }).eq('user_id', userId);
                     if (totalReviews !== null) {
                         updateAchievementProgress(userId, 'reviews_total', totalReviews);
                     }
-
-                    const { count: masteredCards } = await supabase
-                        .from('flashcards')
-                        .select('id, decks!inner(user_id)', { count: 'exact', head: true })
-                        .eq('decks.user_id', userId)
-                        .gt('interval', 21);
+                    const { count: masteredCards } = await supabase.from('flashcards').select('id, decks!inner(user_id)', { count: 'exact', head: true }).eq('decks.user_id', userId).gt('interval', 21);
                     if (masteredCards !== null) {
                         updateAchievementProgress(userId, 'cards_mastered', masteredCards);
                     }
-
                 } catch (achievementError) {
                      logger.error(`Falha ao atualizar conquistas para o usuário ${userId} após revisão:`, achievementError);
                 }
-
 
             } catch (gamificationError) {
                 console.error('Erro na lógica de gamificação:', gamificationError);

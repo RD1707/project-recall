@@ -74,7 +74,7 @@ const updateProfile = async (req, res) => {
         }
 
         if (full_name !== undefined) profileDataToUpdate.full_name = full_name;
-        if (bio !== undefined) profileDataToUpdate.bio = bio; // Adiciona bio à atualização
+        if (bio !== undefined) profileDataToUpdate.bio = bio;
         
         if (Object.keys(profileDataToUpdate).length > 0) {
             const { data: updatedProfile, error: profileError } = await supabase
@@ -173,17 +173,31 @@ const getProfileByUsername = async (req, res) => {
 
 const getLeaderboard = async (req, res) => {
     const { limit = 10, offset = 0 } = req.query;
+    const period = req.query.period || 'all_time'; 
     
     try {
+        let orderByColumn = 'points';
+        let pointsColumn = 'points';
+
+        if (period === 'weekly') {
+            orderByColumn = 'weekly_points';
+            pointsColumn = 'weekly_points';
+        }
+
         const { data, error } = await supabase
             .from('profiles')
-            .select('username, full_name, points, current_streak')
-            .order('points', { ascending: false })
+            .select(`username, full_name, avatar_url, ${pointsColumn}`)
+            .order(orderByColumn, { ascending: false })
             .range(offset, offset + limit - 1);
 
         if (error) throw error;
         
-        res.status(200).json(data);
+        const formattedData = data.map(profile => ({
+            ...profile,
+            points: profile[pointsColumn]
+        }));
+        
+        res.status(200).json(formattedData);
 
     } catch (error) {
         logger.error(`Error fetching leaderboard: ${error.message}`);

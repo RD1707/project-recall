@@ -22,7 +22,9 @@
     "mammoth": "^1.7.2",
     "multer": "^2.0.2",
     "pdf-parse": "^1.1.1",
+    "socket.io": "^4.7.5",
     "tesseract.js": "^5.0.5",
+    "uuid": "^9.0.1",
     "winston": "^3.13.0",
     "youtube-transcript": "^1.0.6",
     "zod": "^3.23.8"
