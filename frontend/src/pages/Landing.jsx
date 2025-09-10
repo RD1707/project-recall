@@ -488,12 +488,6 @@ function Landing() {
                                 <span>Recall</span>
                             </div>
                             <p>Aprendizado acelerado com inteligência artificial.</p>
-                            <div className="footer-social">
-                                <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
-                                <a href="#" aria-label="LinkedIn"><i className="fab fa-linkedin"></i></a>
-                                <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
-                                <a href="#" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
-                            </div>
                         </div>
                         <div className="footer-links">
                             <div className="footer-column">
