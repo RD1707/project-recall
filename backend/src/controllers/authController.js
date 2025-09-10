@@ -96,7 +96,8 @@ const login = async (req, res) => {
 };
 
 const completeGoogleProfile = async (req, res) => {
-    const { userId, fullName, username } = req.body;
+    const userId = req.user.id; 
+    const { fullName, username } = req.body; 
 
     if (!userId || !fullName || !username) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
