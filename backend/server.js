@@ -12,7 +12,7 @@ const profileRoutes = require('./src/routes/profileRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const shareRoutes = require('./src/routes/shareRoutes');
 const achievementRoutes = require('./src/routes/achievementRoutes');
-const quizSocketHandler = require('./src/sockets/quizSocketHandler');
+const quizSocketHandler = require('./src/socket/quizSocketHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
