@@ -10,6 +10,8 @@ function ProtectedRoute({ children }) {
 
   useEffect(() => {
     const checkUser = async () => {
+      if (loading === false) setLoading(true);
+
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
 
@@ -39,7 +41,7 @@ function ProtectedRoute({ children }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [location]);
 
   if (loading) {
     return (
@@ -59,10 +61,8 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!profile || !profile.username) {
-    if (location.pathname !== '/complete-profile') {
-      return <Navigate to="/complete-profile" replace />;
-    }
+  if ((!profile || !profile.username) && location.pathname !== '/complete-profile') {
+    return <Navigate to="/complete-profile" replace />;
   }
 
   if (profile?.username && location.pathname === '/complete-profile') {
