@@ -37,7 +37,7 @@ export const createFlashcard = async (deckId, flashcardData) => {
             await handleApiError(response, 'createFlashcard');
         }
         const data = await response.json();
-        return data.flashcard; 
+        return data.flashcard;
     } catch (error) {
         console.error("Falha ao criar flashcard:", error);
         throw error;
@@ -90,9 +90,10 @@ export const generateFlashcardsFromText = async (deckId, params) => {
                 'Authorization': await getAuthHeader()
             },
             body: JSON.stringify({
-                textContent: params.textContent, 
+                textContent: params.textContent,
                 count: params.count,
-                type: "Pergunta e Resposta",
+                type: params.type,
+                difficulty: params.difficulty,
             })
         });
         if (!response.ok) {
@@ -131,9 +132,10 @@ export const generateFlashcardsFromYouTube = async (deckId, params) => {
                 'Authorization': await getAuthHeader()
             },
             body: JSON.stringify({
-                youtubeUrl: params.youtubeUrl, 
+                youtubeUrl: params.youtubeUrl,
                 count: params.count,
-                type: "Pergunta e Resposta",
+                type: params.type,
+                difficulty: params.difficulty,
             })
         });
         if (!response.ok) {
