@@ -97,12 +97,6 @@ const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => {
 
 const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
     <section className="flashcards-section">
-        <div className="section-header">
-            <h2 className="section-title">Flashcards ({flashcards.length})</h2>
-            <button onClick={onAdd} className="btn btn-primary">
-                <i className="fas fa-plus"></i> Adicionar Card
-            </button>
-        </div>
         <div className="flashcards-grid">
             {flashcards.length > 0 ? (
                 flashcards.map(card => (
