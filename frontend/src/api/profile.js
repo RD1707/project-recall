@@ -33,9 +33,10 @@ export const fetchProfile = async () => {
     }
 
     return {
+      id: user.id, 
       email: user.email,
       username: profile?.username || '',
-      full_name: profile?.full_name || '',
+      fullName: profile?.full_name || '', 
       points: profile?.points || 0,
       current_streak: profile?.current_streak || 0,
       bio: profile?.bio || '',
@@ -92,7 +93,6 @@ export const uploadAvatar = async (file) => {
     }
 };
 
-
 export const logout = async () => {
     try {
         const { error } = await supabase.auth.signOut();
@@ -107,11 +107,7 @@ export const logout = async () => {
 
 export const fetchLeaderboard = async (period = 'all_time') => {
     try {
-        const response = await fetch(`/api/profile/leaderboard?period=${period}`, {
-            headers: {
-                'Authorization': await getAuthHeader(),
-            },
-        });
+        const response = await fetch(`/api/profile/leaderboard?period=${period}`);
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Falha ao buscar o ranking.');

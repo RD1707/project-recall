@@ -9,13 +9,13 @@ const getSafeQuestion = (question) => {
     return safeQuestion;
 };
 
-const createQuiz = async (deckId, hostId) => {
+const createQuiz = async (deckId, hostUser) => {
   try {
     const { data: flashcards, error } = await supabase
       .from('flashcards')
       .select('id, question, answer, options, card_type')
       .eq('deck_id', deckId)
-      .limit(10);
+      .limit(10); 
 
     if (error) throw new Error('Não foi possível buscar os flashcards para o quiz.');
     if (flashcards.length < 2) {
@@ -26,8 +26,8 @@ const createQuiz = async (deckId, hostId) => {
 
     const quizState = {
       deckId,
-      hostId,
-      players: [],
+      hostId: hostUser.socketId, 
+      players: [{ ...hostUser, score: 0 }], 
       questions: flashcards.sort(() => Math.random() - 0.5),
       currentQuestionIndex: 0,
       state: 'waiting',
@@ -36,7 +36,7 @@ const createQuiz = async (deckId, hostId) => {
 
     quizzes[roomId] = quizState;
 
-    console.log(`[Quiz Service] Novo quiz criado. Sala: ${roomId}`);
+    console.log(`[Quiz Service] Novo quiz criado. Sala: ${roomId} por ${hostUser.username}`);
     return { quiz: quizState, roomId }; 
   } catch (err) {
     console.error(`[Quiz Service] Erro ao criar quiz: ${err.message}`);
@@ -69,6 +69,8 @@ const startQuiz = (roomId, userId) => {
     if (!quiz) throw new Error('Sala de quiz não encontrada.');
     if (quiz.hostId !== userId) throw new Error('Apenas o anfitrião pode iniciar o quiz.');
     if (quiz.state !== 'waiting') throw new Error('O quiz já foi iniciado.');
+    if (quiz.players.length < 2) throw new Error('São necessários pelo menos 2 jogadores para iniciar.');
+
 
     quiz.state = 'in_progress';
     console.log(`[Quiz Service] Quiz na sala ${roomId} foi iniciado.`);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../api/supabaseClient';
+import LoadingSpinner from '../common/LoadingSpinner'; 
 
 function ProtectedRoute({ children }) {
   const [session, setSession] = useState(null);
@@ -44,17 +45,7 @@ function ProtectedRoute({ children }) {
   }, [location]);
 
   if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px'
-      }}>
-        Carregando sua sessão...
-      </div>
-    );
+    return <LoadingSpinner message="Carregando sua sessão..." />;
   }
 
   if (!session) {

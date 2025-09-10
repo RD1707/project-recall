@@ -91,7 +91,7 @@
     padding: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem; 
     transition: var(--transition-fast);
     box-shadow: var(--shadow-soft);
 }
@@ -113,6 +113,11 @@
     background-color: var(--icon-color);
     color: var(--icon-bg);
     font-size: 1.25rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
 }
 
 .stat-value {

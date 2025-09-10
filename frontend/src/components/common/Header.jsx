@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { fetchProfile, logout } from '../../api/profile'; // updateProfile não é mais necessário aqui
+import { fetchProfile, logout } from '../../api/profile';
 import toast from 'react-hot-toast';
 
 import ProfileModal from '../profile/ProfileModal';
@@ -9,11 +9,12 @@ import SettingsModal from '../profile/SettingsModal';
 function Header() {
   const [user, setUser] = useState({
     points: 0,
-    streak: 0,
+    current_streak: 0, 
     initial: '',
     email: 'carregando...',
     fullName: 'Usuário',
-    avatar_url: null, // Novo estado para a URL do avatar
+    username: 'Usuário', 
+    avatar_url: null,
     bio: ''
   });
   const [loading, setLoading] = useState(true);
@@ -31,11 +32,10 @@ function Header() {
         const profileData = await fetchProfile();
         if (profileData) {
           setUser({
-            ...profileData, // Usa todos os dados retornados
-            initial: profileData.full_name ? profileData.full_name.charAt(0).toUpperCase() : (profileData.email ? profileData.email.charAt(0).toUpperCase() : 'R'),
+            ...profileData,
+            initial: profileData.fullName ? profileData.fullName.charAt(0).toUpperCase() : (profileData.email ? profileData.email.charAt(0).toUpperCase() : 'R'),
           });
         } else {
-          // A API já mostra um toast, então podemos apenas redirecionar
           navigate('/login');
         }
       } catch (error) {
@@ -65,12 +65,10 @@ function Header() {
 
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
-  // Esta função agora recebe todos os dados atualizados
   const handleProfileUpdate = (updatedUserData) => {
       setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
   };
 
-  // Lógica para decidir o que mostrar no avatar
   const avatarContent = (avatarClass = 'user-avatar') => {
       if (user.avatar_url) {
           return <img src={user.avatar_url} alt="Avatar" className={avatarClass} />;
@@ -100,7 +98,7 @@ function Header() {
             </NavLink>
             <div className="user-stats">
               <div className="user-stat"><span className="stat-icon"><i className="fas fa-star"></i></span><span>{loading ? '...' : user.points}</span> Pontos</div>
-              <div className="user-stat"><span className="stat-icon"><i className="fas fa-fire"></i></span><span>{loading ? '...' : user.streak}</span> Dias</div>
+              <div className="user-stat"><span className="stat-icon"><i className="fas fa-fire"></i></span><span>{loading ? '...' : user.current_streak}</span> Dias</div>
             </div>
             <div className="user-menu" ref={dropdownRef}>
               <button id="user-menu-button" className="user-avatar-button" aria-label="Menu do usuário" onClick={toggleDropdown}>
@@ -111,7 +109,7 @@ function Header() {
                     {dropdownAvatarContent()}
                     <div className="user-details">
                         <span id="user-full-name">{user.fullName}</span>
-                        <span className="user-plan">{user.email}</span>
+                        <span className="user-plan">@{user.username}</span>
                     </div>
                 </div>
                 <div className="dropdown-divider"></div>

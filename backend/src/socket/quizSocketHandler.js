@@ -7,12 +7,17 @@ module.exports = function(io, socket) {
 
      const handleCreateQuiz = async (data, callback) => {
         try {
-            const hostId = socket.id;
+            const { deckId, user } = data;
+            if (!user || !user.id || !user.username) {
+                throw new Error("Informações de utilizador inválidas para criar o quiz.");
+            }
             
-            const { quiz, roomId } = await quizService.createQuiz(data.deckId, hostId);
+            const hostUser = { ...user, socketId: socket.id };
+            
+            const { quiz, roomId } = await quizService.createQuiz(deckId, hostUser);
             
             socket.join(roomId);
-            logger.info(`Utilizador ${socket.id} criou e juntou-se à sala ${roomId}`);
+            logger.info(`Utilizador ${hostUser.username} (${socket.id}) criou e juntou-se à sala ${roomId}`);
 
             callback({ success: true, quiz, roomId });
 

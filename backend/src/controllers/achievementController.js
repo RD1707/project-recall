@@ -33,6 +33,7 @@ const getAchievements = async (req, res) => {
                 goal: ach.goal,
                 progress: userProgress.progress,
                 unlocked_at: userProgress.unlocked_at,
+                display_progress: Math.min(userProgress.progress, ach.goal)
             };
         });
 

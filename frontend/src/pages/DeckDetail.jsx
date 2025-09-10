@@ -9,6 +9,7 @@ import { useSocket } from '../context/SocketContext';
 
 import { fetchDeckById, fetchFlashcardsByDeckId, shareDeck } from '../api/decks';
 import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashcards';
+import { fetchProfile } from '../api/profile';
 
 import '../assets/css/deck.css';
 
@@ -118,6 +119,7 @@ const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
     </section>
 );
 
+
 function DeckDetail() {
     const { deckId } = useParams();
     const navigate = useNavigate();
@@ -127,6 +129,7 @@ function DeckDetail() {
     const [flashcards, setFlashcards] = useState([]);
     const [status, setStatus] = useState('loading');
     const [isCreatingQuiz, setIsCreatingQuiz] = useState(false); 
+    const [currentUser, setCurrentUser] = useState(null); 
     
     const [modalState, setModalState] = useState({ type: null, data: null }); 
     const [formData, setFormData] = useState({ question: '', answer: '' });
@@ -154,6 +157,20 @@ function DeckDetail() {
         loadDeckData();
         return () => clearInterval(pollingIntervalRef.current); 
     }, [deckId, navigate]);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const profile = await fetchProfile();
+                if (profile) {
+                    setCurrentUser(profile);
+                }
+            } catch (error) {
+                toast.error("Não foi possível carregar os seus dados de perfil.");
+            }
+        };
+        loadProfile();
+    }, []);
 
     const stats = useMemo(() => {
         const today = new Date();
@@ -253,8 +270,12 @@ function DeckDetail() {
     };
     
     const handleCreateQuiz = () => {
+        if (!currentUser) {
+            toast.error("Os seus dados de perfil ainda estão a carregar. Tente novamente em um instante.");
+            return;
+        }
         setIsCreatingQuiz(true);
-        socket.emit('quiz:create', { deckId }, (response) => {
+        socket.emit('quiz:create', { deckId, user: currentUser }, (response) => {
             setIsCreatingQuiz(false);
             if (response.success) {
                 navigate(`/quiz/${response.roomId}`);
