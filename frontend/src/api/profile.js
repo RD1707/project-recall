@@ -24,7 +24,7 @@ export const fetchProfile = async () => {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('username, full_name, points, current_streak, bio, avatar_url') 
+      .select('username, full_name, points, current_streak, bio, avatar_url, has_completed_onboarding') 
       .eq('id', user.id)
       .single();
 
@@ -39,7 +39,8 @@ export const fetchProfile = async () => {
       points: profile?.points || 0,
       current_streak: profile?.current_streak || 0,
       bio: profile?.bio || '',
-      avatar_url: profile?.avatar_url || null, 
+      avatar_url: profile?.avatar_url || null,
+      has_completed_onboarding: profile?.has_completed_onboarding || false,
     };
 
   } catch (error) {
@@ -119,4 +120,24 @@ export const fetchLeaderboard = async (period = 'all_time') => {
     } catch (error) {
         throw handleApiError(error, 'fetchLeaderboard');
     }
+};
+
+export const markOnboardingAsComplete = async () => {
+  try {
+    const response = await fetch('/api/profile/onboarding-complete', {
+      method: 'POST',
+      headers: {
+        'Authorization': await getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Falha ao marcar onboarding como completo.');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao marcar onboarding como completo:", error);
+    throw error;
+  }
 };

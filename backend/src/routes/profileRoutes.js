@@ -6,7 +6,8 @@ const {
     updateProfile,
     uploadAvatar, 
     getProfileByUsername, 
-    getLeaderboard 
+    getLeaderboard,
+    completeOnboarding 
 } = require('../controllers/profileController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -32,5 +33,7 @@ router.get('/', getProfile);
 router.put('/', updateProfile);
 
 router.post('/avatar', upload.single('avatar'), uploadAvatar);
+
+router.post('/onboarding-complete', completeOnboarding);
 
 module.exports = router;

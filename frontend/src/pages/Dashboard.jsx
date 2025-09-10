@@ -6,6 +6,9 @@ import DeckCard from '../components/decks/DeckCard';
 import CreateDeckCard from '../components/decks/CreateDeckCard';
 import Modal from '../components/common/Modal';
 import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
+import { supabase } from '../api/supabaseClient'; 
+import { markOnboardingAsComplete } from '../api/profile'; 
+import OnboardingTour from '../components/common/OnboardingTour';
 
 import '../assets/css/dashboard.css';
 
@@ -79,20 +82,39 @@ function Dashboard() {
         mode: null,
         deckData: null,
     });
+    
+    const [showTour, setShowTour] = useState(false); 
 
     useEffect(() => {
-        const loadDecks = async () => {
+        const loadInitialData = async () => {
             try {
                 setStatus('loading');
+                
                 const decksData = await fetchDecks();
                 setDecks(decksData);
+
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data: profile, error } = await supabase
+                        .from('profiles')
+                        .select('has_completed_onboarding')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (error && error.code !== 'PGRST116') throw error;
+                    
+                    if (profile && !profile.has_completed_onboarding) {
+                        setTimeout(() => setShowTour(true), 500);
+                    }
+                }
+
                 setStatus('success');
             } catch (err) {
                 setStatus('error');
-                toast.error('Não foi possível carregar seus baralhos.');
+                toast.error('Não foi possível carregar seus dados.');
             }
         };
-        loadDecks();
+        loadInitialData();
     }, []);
     
     const filteredDecks = useMemo(() => {
@@ -165,6 +187,15 @@ function Dashboard() {
         } catch (error) {
         }
     };
+    
+    const handleTourComplete = async () => {
+        setShowTour(false);
+        try {
+            await markOnboardingAsComplete();
+        } catch (error) {
+            console.error("Não foi possível salvar o status do tour.", error);
+        }
+    };
 
     const renderContent = () => {
         if (status === 'loading') {
@@ -209,6 +240,7 @@ function Dashboard() {
 
     return (
         <>
+            {showTour && <OnboardingTour onComplete={handleTourComplete} />}
             <Header />
             <main className="dashboard-main">
                 <div className="content-header">

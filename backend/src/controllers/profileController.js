@@ -18,7 +18,7 @@ const getProfile = async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('points, current_streak, full_name, username, bio, avatar_url')
+            .select('points, current_streak, full_name, username, bio, avatar_url, has_completed_onboarding') 
             .eq('id', req.user.id)
             .single();
 
@@ -31,6 +31,7 @@ const getProfile = async (req, res) => {
                 username: '',
                 bio: '',
                 avatar_url: null,
+                has_completed_onboarding: false, 
                 email: req.user.email 
             });
         }
@@ -205,10 +206,28 @@ const getLeaderboard = async (req, res) => {
     }
 };
 
+const completeOnboarding = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ has_completed_onboarding: true })
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Onboarding concluído com sucesso!' });
+    } catch (error) {
+        logger.error(`Erro ao completar onboarding para o usuário ${userId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro interno ao salvar o status do onboarding.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = { 
     getProfile, 
     updateProfile,
     getProfileByUsername,
     uploadAvatar,
-    getLeaderboard
+    getLeaderboard,
+    completeOnboarding 
 };
