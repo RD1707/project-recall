@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { fetchAchievements } from '../api/achievements';
+import { supabase } from '../api/supabaseClient'; // Importamos o supabase
 
 const AchievementsContext = createContext();
 
-// Separar o hook personalizado em uma função nomeada
 function useAchievements() {
     const context = useContext(AchievementsContext);
     if (!context) {
@@ -12,13 +12,34 @@ function useAchievements() {
     return context;
 }
 
-// Separar o provider em uma função nomeada
 function AchievementsProvider({ children }) {
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
+    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false); // Novo estado
+
+    // Verifica o status da autenticação
+    useEffect(() => {
+        const checkAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsUserAuthenticated(!!session);
+        };
+        checkAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsUserAuthenticated(!!session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     const loadAchievements = useCallback(async (silent = false) => {
+        // Só executa se o utilizador estiver autenticado
+        if (!isUserAuthenticated) {
+            setLoading(false);
+            return;
+        }
+        
         if (!silent) setLoading(true);
         
         try {
@@ -30,49 +51,24 @@ function AchievementsProvider({ children }) {
         } finally {
             if (!silent) setLoading(false);
         }
-    }, []);
+    }, [isUserAuthenticated]); // Adicionamos a dependência
 
-    // Função para atualizar conquistas após ações do usuário
     const refreshAchievements = useCallback((delay = 1000) => {
         setTimeout(() => {
-            loadAchievements(true); // Silent refresh
+            loadAchievements(true);
         }, delay);
     }, [loadAchievements]);
 
-    // Carregamento inicial
+    // Carregamento inicial só acontece se o status de autenticação mudar para true
     useEffect(() => {
-        loadAchievements();
-    }, [loadAchievements]);
-
-    // Refresh automático DESABILITADO para debug
-    useEffect(() => {
-        // Comentado temporariamente para reduzir logs
-        // let interval;
-        
-        // const handleVisibilityChange = () => {
-        //     if (!document.hidden) {
-        //         // Página ficou visível, refresh as conquistas
-        //         loadAchievements(true);
-        //     }
-        // };
-
-        // // Refresh periódico apenas se a página estiver visível
-        // const startInterval = () => {
-        //     interval = setInterval(() => {
-        //         if (!document.hidden) {
-        //             loadAchievements(true);
-        //         }
-        //     }, 30000); // 30 segundos
-        // };
-
-        // startInterval();
-        // document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            // if (interval) clearInterval(interval);
-            // document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [loadAchievements]);
+        if (isUserAuthenticated) {
+            loadAchievements();
+        } else {
+            // Limpa os dados se o utilizador fizer logout
+            setAchievements([]);
+            setLoading(false);
+        }
+    }, [isUserAuthenticated, loadAchievements]);
 
     const value = {
         achievements,
@@ -89,5 +85,4 @@ function AchievementsProvider({ children }) {
     );
 }
 
-// Exportações nomeadas no final do arquivo para melhor compatibilidade com Fast Refresh
 export { useAchievements, AchievementsProvider };
