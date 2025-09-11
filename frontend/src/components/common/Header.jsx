@@ -96,6 +96,12 @@ function Header() {
             <NavLink to="/progress" className="nav-link">
               <i className="fas fa-chart-line"></i> Meu Progresso
             </NavLink>
+            <NavLink to="/ranking" className="nav-link">
+              <i className="fas fa-trophy"></i> Ranking
+            </NavLink>
+            <NavLink to="/community" className="nav-link">
+              <i className="fas fa-users"></i> Comunidade
+            </NavLink>
             <div className="user-stats">
               <div className="user-stat"><span className="stat-icon"><i className="fas fa-star"></i></span><span>{loading ? '...' : user.points}</span> Pontos</div>
               <div className="user-stat"><span className="stat-icon"><i className="fas fa-fire"></i></span><span>{loading ? '...' : user.current_streak}</span> Dias</div>
