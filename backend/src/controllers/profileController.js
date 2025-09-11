@@ -227,9 +227,11 @@ const getPublicProfile = async (req, res) => {
     const { username } = req.params;
     
     try {
+        // Passo 1: Encontrar o perfil do utilizador pelo nome de utilizador
+        // A coluna 'created_at' foi removida da linha seguinte
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('id, username, full_name, bio, avatar_url, created_at') 
+            .select('id, username, full_name, bio, avatar_url')
             .eq('username', username)
             .single();
 
@@ -237,21 +239,23 @@ const getPublicProfile = async (req, res) => {
             return res.status(404).json({ message: 'Utilizador não encontrado.', code: 'USER_NOT_FOUND' });
         }
         
+        // Passo 2: Buscar todos os baralhos públicos desse utilizador
         const { data: publicDecks, error: decksError } = await supabase
-            .from('public_decks_with_ratings') 
+            .from('public_decks_with_ratings')
             .select('id, title, description, color, card_count, average_rating, rating_count')
             .eq('user_id', profile.id)
             .order('created_at', { ascending: false });
 
         if (decksError) throw decksError;
 
+        // Passo 3: Combinar os dados e enviar a resposta
         const responsePayload = {
             profile: {
                 username: profile.username,
                 fullName: profile.full_name,
                 bio: profile.bio,
-                avatarUrl: profile.avatar_url,
-                memberSince: profile.created_at
+                avatarUrl: profile.avatar_url
+                // A propriedade memberSince foi removida daqui
             },
             decks: publicDecks
         };
@@ -263,7 +267,6 @@ const getPublicProfile = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar perfil público.', code: 'INTERNAL_SERVER_ERROR' });
     }
 };
-
 module.exports = { 
     getProfile, 
     updateProfile,
