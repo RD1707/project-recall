@@ -12,6 +12,7 @@ const profileRoutes = require('./src/routes/profileRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const shareRoutes = require('./src/routes/shareRoutes');
 const achievementRoutes = require('./src/routes/achievementRoutes');
+const communityRoutes = require('./src/routes/communityRoutes');
 const quizSocketHandler = require('./src/socket/quizSocketHandler');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api', shareRoutes); 
 app.use('/api/achievements', achievementRoutes);
+app.use('/api/community', communityRoutes);
 
 io.on('connection', (socket) => {
   console.log('Um utilizador conectou-se:', socket.id);

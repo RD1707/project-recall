@@ -137,3 +137,25 @@ export const markOnboardingAsComplete = async () => {
     throw error;
   }
 };
+
+export const fetchPublicProfile = async (username) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("Utilizador não autenticado");
+
+    const response = await fetch(`/api/profile/public/${username}`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao buscar perfil público');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    throw handleApiError(error, 'fetchPublicProfile');
+  }
+};

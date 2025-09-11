@@ -223,11 +223,53 @@ const completeOnboarding = async (req, res) => {
     }
 };
 
+const getPublicProfile = async (req, res) => {
+    const { username } = req.params;
+    
+    try {
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, bio, avatar_url, created_at') 
+            .eq('username', username)
+            .single();
+
+        if (profileError || !profile) {
+            return res.status(404).json({ message: 'Utilizador não encontrado.', code: 'USER_NOT_FOUND' });
+        }
+        
+        const { data: publicDecks, error: decksError } = await supabase
+            .from('public_decks_with_ratings') 
+            .select('id, title, description, color, card_count, average_rating, rating_count')
+            .eq('user_id', profile.id)
+            .order('created_at', { ascending: false });
+
+        if (decksError) throw decksError;
+
+        const responsePayload = {
+            profile: {
+                username: profile.username,
+                fullName: profile.full_name,
+                bio: profile.bio,
+                avatarUrl: profile.avatar_url,
+                memberSince: profile.created_at
+            },
+            decks: publicDecks
+        };
+        
+        res.status(200).json(responsePayload);
+
+    } catch (error) {
+        logger.error(`Error fetching public profile for ${username}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao buscar perfil público.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = { 
     getProfile, 
     updateProfile,
     getProfileByUsername,
     uploadAvatar,
     getLeaderboard,
-    completeOnboarding 
+    completeOnboarding,
+    getPublicProfile
 };

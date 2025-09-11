@@ -153,3 +153,77 @@ export const fetchSharedDeck = async (shareableId) => {
         throw error;
     }
 };
+
+export const fetchPublicDecks = async (params = {}) => {
+  const { page = 1, search = '', sort = 'created_at' } = params;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Utilizador não autenticado');
+
+    const query = new URLSearchParams({ page, limit: 20, search, sort }).toString();
+    
+    const response = await fetch(`/api/community/decks?${query}`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao buscar baralhos da comunidade');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    return handleApiError(error, 'fetchPublicDecks');
+  }
+};
+
+export const cloneDeck = async (deckId) => {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Utilizador não autenticado');
+
+        const response = await fetch(`/api/community/decks/${deckId}/clone`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${session.access_token}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao clonar o baralho');
+        }
+
+        return await response.json();
+    } catch (error) {
+        return handleApiError(error, 'cloneDeck');
+    }
+};
+
+export const rateDeck = async (deckId, rating) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Utilizador não autenticado');
+
+    const response = await fetch(`/api/community/decks/${deckId}/rate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ rating })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao submeter avaliação');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    // A função handleApiError já mostra um toast de erro
+    return handleApiError(error, 'rateDeck');
+  }
+};

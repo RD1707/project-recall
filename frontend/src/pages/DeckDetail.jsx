@@ -21,7 +21,8 @@ const LoadingComponent = () => (
     </div>
 );
 
-const DeckHeader = ({ deck, onShare, onCreateQuiz, isCreatingQuiz }) => ( 
+// Componente do cabeçalho atualizado
+const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => ( 
     <section className="deck-hero">
         <div className="hero-content">
             <Link to="/dashboard" className="back-btn"><i className="fas fa-arrow-left"></i> Voltar aos Baralhos</Link>
@@ -38,8 +39,9 @@ const DeckHeader = ({ deck, onShare, onCreateQuiz, isCreatingQuiz }) => (
                     <i className={isCreatingQuiz ? "fas fa-spinner fa-spin" : "fas fa-users"}></i>
                     <span>{isCreatingQuiz ? 'A criar sala...' : 'Jogar Quiz em Grupo'}</span>
                 </button>
-                <button onClick={onShare} className="btn btn-secondary">
-                    <i className="fas fa-share-alt"></i> Compartilhar
+                {/* O botão agora chama onPublish e tem um texto diferente */}
+                <button onClick={onPublish} className="btn btn-secondary">
+                    <i className="fas fa-globe-americas"></i> Publicar na Comunidade
                 </button>
             </div>
         </div>
@@ -127,9 +129,9 @@ function DeckDetail() {
     const [isCreatingQuiz, setIsCreatingQuiz] = useState(false); 
     const [currentUser, setCurrentUser] = useState(null); 
     
+    // O modal agora tem um tipo 'publish'
     const [modalState, setModalState] = useState({ type: null, data: null }); 
     const [formData, setFormData] = useState({ question: '', answer: '' });
-    const [shareLink, setShareLink] = useState('');
     
     const pollingIntervalRef = useRef(null);
 
@@ -234,7 +236,6 @@ function DeckDetail() {
                 setFlashcards(prev => prev.map(card => card.id === resultCard.id ? resultCard : card));
             } else {
                 setFlashcards(prev => [resultCard, ...prev]);
-                // Trigger achievement update after creating flashcard
                 triggerAchievementUpdate('create_card');
             }
             closeModal();
@@ -253,18 +254,24 @@ function DeckDetail() {
         } catch (err) {}
     };
 
-    const handleShare = async () => {
-        try {
-            const result = await toast.promise(shareDeck(deckId), {
-                loading: 'A gerar link...',
-                success: 'Link de partilha pronto!',
-                error: 'Falha ao gerar link.',
-            });
-            if (result.shareableLink) {
-                setShareLink(result.shareableLink);
-                openModal('share');
-            }
-        } catch (err) {}
+    // Função de publicação que abre o novo modal
+    const handlePublish = () => {
+        openModal('publish');
+    };
+
+    // Função que confirma a publicação e chama a API
+    const confirmPublish = async () => {
+        closeModal(); // Fecha o modal de confirmação
+        const promise = shareDeck(deckId); // A API é a mesma, só muda como a usamos
+
+        toast.promise(promise, {
+            loading: 'Publicando baralho na comunidade...',
+            success: () => {
+                navigate('/community'); // Leva o usuário para a comunidade para ver o baralho
+                return 'Baralho publicado com sucesso!';
+            },
+            error: 'Falha ao publicar o baralho.',
+        });
     };
     
     const handleCreateQuiz = () => {
@@ -281,11 +288,6 @@ function DeckDetail() {
                 toast.error(response.message || "Não foi possível criar o quiz.");
             }
         });
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(shareLink);
-        toast.success("Link copiado!");
     };
     
     if (status === 'loading') {
@@ -316,7 +318,7 @@ function DeckDetail() {
             <main className="deck-main">
                 <DeckHeader 
                     deck={deck} 
-                    onShare={handleShare} 
+                    onPublish={handlePublish} 
                     onCreateQuiz={handleCreateQuiz} 
                     isCreatingQuiz={isCreatingQuiz}
                 />
@@ -353,13 +355,15 @@ function DeckDetail() {
                 </form>
             </Modal>
 
-            <Modal isOpen={modalState.type === 'share'} onClose={closeModal} title="Compartilhar Baralho">
+            <Modal isOpen={modalState.type === 'publish'} onClose={closeModal} title="Publicar na Comunidade">
                 <div className="modal-body">
-                    <p>Qualquer pessoa com este link poderá visualizar os flashcards deste baralho.</p>
-                    <div className="share-link-container">
-                        <input type="text" value={shareLink} readOnly />
-                        <button className="btn btn-primary" onClick={copyToClipboard}>Copiar</button>
-                    </div>
+                    <p>Você está prestes a tornar o baralho "<strong>{deck.title}</strong>" público.</p>
+                    <p>Ele ficará visível para todos os outros usuários na página da Comunidade. Eles poderão visualizar e clonar o seu baralho.</p>
+                    <p>Você pode reverter essa ação a qualquer momento nas configurações do baralho.</p>
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
+                    <button className="btn btn-primary" onClick={confirmPublish}>Confirmar e Publicar</button>
                 </div>
             </Modal>
         </>

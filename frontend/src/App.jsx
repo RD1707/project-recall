@@ -19,11 +19,13 @@ import CompleteProfile from './pages/CompleteProfile';
 import Ranking from './pages/Ranking';
 import QuizLobby from './pages/QuizLobby';
 import QuizGame from './pages/QuizGame'; 
+import Community from './pages/Community'; // NOVA IMPORTAÇÃO
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CookieBanner from './components/common/CookieBanner';
 import { SocketProvider } from './context/SocketContext';
 import { AchievementsProvider } from './context/AchievementsContext';
+import PublicProfile from './pages/PublicProfile';
 
 
 function App() {
@@ -52,6 +54,8 @@ function App() {
           <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
           <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
           <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} /> 
+          <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+          <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>

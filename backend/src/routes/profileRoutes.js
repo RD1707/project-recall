@@ -24,6 +24,8 @@ const upload = multer({
     }
 });
 
+router.get('/public/:username', getPublicProfile);
+
 router.get('/leaderboard', getLeaderboard);
 router.get('/user/:username', getProfileByUsername);
 
