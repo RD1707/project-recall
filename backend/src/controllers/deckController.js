@@ -385,50 +385,32 @@ const getReviewCardsForDeck = async (req, res) => {
 const shareDeck = async (req, res) => {
     const { id: deckId } = req.params;
     const userId = req.user.id;
+    const { is_shared } = req.body; 
 
     try {
         const { data: deck, error: deckError } = await supabase
-            .from('decks').select('*').eq('id', deckId).eq('user_id', userId).single();
+            .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
         if (deckError || !deck) {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // Marcar o deck como compartilhado
-        const { error: updateError } = await supabase
+        const { data: updatedDeck, error: updateError } = await supabase
             .from('decks')
-            .update({ is_shared: true })
-            .eq('id', deckId);
+            .update({ is_shared: is_shared })
+            .eq('id', deckId)
+            .eq('user_id', userId) 
+            .select('id, is_shared')
+            .single();
 
         if (updateError) throw updateError;
-
-        // Atualizar conquistas de compartilhamento
-        try {
-            const { count: sharedDecks } = await supabase
-                .from('decks')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .eq('is_shared', true);
-
-            // Não há métrica para decks_shared no banco atual
-            // if (sharedDecks !== null) {
-            //     await updateAchievementProgress(userId, 'decks_shared', sharedDecks);
-            // }
-        } catch (achievementError) {
-            logger.error(`Falha ao atualizar conquistas após compartilhar baralho:`, achievementError);
-        }
-
-        const shareableLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/shared-deck/${deck.shareable_id}`;
-
-        res.status(200).json({ 
-            message: 'Baralho compartilhado com sucesso!', 
-            shareableLink,
-            deck: { id: deck.id, title: deck.title, description: deck.description }
-        });
+        
+        const message = is_shared ? 'Baralho publicado com sucesso!' : 'Baralho tornado privado com sucesso!';
+        res.status(200).json({ message, deck: updatedDeck });
 
     } catch (error) {
-        logger.error(`Error sharing deck: ${error.message}`);
-        res.status(500).json({ message: 'Erro ao compartilhar.', code: 'INTERNAL_SERVER_ERROR' });
+        logger.error(`Error updating publish status for deck ${deckId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao atualizar o status do baralho.', code: 'INTERNAL_SERVER_ERROR' });
     }
 };
 
