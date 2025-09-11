@@ -22,7 +22,7 @@ router.post('/:id/generate-from-file', upload.single('file'), deckController.gen
 router.post('/:id/generate-from-youtube', deckController.generateCardsFromYouTube);
 
 router.get('/:id/review', deckController.getReviewCardsForDeck);
-router.post('/:id/share', deckController.shareDeck);
+router.post('/:id/publish', deckController.publishDeck);
 
 router.route('/:deckId/flashcards')
     .get(flashcardController.getFlashcardsInDeck)

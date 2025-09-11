@@ -382,13 +382,16 @@ const getReviewCardsForDeck = async (req, res) => {
     }
 };
 
-const shareDeck = async (req, res) => {
+const publishDeck = async (req, res) => {
     const { id: deckId } = req.params;
     const userId = req.user.id;
-    const { is_shared } = req.body; // Recebemos o novo status (true ou false)
+    const { is_shared } = req.body;
+
+    if (typeof is_shared !== 'boolean') {
+        return res.status(400).json({ message: 'O valor de is_shared é inválido.', code: 'VALIDATION_ERROR' });
+    }
 
     try {
-        // 1. Verifica se o baralho pertence ao utilizador
         const { data: deck, error: deckError } = await supabase
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
@@ -396,12 +399,11 @@ const shareDeck = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // 2. Atualiza o baralho, incluindo a verificação do utilizador na mesma consulta
         const { data: updatedDeck, error: updateError } = await supabase
             .from('decks')
             .update({ is_shared: is_shared })
             .eq('id', deckId)
-            .eq('user_id', userId) // <-- ESTA É A LINHA CRUCIAL QUE CORRIGE O PROBLEMA
+            .eq('user_id', userId) // <-- A verificação de segurança que faltava
             .select('id, is_shared')
             .single();
 
@@ -425,5 +427,5 @@ module.exports = {
     generateCardsFromFile,
     generateCardsFromYouTube,
     getReviewCardsForDeck,
-    shareDeck
+    publishDeck // <--- Nome atualizado aqui
 };

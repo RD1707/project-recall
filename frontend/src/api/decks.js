@@ -117,42 +117,29 @@ export const fetchFlashcardsByDeckId = async (deckId) => {
   }
 };
 
-export const shareDeck = async (deckId) => {
+export const publishDeck = async (deckId, is_shared) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Usuário não autenticado');
+    if (!session) throw new Error('Utilizador não autenticado');
     
-    const response = await fetch(`/api/decks/${deckId}/share`, {
+    const response = await fetch(`/api/decks/${deckId}/publish`, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${session.access_token}`
-        }
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_shared })
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Falha ao compartilhar o baralho.");
+    if (!response.ok) throw new Error(data.message || "Falha ao atualizar o status do baralho.");
     
-    const shareableLink = `${window.location.origin}/shared-deck/${data.shareableId}`;
-    return { shareableLink };
+    return data;
     
   } catch (error) {
-    return handleApiError(error, 'shareDeck');
+    return handleApiError(error, 'publishDeck');
   }
 }
-
-export const fetchSharedDeck = async (shareableId) => {
-    try {
-        const response = await fetch(`/api/shared/${shareableId}`);
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message || 'Não foi possível encontrar o baralho.');
-        }
-        return data;
-    } catch (error) {
-        console.error(`Erro ao buscar baralho compartilhado:`, error);
-        throw error;
-    }
-};
 
 export const fetchPublicDecks = async (params = {}) => {
   const { page = 1, search = '', sort = 'created_at' } = params;
