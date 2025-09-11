@@ -7,7 +7,8 @@ const {
     uploadAvatar, 
     getProfileByUsername, 
     getLeaderboard,
-    completeOnboarding 
+    completeOnboarding,
+    getPublicProfile 
 } = require('../controllers/profileController');
 const authMiddleware = require('../middleware/authMiddleware');
 
