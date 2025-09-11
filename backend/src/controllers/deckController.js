@@ -63,8 +63,12 @@ const getDecks = async (req, res) => {
 
 const createDeck = async (req, res) => {
   const userId = req.user.id;
+  console.log("🚀🚀🚀 CREATE DECK ENDPOINT CHAMADO - userId:", userId);
+  console.log("🚀🚀🚀 REQ BODY:", req.body);
+  logger.info(`[CREATE DECK] Usuário ${userId} tentando criar deck`);
   try {
     const { title, description, color } = deckSchema.parse(req.body);
+    console.log("🟢 DADOS DO DECK PARSED:", { title, description, color });
 
     const { data, error } = await supabase
       .from('decks')
@@ -74,7 +78,9 @@ const createDeck = async (req, res) => {
 
     if (error) throw error;
     
+    // Atualizar conquistas de criação de baralhos
     try {
+        logger.info(`[DECK CREATION] Atualizando conquistas para usuário ${userId}`);
         const { count, error: countError } = await supabase
             .from('decks')
             .select('*', { count: 'exact', head: true })
@@ -82,11 +88,15 @@ const createDeck = async (req, res) => {
         
         if (countError) throw countError;
 
-        updateAchievementProgress(userId, 'decks_created_total', count);
-
+        logger.info(`[DECK CREATION] Usuário ${userId} agora tem ${count} decks`);
+        
+        // Usar a métrica correta baseada na contagem
         if (count === 1) {
-            updateAchievementProgress(userId, 'decks_created', 1);
+            logger.info(`[DECK CREATION] Primeiro deck! Atualizando decks_created para ${count}`);
+            await updateAchievementProgress(userId, 'decks_created', count);
         }
+        logger.info(`[DECK CREATION] Atualizando decks_created_total para ${count}`);
+        await updateAchievementProgress(userId, 'decks_created_total', count);
     } catch (achievementError) {
         logger.error(`Falha ao atualizar conquistas para o usuário ${userId} após criar baralho:`, achievementError);
     }
@@ -196,8 +206,6 @@ const generateCardsFromFile = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        console.log('DEBUG - req.body:', req.body);
-        console.log('DEBUG - req.file:', req.file ? req.file.originalname : 'No file');
 
         if (!req.file) {
             return res.status(400).json({ 
@@ -386,10 +394,34 @@ const shareDeck = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
-        const shareableLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/shared-deck/${deckId}`;
+        // Marcar o deck como compartilhado
+        const { error: updateError } = await supabase
+            .from('decks')
+            .update({ is_shared: true })
+            .eq('id', deckId);
+
+        if (updateError) throw updateError;
+
+        // Atualizar conquistas de compartilhamento
+        try {
+            const { count: sharedDecks } = await supabase
+                .from('decks')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId)
+                .eq('is_shared', true);
+
+            // Não há métrica para decks_shared no banco atual
+            // if (sharedDecks !== null) {
+            //     await updateAchievementProgress(userId, 'decks_shared', sharedDecks);
+            // }
+        } catch (achievementError) {
+            logger.error(`Falha ao atualizar conquistas após compartilhar baralho:`, achievementError);
+        }
+
+        const shareableLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/shared-deck/${deck.shareable_id}`;
 
         res.status(200).json({ 
-            message: 'Link gerado com sucesso!', 
+            message: 'Baralho compartilhado com sucesso!', 
             shareableLink,
             deck: { id: deck.id, title: deck.title, description: deck.description }
         });

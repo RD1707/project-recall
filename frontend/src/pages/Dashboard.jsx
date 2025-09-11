@@ -9,6 +9,7 @@ import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
 import { supabase } from '../api/supabaseClient'; 
 import { markOnboardingAsComplete } from '../api/profile'; 
 import OnboardingTour from '../components/common/OnboardingTour';
+import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/dashboard.css';
 
@@ -72,6 +73,7 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
 
 
 function Dashboard() {
+    const { triggerAchievementUpdate } = useAchievementActions();
     const [decks, setDecks] = useState([]);
     const [status, setStatus] = useState('loading');
     const [searchTerm, setSearchTerm] = useState('');
@@ -163,6 +165,8 @@ function Dashboard() {
             
             if (isCreating) {
                 setDecks(prevDecks => [resultDeck, ...prevDecks]);
+                // Trigger achievement update after creating deck
+                triggerAchievementUpdate('create_deck');
             } else {
                 setDecks(decks.map(d => (d.id === resultDeck.id ? resultDeck : d)));
             }

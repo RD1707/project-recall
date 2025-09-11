@@ -5,6 +5,7 @@ const logger = require('./logger');
 let flashcardGenerationQueue = null;
 let connection = null;
 let isRedisConnected = false;
+let hasLoggedConnection = false;
 
 if (process.env.REDIS_URL && process.env.REDIS_URL !== 'DISABLED') {
   try {
@@ -14,13 +15,17 @@ if (process.env.REDIS_URL && process.env.REDIS_URL !== 'DISABLED') {
     });
 
     connection.on('connect', () => {
-        logger.info('✅ Conectado ao Redis com sucesso.');
+        if (!hasLoggedConnection) {
+            logger.info('✅ Conectado ao Redis com sucesso.');
+            hasLoggedConnection = true;
+        }
         isRedisConnected = true;
     });
 
     connection.on('error', (err) => {
         logger.error(`❌ Erro de conexão com o Redis: ${err.message}`);
         isRedisConnected = false;
+        hasLoggedConnection = false; // Reset para logar a próxima reconexão
     });
 
     flashcardGenerationQueue = new Queue('flashcardGeneration', { connection });

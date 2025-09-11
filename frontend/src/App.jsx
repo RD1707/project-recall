@@ -23,11 +23,13 @@ import QuizGame from './pages/QuizGame';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CookieBanner from './components/common/CookieBanner';
 import { SocketProvider } from './context/SocketContext';
+import { AchievementsProvider } from './context/AchievementsContext';
 
 
 function App() {
   return (
     <SocketProvider>
+      <AchievementsProvider>
       <BrowserRouter>
         <CookieBanner />
 
@@ -53,6 +55,7 @@ function App() {
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
+      </AchievementsProvider>
     </SocketProvider>
   );
 }

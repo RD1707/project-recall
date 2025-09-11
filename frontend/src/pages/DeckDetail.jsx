@@ -10,6 +10,7 @@ import { useSocket } from '../context/SocketContext';
 import { fetchDeckById, fetchFlashcardsByDeckId, shareDeck } from '../api/decks';
 import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashcards';
 import { fetchProfile } from '../api/profile';
+import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/deck.css';
 
@@ -117,7 +118,8 @@ const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
 function DeckDetail() {
     const { deckId } = useParams();
     const navigate = useNavigate();
-    const socket = useSocket(); 
+    const socket = useSocket();
+    const { triggerAchievementUpdate } = useAchievementActions(); 
 
     const [deck, setDeck] = useState(null);
     const [flashcards, setFlashcards] = useState([]);
@@ -231,7 +233,9 @@ function DeckDetail() {
             if (isEditing) {
                 setFlashcards(prev => prev.map(card => card.id === resultCard.id ? resultCard : card));
             } else {
-                setFlashcards(prev => [...prev, resultCard]);
+                setFlashcards(prev => [resultCard, ...prev]);
+                // Trigger achievement update after creating flashcard
+                triggerAchievementUpdate('create_card');
             }
             closeModal();
         } catch (err) {}

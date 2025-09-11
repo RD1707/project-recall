@@ -5,7 +5,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import Header from '../components/common/Header';
 import { fetchAnalyticsSummary, fetchReviewsOverTime, fetchPerformanceInsights } from '../api/analytics';
 // --- NOSSA NOVA IMPORTAÇÃO ---
-import { fetchAchievements } from '../api/achievements';
+import { fetchAchievements, recalculateAchievements } from '../api/achievements';
+import { useAchievements } from '../context/AchievementsContext';
+import toast from 'react-hot-toast';
 
 
 import '../assets/css/progress.css';
@@ -177,23 +179,8 @@ const InsightsSection = () => {
 // --- COMPONENTE DE CONQUISTAS ATUALIZADO ---
 
 const Achievements = () => {
-    const [achievements, setAchievements] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const loadAchievements = async () => {
-            try {
-                const data = await fetchAchievements();
-                setAchievements(data);
-            } catch (error) {
-                // O toast de erro já é mostrado na função da API
-                console.error("Falha ao carregar conquistas", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadAchievements();
-    }, []);
+    const { achievements, loading } = useAchievements();
+    
     
     // Define a cor com base no ícone para manter a consistência visual
     const getColorFromIcon = (icon) => {
@@ -207,12 +194,15 @@ const Achievements = () => {
         <div className="card-custom">
             <div className="card-header">
                 <h2>Conquistas</h2>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    Atualização automática ✨
+                </div>
             </div>
             {loading ? (
                 <div className="skeleton-list">
                     {[...Array(4)].map((_, i) => <div key={i} className="skeleton-list-item" style={{height: '80px'}}></div>)}
                 </div>
-            ) : (
+            ) : achievements && achievements.length > 0 ? (
                  <ul className="achievements-list">
                     {achievements.map((ach) => {
                         const isUnlocked = !!ach.unlocked_at;
@@ -222,23 +212,31 @@ const Achievements = () => {
 
                         return (
                             <li key={ach.id} className={`achievement-item ${isUnlocked ? 'unlocked' : ''}`}>
-                                <div className={`achievement-icon ${color}`}>
-                                    <i className={`fas ${isUnlocked ? 'fa-check' : ach.icon}`}></i>
-                                </div>
-                                <div className="achievement-details">
-                                    <div className="achievement-info">
-                                        <h4>{ach.name}</h4>
-                                        <span className="achievement-progress-text">{progress}/{ach.goal}</span>
+                                <div className="achievement-content">
+                                    <div className={`achievement-icon ${color}`}>
+                                        <i className={`fas ${isUnlocked ? 'fa-check' : ach.icon}`}></i>
                                     </div>
-                                    <p>{ach.description}</p>
-                                    <div className="progress-bar">
-                                        <div className="progress-bar-fill" style={{ width: `${progressPercent}%`, backgroundColor: `var(--color-${color}-500)` }}></div>
+                                    <div className="achievement-details">
+                                        <div className="achievement-info">
+                                            <h4>{ach.name}</h4>
+                                            <span className="achievement-progress-text">{progress}/{ach.goal}</span>
+                                        </div>
+                                        <p>{ach.description}</p>
+                                        <div className="progress-bar">
+                                            <div className="progress-bar-fill" style={{ width: `${progressPercent}%`, backgroundColor: `var(--color-${color}-500)` }}></div>
+                                        </div>
                                     </div>
                                 </div>
                             </li>
                         );
                     })}
                 </ul>
+            ) : (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
+                    <i className="fas fa-trophy" style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.5 }}></i>
+                    <p>Nenhuma conquista encontrada.</p>
+                    <p style={{ fontSize: '0.9rem' }}>Comece a estudar para desbloquear suas primeiras conquistas!</p>
+                </div>
             )}
         </div>
     );

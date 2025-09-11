@@ -34,15 +34,20 @@ export const createDeck = async (deckData) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
     
-    const { data, error } = await supabase
-      .from('decks')
-      .insert({ ...deckData, user_id: session.user.id })
-      .select('*, flashcards(count)')
-      .single();
+    // Usar API do backend para que as conquistas sejam atualizadas
+    const response = await fetch('/api/decks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify(deckData)
+    });
 
-    if (error) throw error;
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Erro ao criar deck');
     
-    return { ...data, card_count: 0 };
+    return { ...data.deck, card_count: 0 };
   } catch (error) {
     return handleApiError(error, 'createDeck');
   }

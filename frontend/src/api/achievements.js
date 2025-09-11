@@ -40,3 +40,23 @@ export const fetchAchievements = async () => {
         throw error;
     }
 };
+
+export const recalculateAchievements = async () => {
+    try {
+        const response = await fetch('/api/achievements/recalculate', {
+            method: 'POST',
+            headers: {
+                'Authorization': await getAuthHeader(),
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            await handleApiError(response, 'recalculateAchievements');
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};

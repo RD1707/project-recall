@@ -6,6 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { fetchDeckById } from '../api/decks';
 import Modal from '../components/common/Modal';
 import { fetchReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
+import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/study.css';
 
@@ -208,6 +209,7 @@ const ResponseControls = ({ isFlipped, onFlip, onQualitySelect, card, onOptionSe
 function StudySession() {
     const { deckId } = useParams();
     const navigate = useNavigate();
+    const { triggerAchievementUpdate } = useAchievementActions();
 
     const [deck, setDeck] = useState(null);
     const [allCards, setAllCards] = useState([]);
@@ -353,6 +355,10 @@ function StudySession() {
         });
 
         submitReview(currentCard.id, quality)
+            .then(() => {
+                // Trigger achievement update after successful review
+                triggerAchievementUpdate('review');
+            })
             .catch(() => toast.error("Não foi possível salvar sua resposta."))
             .finally(() => {
                 setTimeout(handleNextCard, 300);

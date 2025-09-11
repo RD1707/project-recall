@@ -76,6 +76,22 @@ const createFlashcard = async (req, res) => {
             .single();
 
         if (error) throw error;
+        
+        // Atualizar conquistas de criação de flashcards
+        try {
+            const { count: totalCards } = await supabase
+                .from('flashcards')
+                .select('id, decks!inner(user_id)', { count: 'exact', head: true })
+                .eq('decks.user_id', userId);
+            
+            // Não há métrica para cards_created no banco atual
+            // if (totalCards !== null) {
+            //     await updateAchievementProgress(userId, 'cards_created', totalCards);
+            // }
+        } catch (achievementError) {
+            logger.error(`Falha ao atualizar conquistas após criação de flashcard:`, achievementError);
+        }
+        
         res.status(201).json({ message: 'Flashcard criado com sucesso!', flashcard: data });
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -227,14 +243,20 @@ const reviewFlashcard = async (req, res) => {
                     .eq('id', userId);
                 
                 try {
-                    updateAchievementProgress(userId, 'streak_days', newStreak);
+                    logger.info(`[ACHIEVEMENTS] Iniciando atualização de conquistas após revisão - userId: ${userId}`);
+                    // Atualizar conquistas de streak
+                    await updateAchievementProgress(userId, 'streak_days', newStreak);
+                    
+                    // Atualizar conquistas de revisões
                     const { count: totalReviews } = await supabase.from('review_history').select('*', { count: 'exact', head: true }).eq('user_id', userId);
                     if (totalReviews !== null) {
-                        updateAchievementProgress(userId, 'reviews_total', totalReviews);
+                        await updateAchievementProgress(userId, 'reviews_total', totalReviews);
                     }
+                    
+                    // Atualizar conquistas de cards dominados (interval > 21 = mastered)
                     const { count: masteredCards } = await supabase.from('flashcards').select('id, decks!inner(user_id)', { count: 'exact', head: true }).eq('decks.user_id', userId).gt('interval', 21);
                     if (masteredCards !== null) {
-                        updateAchievementProgress(userId, 'cards_mastered', masteredCards);
+                        await updateAchievementProgress(userId, 'cards_mastered', masteredCards);
                     }
                 } catch (achievementError) {
                      logger.error(`Falha ao atualizar conquistas para o usuário ${userId} após revisão:`, achievementError);
