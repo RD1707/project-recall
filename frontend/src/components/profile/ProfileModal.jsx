@@ -176,9 +176,18 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
     
     try {
       const dataToUpdate = {};
-      if (formData.fullName !== (user?.fullName || '')) dataToUpdate.full_name = formData.fullName;
-      if (formData.username !== (user?.username || '')) dataToUpdate.username = formData.username;
-      if (formData.bio !== (user?.bio || '')) dataToUpdate.bio = formData.bio;
+      if (formData.fullName !== (user?.fullName || '')) {
+        dataToUpdate.full_name = formData.fullName;
+        console.log('Updating full_name:', formData.fullName); // Debug
+      }
+      if (formData.username !== (user?.username || '')) {
+        dataToUpdate.username = formData.username;
+        console.log('Updating username:', formData.username); // Debug
+      }
+      if (formData.bio !== (user?.bio || '')) {
+        dataToUpdate.bio = formData.bio;
+        console.log('Updating bio:', formData.bio); // Debug
+      }
       if (formData.password) {
         if (formData.password !== formData.confirmPassword) {
             toast.error("As senhas não coincidem.");
@@ -191,7 +200,15 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       const result = await updateProfile(dataToUpdate);
       toast.success('Perfil atualizado com sucesso!');
       
-      onProfileUpdate({ ...user, ...result.profile });
+      // Map the updated profile data correctly
+      const updatedUserData = {
+        ...user,
+        fullName: result.profile?.full_name || formData.fullName,
+        username: result.profile?.username || formData.username,
+        bio: result.profile?.bio || formData.bio
+      };
+      
+      onProfileUpdate(updatedUserData);
       setHasChanges(false);
       onClose();
       

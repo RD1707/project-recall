@@ -6,6 +6,7 @@ const getPublicDecks = async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 20;
     const searchTerm = req.query.search || '';
     const sortBy = req.query.sort || 'created_at'; 
+    const includeOwnDecks = req.query.includeOwnDecks === 'true';
     const userId = req.user.id; // Current user ID to filter out own decks
     
     const from = (page - 1) * limit;
@@ -28,8 +29,12 @@ const getPublicDecks = async (req, res) => {
                     avatar_url
                 )
             `, { count: 'exact' })
-            .eq('is_shared', true)
-            .neq('user_id', userId); // Exclude user's own decks
+            .eq('is_shared', true);
+        
+        // Only exclude user's own decks if includeOwnDecks is false
+        if (!includeOwnDecks) {
+            query = query.neq('user_id', userId);
+        }
 
         if (searchTerm) {
             query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);

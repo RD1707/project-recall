@@ -271,6 +271,7 @@ function StudySession() {
     const [timer, setTimer] = useState(0);
     const [feedback, setFeedback] = useState({ show: false, type: '', text: '' });
     const [answerStatus, setAnswerStatus] = useState(null); 
+    const [isProcessingResponse, setIsProcessingResponse] = useState(false);
     
     const [sessionStats, setSessionStats] = useState({
         wrong: 0, hard: 0, good: 0, easy: 0,
@@ -353,6 +354,7 @@ function StudySession() {
         setIsFlipped(false);
         setTimer(0);
         setAnswerStatus(null);
+        setIsProcessingResponse(false);
         setSessionStats({
             wrong: 0, hard: 0, good: 0, easy: 0,
             totalTime: 0, totalCardsStudied: 0,
@@ -380,7 +382,9 @@ function StudySession() {
     }, []);
 
     const handleQualitySelection = useCallback((quality) => {
-        if (!isFlipped) return;
+        if (!isFlipped || isProcessingResponse) return;
+
+        setIsProcessingResponse(true);
 
         const feedbackMap = {
             1: { type: 'error', text: 'Vamos revisar em breve' },
@@ -412,7 +416,10 @@ function StudySession() {
             })
             .catch(() => toast.error("Não foi possível salvar sua resposta."))
             .finally(() => {
-                setTimeout(handleNextCard, 300);
+                setTimeout(() => {
+                    setIsProcessingResponse(false);
+                    handleNextCard();
+                }, 300);
             });
     }, [isFlipped, currentCard, handleNextCard]);
 
@@ -485,14 +492,14 @@ function StudySession() {
                 e.preventDefault();
                 handleFlip();
             }
-            if (isFlipped && e.key >= '1' && e.key <= '4') {
+            if (isFlipped && e.key >= '1' && e.key <= '4' && !isProcessingResponse) {
                 e.preventDefault();
                 handleQualitySelection(Number(e.key));
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status, isFlipped, isMultipleChoice, isChatOpen, isExplanationModalOpen, handleFlip, handleQualitySelection]);
+    }, [status, isFlipped, isMultipleChoice, isChatOpen, isExplanationModalOpen, isProcessingResponse, handleFlip, handleQualitySelection]);
 
 
     if (status === 'loading') return <LoadingScreen />;

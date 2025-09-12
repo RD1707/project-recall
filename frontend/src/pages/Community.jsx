@@ -15,16 +15,17 @@ function Community() {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('created_at');
+    const [includeOwnDecks, setIncludeOwnDecks] = useState(false);
     
     const [hasMore, setHasMore] = useState(true);
     const initialLoad = useRef(true);
 
-    const loadDecks = useCallback(async (currentPage, currentSearch, currentSort) => {
+    const loadDecks = useCallback(async (currentPage, currentSearch, currentSort, currentIncludeOwnDecks) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
 
         try {
-            const params = { page: currentPage, search: currentSearch, sort: currentSort };
+            const params = { page: currentPage, search: currentSearch, sort: currentSort, includeOwnDecks: currentIncludeOwnDecks };
             const newDecks = await fetchPublicDecks(params);
             
             if (newDecks.length < 20) {
@@ -45,24 +46,24 @@ function Community() {
     useEffect(() => {
         if (initialLoad.current) {
             initialLoad.current = false;
-            loadDecks(1, searchTerm, sortBy);
+            loadDecks(1, searchTerm, sortBy, includeOwnDecks);
             return;
         }
 
         const handler = setTimeout(() => {
             setPage(1); 
-            loadDecks(1, searchTerm, sortBy);
+            loadDecks(1, searchTerm, sortBy, includeOwnDecks);
         }, 500); 
 
         return () => {
             clearTimeout(handler);
         };
-    }, [searchTerm, sortBy, loadDecks]);
+    }, [searchTerm, sortBy, includeOwnDecks, loadDecks]);
 
     const handleLoadMore = () => {
         const nextPage = page + 1;
         setPage(nextPage);
-        loadDecks(nextPage, searchTerm, sortBy);
+        loadDecks(nextPage, searchTerm, sortBy, includeOwnDecks);
     };
 
     const renderContent = () => {
@@ -110,7 +111,7 @@ function Community() {
                     <p>Explore, estude e clone baralhos criados por outros estudantes.</p>
                 </div>
 
-                <div className="header-actions" style={{ marginBottom: '2rem', justifyContent: 'center' }}>
+                <div className="header-actions" style={{ marginBottom: '2rem', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                     <div className="search-box">
                         <i className="fas fa-search"></i>
                         <input 
@@ -130,6 +131,18 @@ function Community() {
                         <option value="title">Alfabética</option>
                         <option value="flashcard_count">Mais Cards</option>
                     </select>
+                    <div className="toggle-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '44px' }}>
+                        <label htmlFor="includeOwnDecks" style={{ fontSize: '14px', cursor: 'pointer' }}>
+                            Mostrar meus baralhos:
+                        </label>
+                        <input
+                            type="checkbox"
+                            id="includeOwnDecks"
+                            checked={includeOwnDecks}
+                            onChange={(e) => setIncludeOwnDecks(e.target.checked)}
+                            style={{ cursor: 'pointer' }}
+                        />
+                    </div>
                 </div>
 
                 {renderContent()}

@@ -9,7 +9,7 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
     let promptInstruction = '';
     
     if (type === 'Múltipla Escolha') {
-        promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string), "options" (um array de 4 strings com as alternativas), e "answer" (uma string contendo a resposta correta, que deve ser uma das strings de "options").`;
+        promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string), "options" (um array com exatamente 4 strings contendo as alternativas de resposta), e "answer" (uma string contendo a resposta correta que deve ser EXATAMENTE IGUAL a uma das strings do array "options"). IMPORTANTE: A resposta em "answer" deve ser idêntica a uma das opções em "options".`;
     } else { 
         promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string) e "answer" (string).`;
     }
@@ -19,6 +19,8 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
         ${promptInstruction}
         As perguntas devem ser claras e diretas, e as respostas concisas.
         Não inclua nenhuma explicação ou texto adicional fora do array JSON. Sua resposta deve ser apenas o array JSON puro.
+
+        ${type === 'Múltipla Escolha' ? 'Exemplo do formato esperado:\n[{"question": "O que é JavaScript?", "options": ["Uma linguagem de programação", "Um banco de dados", "Um sistema operacional", "Um navegador web"], "answer": "Uma linguagem de programação"}]' : ''}
 
         Texto: "${textContent}"
 
@@ -46,7 +48,13 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
         if (type === 'Múltipla Escolha') {
             for (const card of flashcards) {
                 if (!card.question || !Array.isArray(card.options) || card.options.length !== 4 || !card.answer) {
-                     throw new Error("Um ou mais flashcards de múltipla escolha gerados pela IA estão com formato inválido.");
+                     console.error("Flashcard com formato inválido:", JSON.stringify(card, null, 2));
+                     throw new Error(`Flashcard de múltipla escolha com formato inválido: ${JSON.stringify(card)}`);
+                }
+                
+                if (!card.options.includes(card.answer)) {
+                    console.error("Resposta não está nas opções:", { answer: card.answer, options: card.options });
+                    throw new Error(`A resposta "${card.answer}" não está presente nas opções: ${card.options.join(', ')}`);
                 }
             }
         }

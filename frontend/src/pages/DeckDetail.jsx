@@ -22,7 +22,7 @@ const LoadingComponent = () => (
 );
 
 // Componente do cabeçalho atualizado
-const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => ( 
+const DeckHeader = ({ deck, onPublish }) => ( 
     <section className="deck-hero">
         <div className="hero-content">
             <Link to="/dashboard" className="back-btn"><i className="fas fa-arrow-left"></i> Voltar aos Baralhos</Link>
@@ -35,10 +35,6 @@ const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => (
                     <i className="fas fa-play-circle"></i>
                     <span><strong>Estudar Sozinho</strong></span>
                 </Link>
-                <button onClick={onCreateQuiz} className="btn btn-secondary btn-large" disabled={isCreatingQuiz}>
-                    <i className={isCreatingQuiz ? "fas fa-spinner fa-spin" : "fas fa-users"}></i>
-                    <span>{isCreatingQuiz ? 'A criar sala...' : 'Jogar Quiz em Grupo'}</span>
-                </button>
                 <button onClick={onPublish} className={`btn ${deck.is_shared ? 'btn-error' : 'btn-secondary'}`}>
                     <i className={`fas ${deck.is_shared ? 'fa-eye-slash' : 'fa-globe-americas'}`}></i> 
                     {deck.is_shared ? 'Despublicar' : 'Publicar na Comunidade'}
@@ -126,7 +122,7 @@ function DeckDetail() {
     const [deck, setDeck] = useState(null);
     const [flashcards, setFlashcards] = useState([]);
     const [status, setStatus] = useState('loading');
-    const [isCreatingQuiz, setIsCreatingQuiz] = useState(false); 
+ 
     const [currentUser, setCurrentUser] = useState(null); 
     
     // O modal agora tem um tipo 'publish'
@@ -300,21 +296,6 @@ function DeckDetail() {
         });
     };
     
-    const handleCreateQuiz = () => {
-        if (!currentUser) {
-            toast.error("Os seus dados de perfil ainda estão a carregar. Tente novamente em um instante.");
-            return;
-        }
-        setIsCreatingQuiz(true);
-        socket.emit('quiz:create', { deckId, user: currentUser }, (response) => {
-            setIsCreatingQuiz(false);
-            if (response.success) {
-                navigate(`/quiz/${response.roomId}`);
-            } else {
-                toast.error(response.message || "Não foi possível criar o quiz.");
-            }
-        });
-    };
     
     if (status === 'loading') {
         return (
@@ -344,9 +325,7 @@ function DeckDetail() {
             <main className="deck-main">
                 <DeckHeader 
                     deck={deck} 
-                    onPublish={handlePublish} 
-                    onCreateQuiz={handleCreateQuiz} 
-                    isCreatingQuiz={isCreatingQuiz}
+                    onPublish={handlePublish}
                 />
                 <DeckStats stats={stats} />
                 <div className="deck-content-grid">

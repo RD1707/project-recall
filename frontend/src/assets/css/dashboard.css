@@ -176,13 +176,23 @@
 
 .deck-card__options-btn {
     color: rgba(255, 255, 255, 0.8);
+    background: none;
+    border: none;
+    cursor: pointer;
     transition: var(--transition-fast);
     padding: 0.5rem;
     border-radius: 50%;
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    z-index: 2;
+    z-index: 10;
+    pointer-events: auto;
+    opacity: 1;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .deck-card:hover .deck-card__options-btn {

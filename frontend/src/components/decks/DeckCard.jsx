@@ -7,6 +7,7 @@ function DeckCard({ deck, onEdit }) {
   const handleOptionsClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Options clicked!'); // Debug
     onEdit();
   };
 
