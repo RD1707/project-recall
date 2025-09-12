@@ -1,11 +1,5 @@
 import { supabase } from './supabaseClient';
-import toast from 'react-hot-toast';
-
-const handleApiError = (error, context) => {
-  console.error(`Erro em ${context}:`, error);
-  toast.error(error.message || `Ocorreu um erro em: ${context}.`);
-  throw error;
-};
+import { handleError } from '../utils/errorHandler';
 
 export const fetchDecks = async () => {
   try {
@@ -25,7 +19,7 @@ export const fetchDecks = async () => {
       card_count: deck.flashcards[0]?.count || 0,
     }));
   } catch (error) {
-    return handleApiError(error, 'fetchDecks');
+    return handleError(error, { context: 'fetchDecks' });
   }
 };
 
@@ -34,7 +28,6 @@ export const createDeck = async (deckData) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
     
-    // Usar API do backend para que as conquistas sejam atualizadas
     const response = await fetch('/api/decks', {
       method: 'POST',
       headers: {
@@ -49,7 +42,7 @@ export const createDeck = async (deckData) => {
     
     return { ...data.deck, card_count: 0 };
   } catch (error) {
-    return handleApiError(error, 'createDeck');
+    return handleError(error, { context: 'createDeck' });
   }
 };
 
@@ -66,7 +59,7 @@ export const updateDeck = async (deckId, deckData) => {
 
     return { ...data, card_count: data.flashcards[0]?.count || 0 };
   } catch (error) {
-    return handleApiError(error, 'updateDeck');
+    return handleError(error, { context: 'updateDeck' });
   }
 };
 
@@ -81,7 +74,7 @@ export const deleteDeck = async (deckId) => {
     
     return true; 
   } catch (error) {
-    return handleApiError(error, 'deleteDeck');
+    return handleError(error, { context: 'deleteDeck' });
   }
 };
 
@@ -97,7 +90,7 @@ export const fetchDeckById = async (deckId) => {
 
     return { ...data, card_count: data.flashcards[0]?.count || 0 };
   } catch (error) {
-    return handleApiError(error, 'fetchDeckById');
+    return handleError(error, { context: 'fetchDeckById' });
   }
 };
 
@@ -113,7 +106,7 @@ export const fetchFlashcardsByDeckId = async (deckId) => {
 
     return data;
   } catch (error) {
-    return handleApiError(error, 'fetchFlashcardsByDeckId');
+    return handleError(error, { context: 'fetchFlashcardsByDeckId' });
   }
 };
 
@@ -137,12 +130,11 @@ export const publishDeck = async (deckId, is_shared) => {
     return data;
     
   } catch (error) {
-    return handleApiError(error, 'publishDeck');
+    return handleError(error, { context: 'publishDeck' });
   }
 }
 
 export const fetchPublicDecks = async (params = {}) => {
-  // Validar e sanitizar parâmetros de entrada
   const page = Math.max(1, Math.min(1000, parseInt(params.page) || 1));
   const limit = Math.max(1, Math.min(100, parseInt(params.limit) || 20));
   const search = (params.search || '').toString().trim().slice(0, 100);
@@ -159,13 +151,12 @@ export const fetchPublicDecks = async (params = {}) => {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       },
-      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
         
-        // Tratar diferentes tipos de erro
         switch (response.status) {
           case 400:
             throw new Error(errorData.message || 'Parâmetros inválidos');
@@ -184,7 +175,6 @@ export const fetchPublicDecks = async (params = {}) => {
     
     const data = await response.json();
     
-    // Validar resposta
     if (!Array.isArray(data)) {
       throw new Error('Formato de resposta inválido');
     }
@@ -194,13 +184,12 @@ export const fetchPublicDecks = async (params = {}) => {
     if (error.name === 'TimeoutError') {
       throw new Error('Tempo limite esgotado. Verifique sua conexão.');
     }
-    return handleApiError(error, 'fetchPublicDecks');
+    return handleError(error, { context: 'fetchPublicDecks' });
   }
 };
 
 export const cloneDeck = async (deckId) => {
     try {
-        // Validar deckId
         if (!deckId || typeof deckId !== 'string') {
             throw new Error('ID do baralho é obrigatório');
         }
@@ -214,7 +203,7 @@ export const cloneDeck = async (deckId) => {
                 'Authorization': `Bearer ${session.access_token}`,
                 'Content-Type': 'application/json'
             },
-            signal: AbortSignal.timeout(15000) // Timeout de 15 segundos para clonagem
+            signal: AbortSignal.timeout(15000)
         });
 
         if (!response.ok) {
@@ -244,7 +233,6 @@ export const cloneDeck = async (deckId) => {
 
         const data = await response.json();
         
-        // Validar resposta
         if (!data.message) {
             throw new Error('Resposta inválida do servidor');
         }
@@ -254,13 +242,12 @@ export const cloneDeck = async (deckId) => {
         if (error.name === 'TimeoutError') {
             throw new Error('Tempo limite esgotado. A clonagem pode demorar mais tempo.');
         }
-        return handleApiError(error, 'cloneDeck');
+        return handleError(error, { context: 'cloneDeck' });
     }
 };
 
 export const rateDeck = async (deckId, rating) => {
   try {
-    // Validar parâmetros
     if (!deckId || typeof deckId !== 'string') {
       throw new Error('ID do baralho é obrigatório');
     }
@@ -279,7 +266,7 @@ export const rateDeck = async (deckId, rating) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ rating }),
-      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
@@ -308,7 +295,6 @@ export const rateDeck = async (deckId, rating) => {
     
     const data = await response.json();
     
-    // Validar resposta
     if (!data.message) {
       throw new Error('Resposta inválida do servidor');
     }
@@ -318,18 +304,16 @@ export const rateDeck = async (deckId, rating) => {
     if (error.name === 'TimeoutError') {
       throw new Error('Tempo limite esgotado. Tente novamente.');
     }
-    return handleApiError(error, 'rateDeck');
+    return handleError(error, { context: 'rateDeck' });
   }
 };
 
 export const fetchSharedDeck = async (shareableId) => {
   try {
-    // Validar shareableId
     if (!shareableId || typeof shareableId !== 'string') {
       throw new Error('ID compartilhável é obrigatório');
     }
 
-    // Validar formato do ID (deve ser alfanumérico)
     if (!/^[a-zA-Z0-9_-]+$/.test(shareableId)) {
       throw new Error('ID compartilhável inválido');
     }
@@ -338,7 +322,7 @@ export const fetchSharedDeck = async (shareableId) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+      signal: AbortSignal.timeout(10000)
     });
     
     if (!response.ok) {
@@ -360,7 +344,6 @@ export const fetchSharedDeck = async (shareableId) => {
     
     const data = await response.json();
 
-    // Validar estrutura da resposta
     if (!data.title || !Array.isArray(data.flashcards)) {
       throw new Error('Formato de dados inválido');
     }
@@ -370,6 +353,6 @@ export const fetchSharedDeck = async (shareableId) => {
     if (error.name === 'TimeoutError') {
       throw new Error('Tempo limite esgotado. Verifique sua conexão.');
     }
-    return handleApiError(error, 'fetchSharedDeck');
+    return handleError(error, { context: 'fetchSharedDeck' });
   }
 };

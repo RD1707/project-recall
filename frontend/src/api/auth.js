@@ -1,44 +1,6 @@
-import toast from 'react-hot-toast';
 import { supabase } from './supabaseClient';
-import { TIMEOUTS, MESSAGES } from '../constants';
-
-/**
- * Manipula erros de API de forma consistente
- * @param {Response} response - Resposta da API
- * @returns {Promise<never>} - Sempre lança um erro
- */
-const handleApiError = async (response) => {
-    let errorData;
-    const contentType = response.headers.get('content-type');
-
-    try {
-        if (contentType?.includes('application/json')) {
-            errorData = await response.json();
-        } else {
-            const text = await response.text();
-            errorData = { 
-                error: `Erro no servidor (Status: ${response.status})`, 
-                details: text 
-            };
-        }
-    } catch (parseError) {
-        errorData = { 
-            error: 'Erro ao processar resposta do servidor',
-            status: response.status 
-        };
-    }
-    
-    console.error('API Error:', { status: response.status, errorData });
-    
-    // Erros de campo específicos (para formulários)
-    if (errorData.field && errorData.type === 'FIELD_ERROR') {
-        throw errorData; 
-    }
-
-    const errorMessage = errorData.error || errorData.message || MESSAGES.ERROR.GENERIC;
-    toast.error(errorMessage);
-    throw new Error(errorMessage);
-};
+import { handleError } from '../utils/errorHandler'; 
+import { MESSAGES } from '../constants';
 
 export const loginUser = async (credentials) => {
     try {
@@ -49,7 +11,8 @@ export const loginUser = async (credentials) => {
         });
 
         if (!response.ok) {
-            await handleApiError(response);
+            const errorData = await response.json();
+            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
         }
 
         const data = await response.json();
@@ -63,7 +26,7 @@ export const loginUser = async (credentials) => {
 
         return data;
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'loginUser' });
     }
 };
 
@@ -76,12 +39,19 @@ export const registerUser = async (userData) => {
         });
 
         if (!response.ok) {
-            await handleApiError(response);
+            const errorData = await response.json();
+            if (errorData.field) {
+                throw errorData;
+            }
+            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
         }
 
         return await response.json();
     } catch (error) {
-        throw error;
+        if (error.field) {
+            throw error; 
+        }
+        throw handleError(error, { context: 'registerUser' });
     }
 };
 
@@ -101,12 +71,17 @@ export const completeUserProfile = async (profileData) => {
         
         const data = await response.json();
         if (!response.ok) {
+            if (data.field) {
+                throw { ...data, message: data.error };
+            }
             throw new Error(data.error || 'Falha ao completar o perfil.');
         }
         return data;
     } catch (error) {
-        toast.error(error.message);
-        throw error;
+        if (error.field) {
+            throw error; 
+        }
+        throw handleError(error, { context: 'completeUserProfile' });
     }
 };
 
@@ -119,12 +94,13 @@ export const requestPasswordReset = async (email) => {
         });
 
         if (!response.ok) {
-            await handleApiError(response);
+            const errorData = await response.json();
+            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
         }
 
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'requestPasswordReset' });
     }
 };
 
@@ -135,7 +111,6 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
             password: newPassword 
         };
         
-        // Só incluir refresh_token se não estiver vazio
         if (refreshToken && refreshToken.trim() !== '') {
             body.refresh_token = refreshToken;
         }
@@ -147,11 +122,12 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
         });
 
         if (!response.ok) {
-            await handleApiError(response);
+            const errorData = await response.json();
+            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
         }
 
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'resetPassword' });
     }
 };

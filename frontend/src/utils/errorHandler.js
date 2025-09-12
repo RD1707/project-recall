@@ -1,6 +1,5 @@
 import toast from 'react-hot-toast';
 
-// Códigos de erro padronizados
 export const ERROR_CODES = {
   NETWORK_ERROR: 'NETWORK_ERROR',
   AUTH_ERROR: 'AUTH_ERROR',
@@ -13,7 +12,6 @@ export const ERROR_CODES = {
   UNKNOWN_ERROR: 'UNKNOWN_ERROR'
 };
 
-// Mapeamento de erros comuns
 const ERROR_MESSAGES = {
   [ERROR_CODES.NETWORK_ERROR]: 'Problema de conexão. Verifique sua internet.',
   [ERROR_CODES.AUTH_ERROR]: 'Erro de autenticação. Faça login novamente.',
@@ -26,21 +24,18 @@ const ERROR_MESSAGES = {
   [ERROR_CODES.UNKNOWN_ERROR]: 'Erro inesperado. Tente novamente.'
 };
 
-// Classe principal para tratamento de erros
 class ErrorHandler {
   constructor() {
     this.listeners = [];
     this.errorQueue = [];
     this.maxQueueSize = 50;
     
-    // Capturar erros não tratados
     if (typeof window !== 'undefined') {
       window.addEventListener('unhandledrejection', this.handleUnhandledRejection.bind(this));
       window.addEventListener('error', this.handleGlobalError.bind(this));
     }
   }
 
-  // Adicionar listener para erros
   addListener(callback) {
     this.listeners.push(callback);
     return () => {
@@ -48,7 +43,6 @@ class ErrorHandler {
     };
   }
 
-  // Notificar listeners
   notifyListeners(error) {
     this.listeners.forEach(listener => {
       try {
@@ -59,7 +53,6 @@ class ErrorHandler {
     });
   }
 
-  // Categorizar erro
   categorizeError(error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       return ERROR_CODES.NETWORK_ERROR;
@@ -99,7 +92,6 @@ class ErrorHandler {
     return ERROR_CODES.UNKNOWN_ERROR;
   }
 
-  // Processar erro
   processError(error, context = {}) {
     const errorInfo = {
       originalError: error,
@@ -112,33 +104,27 @@ class ErrorHandler {
       userAgent: navigator.userAgent
     };
 
-    // Adicionar à fila
     this.addToQueue(errorInfo);
 
     return errorInfo;
   }
 
-  // Adicionar erro à fila
   addToQueue(errorInfo) {
     this.errorQueue.unshift(errorInfo);
     
-    // Manter tamanho máximo da fila
     if (this.errorQueue.length > this.maxQueueSize) {
       this.errorQueue = this.errorQueue.slice(0, this.maxQueueSize);
     }
   }
 
-  // Obter últimos erros
   getRecentErrors(limit = 10) {
     return this.errorQueue.slice(0, limit);
   }
 
-  // Limpar fila de erros
   clearQueue() {
     this.errorQueue = [];
   }
 
-  // Tratar erro com UI
   handleError(error, options = {}) {
     const {
       showToast = true,
@@ -149,13 +135,10 @@ class ErrorHandler {
 
     const errorInfo = this.processError(error, context);
     
-    // Notificar listeners
     this.notifyListeners(errorInfo);
 
-    // Log do erro
     console.error('[ErrorHandler]', errorInfo);
 
-    // Mostrar toast se solicitado
     if (showToast && !silent) {
       const message = customMessage || ERROR_MESSAGES[errorInfo.code] || errorInfo.message;
       
@@ -185,20 +168,17 @@ class ErrorHandler {
     return errorInfo;
   }
 
-  // Tratar rejection não capturada
   handleUnhandledRejection(event) {
     console.error('Unhandled Promise Rejection:', event.reason);
     
     this.handleError(event.reason, {
       context: { type: 'unhandledRejection' },
-      showToast: false // Evitar spam de toasts
+      showToast: false 
     });
 
-    // Prevenir que o erro apareça no console do browser
     event.preventDefault();
   }
 
-  // Tratar erro global
   handleGlobalError(event) {
     console.error('Global Error:', event.error);
     
@@ -209,11 +189,10 @@ class ErrorHandler {
         lineno: event.lineno,
         colno: event.colno
       },
-      showToast: false // Evitar spam de toasts
+      showToast: false 
     });
   }
 
-  // Função utilitária para retry
   async retry(fn, maxAttempts = 3, delay = 1000) {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -225,27 +204,22 @@ class ErrorHandler {
         
         console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms...`, error);
         await new Promise(resolve => setTimeout(resolve, delay));
-        delay *= 2; // Exponential backoff
+        delay *= 2; 
       }
     }
   }
 
-  // Função para reportar erro para serviço externo
   reportError(errorInfo, options = {}) {
     if (process.env.NODE_ENV === 'production') {
-      // Aqui você pode integrar com serviços como Sentry, LogRocket, etc.
       console.log('Would report to error tracking service:', errorInfo);
     }
   }
 }
 
-// Instância global do tratador de erros
 export const errorHandler = new ErrorHandler();
 
-// Função de conveniência
 export const handleError = (error, options) => errorHandler.handleError(error, options);
 
-// Hook para React
 export const useErrorHandler = () => {
   return {
     handleError: (error, options) => errorHandler.handleError(error, options),

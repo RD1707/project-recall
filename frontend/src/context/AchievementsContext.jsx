@@ -1,41 +1,26 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { fetchAchievements } from '../api/achievements';
-import { supabase } from '../api/supabaseClient'; // Importamos o supabase
+import { useAuth } from './AuthContext'; 
 
-const AchievementsContext = createContext();
+const AchievementsContext = createContext(null);
 
-function useAchievements() {
+export function useAchievements() {
     const context = useContext(AchievementsContext);
     if (!context) {
-        throw new Error('useAchievements must be used within an AchievementsProvider');
+        throw new Error('useAchievements deve ser usado dentro de um AchievementsProvider');
     }
     return context;
 }
 
-function AchievementsProvider({ children }) {
+export function AchievementsProvider({ children }) {
+    const { isAuthenticated } = useAuth(); 
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
-    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false); // Novo estado
-
-    // Verifica o status da autenticação
-    useEffect(() => {
-        const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setIsUserAuthenticated(!!session);
-        };
-        checkAuth();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setIsUserAuthenticated(!!session);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
 
     const loadAchievements = useCallback(async (silent = false) => {
-        // Só executa se o utilizador estiver autenticado
-        if (!isUserAuthenticated) {
+
+        if (!isAuthenticated) {
             setLoading(false);
             return;
         }
@@ -51,7 +36,7 @@ function AchievementsProvider({ children }) {
         } finally {
             if (!silent) setLoading(false);
         }
-    }, [isUserAuthenticated]); // Adicionamos a dependência
+    }, [isAuthenticated]); 
 
     const refreshAchievements = useCallback((delay = 1000) => {
         setTimeout(() => {
@@ -59,16 +44,14 @@ function AchievementsProvider({ children }) {
         }, delay);
     }, [loadAchievements]);
 
-    // Carregamento inicial só acontece se o status de autenticação mudar para true
     useEffect(() => {
-        if (isUserAuthenticated) {
+        if (isAuthenticated) {
             loadAchievements();
         } else {
-            // Limpa os dados se o utilizador fizer logout
             setAchievements([]);
             setLoading(false);
         }
-    }, [isUserAuthenticated, loadAchievements]);
+    }, [isAuthenticated, loadAchievements]);
 
     const value = {
         achievements,
@@ -84,5 +67,3 @@ function AchievementsProvider({ children }) {
         </AchievementsContext.Provider>
     );
 }
-
-export { useAchievements, AchievementsProvider };

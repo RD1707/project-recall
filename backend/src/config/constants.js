@@ -1,8 +1,5 @@
-// Constantes globais do backend
-
-// Limites de arquivo e conteúdo
 const FILE_LIMITS = {
-    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
+    MAX_FILE_SIZE: 50 * 1024 * 1024, 
     MAX_TEXT_LENGTH: 50000,
     MIN_TEXT_LENGTH: 50,
     ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
@@ -10,18 +7,16 @@ const FILE_LIMITS = {
     ALLOWED_TEXT_TYPES: ['text/plain', 'text/markdown'],
 };
 
-// Limites de conteúdo
 const CONTENT_LIMITS = {
-    DECK_TITLE_MAX_LENGTH: 255,
-    DECK_DESCRIPTION_MAX_LENGTH: 1000,
+    DECK_TITLE_MAX: 100,
+    DECK_DESCRIPTION_MAX: 500,
     CARD_QUESTION_MAX_LENGTH: 2000,
     CARD_ANSWER_MAX_LENGTH: 2000,
-    USERNAME_MAX_LENGTH: 50,
+    USERNAME_MAX: 50,
     USERNAME_MIN_LENGTH: 3,
     FULL_NAME_MAX_LENGTH: 100,
 };
 
-// Limites de geração
 const GENERATION_LIMITS = {
     MAX_CARDS_PER_GENERATION: 15,
     MIN_CARDS_PER_GENERATION: 1,
@@ -29,7 +24,6 @@ const GENERATION_LIMITS = {
     MIN_OPTIONS_PER_CARD: 2,
 };
 
-// Rate limiting
 const RATE_LIMITS = {
     COMMUNITY_REQUESTS_PER_15MIN: 100,
     CLONE_ATTEMPTS_PER_HOUR: 10,
@@ -38,7 +32,6 @@ const RATE_LIMITS = {
     AUTH_ATTEMPTS_PER_HOUR: 50,
 };
 
-// Timeouts (em milissegundos)
 const TIMEOUTS = {
     AUTH_TIMEOUT: 5000,
     DATABASE_TIMEOUT: 10000,
@@ -47,7 +40,6 @@ const TIMEOUTS = {
     API_REQUEST_TIMEOUT: 15000,
 };
 
-// Configurações SRS (Spaced Repetition System)
 const SRS_CONFIG = {
     DEFAULT_EASE_FACTOR: 2.5,
     MIN_EASE_FACTOR: 1.3,
@@ -56,9 +48,8 @@ const SRS_CONFIG = {
     GRADUATION_INTERVAL: 4,
     EASE_BONUS: 0.15,
     EASE_PENALTY: 0.20,
-};
+};  
 
-// Códigos de erro padronizados
 const ERROR_CODES = {
     VALIDATION_ERROR: 'VALIDATION_ERROR',
     AUTH_TOKEN_MISSING: 'AUTH_TOKEN_MISSING',
@@ -75,7 +66,6 @@ const ERROR_CODES = {
     INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
 };
 
-// Mensagens de erro padronizadas
 const ERROR_MESSAGES = {
     [ERROR_CODES.VALIDATION_ERROR]: 'Dados inválidos fornecidos.',
     [ERROR_CODES.AUTH_TOKEN_MISSING]: 'Token de autenticação necessário.',
@@ -92,7 +82,6 @@ const ERROR_MESSAGES = {
     [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'Erro interno do servidor.',
 };
 
-// Status HTTP
 const HTTP_STATUS = {
     OK: 200,
     CREATED: 201,
@@ -108,22 +97,19 @@ const HTTP_STATUS = {
     SERVICE_UNAVAILABLE: 503,
 };
 
-// Configurações de cache
 const CACHE_CONFIG = {
-    USER_SESSION_TTL: 24 * 60 * 60, // 24 horas em segundos
-    DECK_LIST_TTL: 5 * 60, // 5 minutos
-    ANALYTICS_TTL: 15 * 60, // 15 minutos
-    ACHIEVEMENTS_TTL: 10 * 60, // 10 minutos
+    USER_SESSION_TTL: 24 * 60 * 60,
+    DECK_LIST_TTL: 5 * 60, 
+    ANALYTICS_TTL: 15 * 60,
+    ACHIEVEMENTS_TTL: 10 * 60, 
 };
 
-// Configurações de paginação
 const PAGINATION = {
     DEFAULT_LIMIT: 20,
     MAX_LIMIT: 100,
     MAX_OFFSET: 10000,
 };
 
-// Configurações de logs
 const LOG_LEVELS = {
     ERROR: 'error',
     WARN: 'warn', 

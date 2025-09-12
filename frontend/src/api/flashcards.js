@@ -1,23 +1,9 @@
 import { supabase } from './supabaseClient';
-import toast from 'react-hot-toast';
-
-const handleApiError = async (response, context) => {
-    console.error(`Erro em ${context}:`, response);
-    let errorMessage = `Ocorreu um erro em: ${context}.`;
-    try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-    } catch (e) {
-        errorMessage = response.statusText;
-    }
-    toast.error(errorMessage);
-    throw new Error(errorMessage);
-};
+import { handleError } from '../utils/errorHandler'; 
 
 const getAuthHeader = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      toast.error("Sessão inválida. Por favor, faça login novamente.");
       throw new Error("Usuário não autenticado");
     }
     return `Bearer ${session.access_token}`;
@@ -34,13 +20,13 @@ export const createFlashcard = async (deckId, flashcardData) => {
             body: JSON.stringify(flashcardData)
         });
         if (!response.ok) {
-            await handleApiError(response, 'createFlashcard');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao criar flashcard');
         }
         const data = await response.json();
         return data.flashcard;
     } catch (error) {
-        console.error("Falha ao criar flashcard:", error);
-        throw error;
+        throw handleError(error, { context: 'createFlashcard' });
     }
 }
 
@@ -55,13 +41,13 @@ export const updateFlashcard = async (cardId, flashcardData) => {
             body: JSON.stringify(flashcardData)
         });
         if (!response.ok) {
-            await handleApiError(response, 'updateFlashcard');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao atualizar flashcard');
         }
         const data = await response.json();
         return data.flashcard;
     } catch (error) {
-        console.error("Falha ao atualizar flashcard:", error);
-        throw error;
+        throw handleError(error, { context: 'updateFlashcard' });
     }
 }
 
@@ -72,12 +58,12 @@ export const deleteFlashcard = async (cardId) => {
             headers: { 'Authorization': await getAuthHeader() }
         });
         if (!response.ok) {
-            await handleApiError(response, 'deleteFlashcard');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao deletar flashcard');
         }
         return true;
     } catch (error) {
-        console.error("Falha ao deletar flashcard:", error);
-        throw error;
+        throw handleError(error, { context: 'deleteFlashcard' });
     }
 }
 
@@ -97,11 +83,12 @@ export const generateFlashcardsFromText = async (deckId, params) => {
             })
         });
         if (!response.ok) {
-            await handleApiError(response, 'generateFlashcardsFromText');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao gerar flashcards a partir de texto');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'generateFlashcardsFromText' });
     }
 };
 
@@ -115,11 +102,12 @@ export const generateFlashcardsFromFile = async (deckId, formData) => {
             body: formData
         });
         if (!response.ok) {
-            await handleApiError(response, 'generateFlashcardsFromFile');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao gerar flashcards a partir de arquivo');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'generateFlashcardsFromFile' });
     }
 };
 
@@ -139,11 +127,12 @@ export const generateFlashcardsFromYouTube = async (deckId, params) => {
             })
         });
         if (!response.ok) {
-            await handleApiError(response, 'generateFlashcardsFromYouTube');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao gerar flashcards do YouTube');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'generateFlashcardsFromYouTube' });
     }
 };
 
@@ -153,11 +142,12 @@ export const fetchReviewCards = async (deckId) => {
             headers: { 'Authorization': await getAuthHeader() }
         });
         if (!response.ok) {
-            await handleApiError(response, 'fetchReviewCards');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao buscar cards para revisão');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'fetchReviewCards' });
     }
 };
 
@@ -172,11 +162,12 @@ export const submitReview = async (cardId, quality) => {
             body: JSON.stringify({ quality })
         });
         if (!response.ok) {
-            await handleApiError(response, 'submitReview');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao submeter revisão');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'submitReview' });
     }
 };
 
@@ -190,11 +181,12 @@ export const getExplanation = async (cardId) => {
             }
         });
         if (!response.ok) {
-            await handleApiError(response, 'getExplanation');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao obter explicação');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'getExplanation' });
     }
 };
 
@@ -209,10 +201,11 @@ export const chatWithTutor = async (cardId, chatHistory) => {
             body: JSON.stringify({ chatHistory })
         });
         if (!response.ok) {
-            await handleApiError(response, 'chatWithTutor');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro na comunicação com o tutor');
         }
         return await response.json();
     } catch (error) {
-        throw error;
+        throw handleError(error, { context: 'chatWithTutor' });
     }
 };

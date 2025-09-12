@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const deckController = require('../controllers/deckController');
-const flashcardController = require('../controllers/flashcardController'); 
 const authMiddleware = require('../middleware/authMiddleware');
 const multer = require('multer');
 
@@ -23,9 +22,5 @@ router.post('/:id/generate-from-youtube', deckController.generateCardsFromYouTub
 
 router.get('/:id/review', deckController.getReviewCardsForDeck);
 router.post('/:id/publish', deckController.publishDeck);
-
-router.route('/:deckId/flashcards')
-    .get(flashcardController.getFlashcardsInDeck)
-    .post(flashcardController.createFlashcard);
 
 module.exports = router;

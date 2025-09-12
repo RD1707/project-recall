@@ -173,7 +173,6 @@ function AIGenerator({ deckId, onGenerationStart }) {
                     <div className="input-tabs">
                         <button type="button" className={`input-tab ${activeTab === 'text' ? 'active' : ''}`} onClick={() => setActiveTab('text')}><i className="fas fa-font"></i>Texto</button>
                         <button type="button" className={`input-tab ${activeTab === 'file' ? 'active' : ''}`} onClick={() => setActiveTab('file')}><i className="fas fa-file-alt"></i>Arquivo</button>
-                        <button type="button" className={`input-tab ${activeTab === 'youtube' ? 'active' : ''}`} onClick={() => setActiveTab('youtube')}><i className="fab fa-youtube"></i>YouTube</button>
                     </div>
 
                     <div className="tab-content">

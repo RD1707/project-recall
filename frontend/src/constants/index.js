@@ -1,6 +1,3 @@
-// Constantes da aplicação
-
-// Timeouts (em milissegundos)
 export const TIMEOUTS = {
   API_REQUEST: 10000,
   AUTH_CHECK: 5000,
@@ -8,25 +5,22 @@ export const TIMEOUTS = {
   CLONE_OPERATION: 15000,
 };
 
-// Limites de paginação
 export const PAGINATION = {
   DEFAULT_PAGE_SIZE: 20,
   MAX_PAGE_SIZE: 100,
   MAX_PAGE_NUMBER: 1000,
 };
 
-// Limites de conteúdo
 export const CONTENT_LIMITS = {
   DECK_TITLE_MAX: 100,
   DECK_DESCRIPTION_MAX: 500,
   CARD_TEXT_MAX: 1000,
-  USERNAME_MAX: 50,
+  USERNAME_MAX: 20, 
   SEARCH_TERM_MAX: 100,
   MAX_CARDS_PER_DECK: 1000,
   MAX_OPTIONS_PER_CARD: 6,
 };
 
-// Rate limiting
 export const RATE_LIMITS = {
   CLONE_ATTEMPTS_PER_HOUR: 10,
   RATING_ATTEMPTS_PER_HOUR: 20,
@@ -34,7 +28,6 @@ export const RATE_LIMITS = {
   SHARE_REQUESTS_PER_15MIN: 200,
 };
 
-// Configurações de estudo
 export const STUDY_CONFIG = {
   DEFAULT_EASE_FACTOR: 2.5,
   MIN_EASE_FACTOR: 1.3,
@@ -43,7 +36,6 @@ export const STUDY_CONFIG = {
   GRADUATION_INTERVAL: 4,
 };
 
-// Configurações de UI
 export const UI_CONFIG = {
   TOAST_DURATION_SUCCESS: 3000,
   TOAST_DURATION_ERROR: 5000,
@@ -52,7 +44,6 @@ export const UI_CONFIG = {
   INFINITE_SCROLL_THRESHOLD: 100,
 };
 
-// URLs de API
 export const API_ENDPOINTS = {
   BASE: '/api',
   AUTH: '/api/auth',
@@ -65,7 +56,6 @@ export const API_ENDPOINTS = {
   SHARED: '/api/shared',
 };
 
-// Status HTTP
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
@@ -79,7 +69,6 @@ export const HTTP_STATUS = {
   SERVICE_UNAVAILABLE: 503,
 };
 
-// Mensagens padrão
 export const MESSAGES = {
   SUCCESS: {
     DECK_CREATED: 'Baralho criado com sucesso!',
@@ -114,7 +103,6 @@ export const MESSAGES = {
   },
 };
 
-// Cores do sistema (para consistency)
 export const COLORS = {
   PRIMARY: '#4f46e5',
   PRIMARY_HOVER: '#4338ca',
@@ -126,28 +114,25 @@ export const COLORS = {
   LIGHT_GRAY: '#f3f4f6',
 };
 
-// Configurações de validação
 export const VALIDATION = {
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   UUID_REGEX: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   SHAREABLE_ID_REGEX: /^[a-zA-Z0-9_-]+$/,
-  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_MIN_LENGTH: 6, 
   USERNAME_MIN_LENGTH: 3,
   DECK_TITLE_MIN_LENGTH: 1,
 };
 
-// Configurações de arquivo
 export const FILE_CONFIG = {
-  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_FILE_SIZE: 10 * 1024 * 1024, 
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
   ALLOWED_DOCUMENT_TYPES: ['application/pdf', 'text/plain', 'application/msword'],
 };
 
-// Configurações de cache
 export const CACHE_CONFIG = {
-  USER_PROFILE_TTL: 5 * 60 * 1000, // 5 minutos
-  DECKS_LIST_TTL: 2 * 60 * 1000, // 2 minutos
-  ANALYTICS_TTL: 10 * 60 * 1000, // 10 minutos
+  USER_PROFILE_TTL: 5 * 60 * 1000, 
+  DECKS_LIST_TTL: 2 * 60 * 1000, 
+  ANALYTICS_TTL: 10 * 60 * 1000, 
 };
 
 export default {
