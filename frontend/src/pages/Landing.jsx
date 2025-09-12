@@ -140,14 +140,14 @@ function Landing() {
                         <div className="hero-text">
                             <div className="hero-badge">
                                 <i className="fas fa-sparkles"></i>
-                                Powered by GPT-5
+                                Powered by Cohere
                             </div>
                             <h1>
                                 Memorize 10x mais rápido com
                                 <span className="text-gradient"> Inteligência Artificial</span>
                             </h1>
                             <p className="hero-subtitle">
-                                Transforme PDFs, vídeos e anotações em flashcards otimizados.
+                                Transforme arquivos e anotações em flashcards otimizados.
                                 Nosso algoritmo de repetição espaçada garante que você nunca
                                 esqueça o que aprendeu.
                             </p>
@@ -225,12 +225,12 @@ function Landing() {
                             <FeatureCard
                                 icon="fa-file-pdf"
                                 title="Multi-formato"
-                                description="Importe PDFs, PowerPoints, vídeos do YouTube ou crie do zero. Suportamos todos os formatos."
+                                description="Importe PDFs, PowerPoints ou crie do zero. Suportamos todos os formatos."
                             />
                             <FeatureCard
                                 icon="fa-mobile"
                                 title="Estude em Qualquer Lugar"
-                                description="Apps nativos para iOS e Android com sincronização em tempo real. Estude offline quando quiser."
+                                description="PWA nativo para iOS e Android com sincronização em tempo real. Estude offline quando quiser."
                             />
                             <FeatureCard
                                 icon="fa-users"
