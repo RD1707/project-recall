@@ -170,10 +170,10 @@ const forgotPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-    const { access_token, refresh_token, password } = req.body;
+    const { access_token, password } = req.body;
 
-    if (!access_token || !refresh_token || !password) {
-        return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+    if (!access_token || !password) {
+        return res.status(400).json({ error: 'Token de acesso e senha são obrigatórios.' });
     }
 
     if (password.length < 6) {
@@ -181,25 +181,47 @@ const resetPassword = async (req, res) => {
     }
 
     try {
-        // Usar os tokens para autenticar e redefinir a senha
-        const { error } = await supabase.auth.setSession({
-            access_token,
-            refresh_token
+        // Usar verifyOtp para tokens de recuperação
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+            token: access_token,
+            type: 'recovery'
         });
 
-        if (error) {
-            logger.error(`Erro ao definir sessão para reset: ${error.message}`);
+        if (verifyError) {
+            logger.error(`Erro ao verificar token: ${verifyError.message}`);
             return res.status(400).json({ error: 'Token de recuperação inválido ou expirado.' });
         }
 
-        // Atualizar a senha
-        const { error: updateError } = await supabase.auth.updateUser({
-            password: password
+        // Estabelecer sessão temporária para atualizar senha
+        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+            access_token,
+            refresh_token: '' // Pode estar vazio
         });
 
-        if (updateError) {
-            logger.error(`Erro ao atualizar senha: ${updateError.message}`);
-            return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
+        if (sessionError) {
+            // Se setSession falhar, tentar método alternativo
+            logger.warn(`SetSession falhou, tentando método alternativo: ${sessionError.message}`);
+            
+            // Método alternativo: usar admin API se disponível
+            const { error: adminError } = await supabase.auth.admin.updateUserById(
+                sessionData?.user?.id || 'recovery-user', 
+                { password: password }
+            );
+
+            if (adminError) {
+                logger.error(`Erro no método alternativo: ${adminError.message}`);
+                return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
+            }
+        } else {
+            // Método normal: atualizar senha com sessão ativa
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: password
+            });
+
+            if (updateError) {
+                logger.error(`Erro ao atualizar senha: ${updateError.message}`);
+                return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
+            }
         }
 
         logger.info('Senha redefinida com sucesso');

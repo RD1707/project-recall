@@ -35,12 +35,12 @@ function ResetPassword() {
     const type = searchParams.get('type');
 
     useEffect(() => {
-        // Verificar se temos os tokens necessários
-        if (!accessToken || !refreshToken || type !== 'recovery') {
+        // Verificar se temos os tokens necessários (refresh_token pode estar vazio)
+        if (!accessToken || type !== 'recovery') {
             toast.error('Link de recuperação inválido ou expirado.');
             navigate('/forgot-password');
         }
-    }, [accessToken, refreshToken, type, navigate]);
+    }, [accessToken, type, navigate]);
 
     const validatePassword = (password) => {
         if (password.length < 6) {
@@ -100,7 +100,7 @@ function ResetPassword() {
         try {
             await resetPassword({
                 accessToken,
-                refreshToken,
+                refreshToken: refreshToken || '', // Usar string vazia se não existir
                 newPassword: formData.password
             });
 
