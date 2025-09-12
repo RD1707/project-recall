@@ -6,11 +6,13 @@ const getPublicDecks = async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 20;
     const searchTerm = req.query.search || '';
     const sortBy = req.query.sort || 'created_at'; 
+    const userId = req.user.id; // Current user ID to filter out own decks
     
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
     try {
+        // First get the base decks with ratings aggregation
         let query = supabase
             .from('decks')
             .select(`
@@ -26,7 +28,8 @@ const getPublicDecks = async (req, res) => {
                     avatar_url
                 )
             `, { count: 'exact' })
-            .eq('is_shared', true);
+            .eq('is_shared', true)
+            .neq('user_id', userId); // Exclude user's own decks
 
         if (searchTerm) {
             query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
@@ -38,12 +41,46 @@ const getPublicDecks = async (req, res) => {
 
         if (error) throw error;
 
+        // Get ratings for all decks in this batch
+        const deckIds = data.map(deck => deck.id);
+        let ratingsData = [];
+        
+        if (deckIds.length > 0) {
+            const { data: ratings, error: ratingsError } = await supabase
+                .from('deck_ratings')
+                .select('deck_id, rating')
+                .in('deck_id', deckIds);
+                
+            if (ratingsError) {
+                logger.warn(`Error fetching ratings: ${ratingsError.message}`);
+            } else {
+                ratingsData = ratings || [];
+            }
+        }
+
+        // Calculate ratings aggregation
+        const ratingsMap = ratingsData.reduce((acc, rating) => {
+            if (!acc[rating.deck_id]) {
+                acc[rating.deck_id] = [];
+            }
+            acc[rating.deck_id].push(rating.rating);
+            return acc;
+        }, {});
+
         const decksWithCount = data.map(deck => {
             const { flashcards, profiles, ...deckData } = deck;
+            const ratings = ratingsMap[deck.id] || [];
+            const average_rating = ratings.length > 0 
+                ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
+                : 0;
+            const rating_count = ratings.length;
+
             return {
                 ...deckData,
                 card_count: flashcards[0]?.count || 0,
-                author: profiles || { username: 'Anônimo', avatar_url: null }
+                author: profiles || { username: 'Anônimo', avatar_url: null },
+                average_rating: Math.round(average_rating * 10) / 10, // Round to 1 decimal
+                rating_count
             };
         });
         
@@ -136,12 +173,13 @@ const rateDeck = async (req, res) => {
     const { deckId } = req.params;
     const userId = req.user.id;
 
-    const ratingSchema = z.object({
-        rating: z.number().int().min(1).max(5),
-    });
-
     try {
-        const { rating } = ratingSchema.parse(req.body);
+        const { rating } = req.body;
+        
+        // Simple validation
+        if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+            return res.status(400).json({ message: "A avaliação deve ser um número inteiro de 1 a 5.", code: 'VALIDATION_ERROR' });
+        }
 
         const { error } = await supabase
             .from('deck_ratings')
@@ -155,9 +193,6 @@ const rateDeck = async (req, res) => {
         res.status(201).json({ message: 'Avaliação registrada com sucesso!' });
 
     } catch (error) {
-        if (error instanceof z.ZodError) {
-            return res.status(400).json({ message: "A avaliação deve ser um número de 1 a 5.", code: 'VALIDATION_ERROR' });
-        }
         logger.error(`Error rating deck ${deckId} for user ${userId}: ${error.message}`);
         res.status(500).json({ message: 'Erro ao registrar a avaliação.', code: 'INTERNAL_SERVER_ERROR' });
     }

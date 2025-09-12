@@ -127,6 +127,8 @@ function Community() {
                         style={{ width: '200px', height: '44px' }}
                     >
                         <option value="created_at">Mais Recentes</option>
+                        <option value="title">Alfabética</option>
+                        <option value="flashcard_count">Mais Cards</option>
                     </select>
                 </div>
 
