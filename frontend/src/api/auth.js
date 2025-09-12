@@ -113,14 +113,20 @@ export const requestPasswordReset = async (email) => {
 
 export const resetPassword = async ({ accessToken, refreshToken, newPassword }) => {
     try {
+        const body = { 
+            access_token: accessToken, 
+            password: newPassword 
+        };
+        
+        // Só incluir refresh_token se não estiver vazio
+        if (refreshToken && refreshToken.trim() !== '') {
+            body.refresh_token = refreshToken;
+        }
+
         const response = await fetch('/api/auth/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                access_token: accessToken, 
-                refresh_token: refreshToken, 
-                password: newPassword 
-            }),
+            body: JSON.stringify(body),
         });
 
         if (!response.ok) {

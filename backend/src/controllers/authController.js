@@ -170,7 +170,7 @@ const forgotPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-    const { access_token, password } = req.body;
+    const { access_token, refresh_token, password } = req.body;
 
     if (!access_token || !password) {
         return res.status(400).json({ error: 'Token de acesso e senha são obrigatórios.' });
@@ -181,47 +181,41 @@ const resetPassword = async (req, res) => {
     }
 
     try {
-        // Usar verifyOtp para tokens de recuperação
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-            token: access_token,
-            type: 'recovery'
-        });
+        logger.info(`Tentativa de reset de senha com token: ${access_token.substring(0, 10)}...`);
+        
+        // Criar nova instância de cliente Supabase para esta operação
+        const { createClient } = require('@supabase/supabase-js');
+        const resetClient = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_ANON_KEY
+        );
 
-        if (verifyError) {
-            logger.error(`Erro ao verificar token: ${verifyError.message}`);
-            return res.status(400).json({ error: 'Token de recuperação inválido ou expirado.' });
-        }
-
-        // Estabelecer sessão temporária para atualizar senha
-        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+        // Estabelecer sessão com os tokens
+        const { data: sessionData, error: sessionError } = await resetClient.auth.setSession({
             access_token,
-            refresh_token: '' // Pode estar vazio
+            refresh_token: refresh_token || null
         });
 
         if (sessionError) {
-            // Se setSession falhar, tentar método alternativo
-            logger.warn(`SetSession falhou, tentando método alternativo: ${sessionError.message}`);
-            
-            // Método alternativo: usar admin API se disponível
-            const { error: adminError } = await supabase.auth.admin.updateUserById(
-                sessionData?.user?.id || 'recovery-user', 
-                { password: password }
-            );
+            logger.error(`Erro ao definir sessão: ${sessionError.message}`);
+            return res.status(400).json({ error: 'Token de recuperação inválido ou expirado.' });
+        }
 
-            if (adminError) {
-                logger.error(`Erro no método alternativo: ${adminError.message}`);
-                return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
-            }
-        } else {
-            // Método normal: atualizar senha com sessão ativa
-            const { error: updateError } = await supabase.auth.updateUser({
-                password: password
-            });
+        if (!sessionData.user) {
+            logger.error('Usuário não encontrado após definir sessão');
+            return res.status(400).json({ error: 'Token de recuperação inválido.' });
+        }
 
-            if (updateError) {
-                logger.error(`Erro ao atualizar senha: ${updateError.message}`);
-                return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
-            }
+        logger.info(`Usuário autenticado: ${sessionData.user.id}`);
+
+        // Atualizar a senha do usuário
+        const { error: updateError } = await resetClient.auth.updateUser({
+            password: password
+        });
+
+        if (updateError) {
+            logger.error(`Erro ao atualizar senha: ${updateError.message}`);
+            return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
         }
 
         logger.info('Senha redefinida com sucesso');
