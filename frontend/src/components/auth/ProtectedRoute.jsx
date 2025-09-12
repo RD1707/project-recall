@@ -19,7 +19,7 @@ function ProtectedRoute({ children }) {
       if (currentSession) {
         const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
-          .select('username, full_name')
+          .select('username, full_name, has_completed_onboarding')
           .eq('id', currentSession.user.id)
           .single();
 
@@ -52,11 +52,19 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if ((!profile || !profile.username) && location.pathname !== '/complete-profile') {
+  // Redirecionar para complete-profile apenas se:
+  // 1. Não existe perfil OU
+  // 2. Existe perfil mas não tem username (usuário do Google) OU  
+  // 3. Existe perfil mas has_completed_onboarding é false
+  const needsProfileCompletion = !profile || 
+    !profile.username || 
+    !profile.has_completed_onboarding;
+
+  if (needsProfileCompletion && location.pathname !== '/complete-profile') {
     return <Navigate to="/complete-profile" replace />;
   }
 
-  if (profile?.username && location.pathname === '/complete-profile') {
+  if (profile?.username && profile?.has_completed_onboarding && location.pathname === '/complete-profile') {
     return <Navigate to="/dashboard" replace />;
   }
 

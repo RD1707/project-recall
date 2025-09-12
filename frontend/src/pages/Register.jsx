@@ -38,6 +38,8 @@ function Register() {
     });
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState('');
     const navigate = useNavigate();
 
     const passwordRef = useRef(null);
@@ -85,13 +87,14 @@ function Register() {
                 username: formData.username,
             });
 
-            toast.success('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
-            navigate('/login');
+            setRegisteredEmail(formData.email);
+            setShowEmailVerification(true);
 
         } catch (err) {
             if (err.field) {
                 setErrors({ [err.field]: err.error });
             } else {
+                toast.error(err.message || 'Erro ao criar conta');
             }
         } finally {
             setLoading(false);
@@ -110,6 +113,74 @@ function Register() {
             ref.current.type = ref.current.type === 'password' ? 'text' : 'password';
         }
     };
+
+    const handleContinueToLogin = () => {
+        navigate('/login');
+    };
+
+    const handleResendEmail = async () => {
+        try {
+            const { error } = await supabase.auth.resend({
+                type: 'signup',
+                email: registeredEmail,
+            });
+            if (error) throw error;
+            toast.success('Email de confirmação reenviado!');
+        } catch (error) {
+            toast.error('Erro ao reenviar email: ' + error.message);
+        }
+    };
+
+    if (showEmailVerification) {
+        return (
+            <div className="auth-layout">
+                <AuthPromoPanel 
+                    title="Bem-vindo ao Recall!"
+                    subtitle="Sua conta foi criada com sucesso. Agora você precisa verificar seu email para continuar."
+                />
+
+                <div className="auth-form-panel">
+                    <div className="form-container">
+                        <div className="form-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '1rem' }}>
+                                <i className="fas fa-envelope-circle-check" style={{ color: '#22c55e' }}></i>
+                            </div>
+                            <h1>Verifique seu email</h1>
+                            <p>Enviamos um link de confirmação para:</p>
+                            <p style={{ fontWeight: 'bold', color: '#3b82f6', marginBottom: '1.5rem' }}>{registeredEmail}</p>
+                            <p style={{ color: '#6b7280' }}>
+                                Clique no link no email para ativar sua conta. Se não recebeu o email, verifique sua pasta de spam.
+                            </p>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <button 
+                                onClick={handleResendEmail} 
+                                className="btn btn-secondary btn-full"
+                            >
+                                <i className="fas fa-paper-plane" style={{ marginRight: '0.5rem' }}></i>
+                                Reenviar email
+                            </button>
+                            
+                            <button 
+                                onClick={handleContinueToLogin} 
+                                className="btn btn-primary btn-full"
+                            >
+                                Confirmi minha conta - Ir para Login
+                            </button>
+                        </div>
+
+                        <div className="toggle-panel" style={{ marginTop: '2rem' }}>
+                            <p>
+                                Problemas com o email?
+                                <a href="mailto:suporte@recall.com" style={{ marginLeft: '0.25rem' }}>Entre em contato</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-layout">

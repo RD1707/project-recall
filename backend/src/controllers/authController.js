@@ -44,6 +44,25 @@ const signup = async (req, res) => {
     if (!authData.user) {
         return res.status(400).json({ error: 'Falha ao criar usuário. Verifique se o email já está cadastrado.' });
     }
+
+    // Criar perfil na tabela profiles (apenas para registro manual)
+    try {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: authData.user.id,
+          full_name: full_name.trim(),
+          username: username.trim(),
+          has_completed_onboarding: true // Marcar como completo pois foi registro manual
+        }]);
+
+      if (profileError) {
+        logger.warn(`Aviso ao criar perfil para ${authData.user.id}: ${profileError.message}`);
+        // Não falhar o registro por causa do perfil
+      }
+    } catch (profileErr) {
+      logger.warn(`Erro ao criar perfil: ${profileErr.message}`);
+    }
     
     logger.info(`Usuário ${authData.user.id} registrado com sucesso.`);
 
@@ -120,7 +139,11 @@ const completeGoogleProfile = async (req, res) => {
 
         const { data, error } = await supabase
             .from('profiles')
-            .update({ full_name: fullName.trim(), username: username.trim() })
+            .update({ 
+              full_name: fullName.trim(), 
+              username: username.trim(),
+              has_completed_onboarding: true 
+            })
             .eq('id', userId)
             .select()
             .single();
