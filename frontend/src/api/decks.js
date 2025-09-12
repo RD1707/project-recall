@@ -142,55 +142,133 @@ export const publishDeck = async (deckId, is_shared) => {
 }
 
 export const fetchPublicDecks = async (params = {}) => {
-  const { page = 1, search = '', sort = 'created_at' } = params;
+  // Validar e sanitizar parâmetros de entrada
+  const page = Math.max(1, Math.min(1000, parseInt(params.page) || 1));
+  const limit = Math.max(1, Math.min(100, parseInt(params.limit) || 20));
+  const search = (params.search || '').toString().trim().slice(0, 100);
+  const sort = ['created_at', 'title', 'rating'].includes(params.sort) ? params.sort : 'created_at';
+
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
 
-    const query = new URLSearchParams({ page, limit: 20, search, sort }).toString();
+    const query = new URLSearchParams({ page, limit, search, sort }).toString();
     
     const response = await fetch(`/api/community/decks?${query}`, {
       headers: {
-        'Authorization': `Bearer ${session.access_token}`
-      }
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao buscar baralhos da comunidade');
+        const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+        
+        // Tratar diferentes tipos de erro
+        switch (response.status) {
+          case 400:
+            throw new Error(errorData.message || 'Parâmetros inválidos');
+          case 401:
+            throw new Error('Sessão expirada. Faça login novamente.');
+          case 403:
+            throw new Error('Acesso negado');
+          case 429:
+            throw new Error('Muitas solicitações. Tente novamente em alguns minutos.');
+          case 500:
+            throw new Error('Erro interno do servidor');
+          default:
+            throw new Error(errorData.message || 'Erro ao buscar baralhos da comunidade');
+        }
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Validar resposta
+    if (!Array.isArray(data)) {
+      throw new Error('Formato de resposta inválido');
+    }
+
+    return data;
   } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw new Error('Tempo limite esgotado. Verifique sua conexão.');
+    }
     return handleApiError(error, 'fetchPublicDecks');
   }
 };
 
 export const cloneDeck = async (deckId) => {
     try {
+        // Validar deckId
+        if (!deckId || typeof deckId !== 'string') {
+            throw new Error('ID do baralho é obrigatório');
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) throw new Error('Utilizador não autenticado');
 
         const response = await fetch(`/api/community/decks/${deckId}/clone`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${session.access_token}`
-            }
+                'Authorization': `Bearer ${session.access_token}`,
+                'Content-Type': 'application/json'
+            },
+            signal: AbortSignal.timeout(15000) // Timeout de 15 segundos para clonagem
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao clonar o baralho');
+            const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+            
+            switch (response.status) {
+                case 400:
+                    if (errorData.code === 'CLONE_SELF') {
+                        throw new Error('Você não pode clonar seu próprio baralho');
+                    }
+                    if (errorData.code === 'DECK_TOO_LARGE') {
+                        throw new Error('Este baralho é muito grande para ser clonado');
+                    }
+                    throw new Error(errorData.message || 'Dados inválidos');
+                case 401:
+                    throw new Error('Sessão expirada. Faça login novamente.');
+                case 404:
+                    throw new Error('Baralho não encontrado ou não é público');
+                case 429:
+                    throw new Error('Muitas tentativas de clonagem. Tente novamente mais tarde.');
+                case 500:
+                    throw new Error('Erro interno do servidor');
+                default:
+                    throw new Error(errorData.message || 'Erro ao clonar o baralho');
+            }
         }
 
-        return await response.json();
+        const data = await response.json();
+        
+        // Validar resposta
+        if (!data.message) {
+            throw new Error('Resposta inválida do servidor');
+        }
+
+        return data;
     } catch (error) {
+        if (error.name === 'TimeoutError') {
+            throw new Error('Tempo limite esgotado. A clonagem pode demorar mais tempo.');
+        }
         return handleApiError(error, 'cloneDeck');
     }
 };
 
 export const rateDeck = async (deckId, rating) => {
   try {
+    // Validar parâmetros
+    if (!deckId || typeof deckId !== 'string') {
+      throw new Error('ID do baralho é obrigatório');
+    }
+    
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      throw new Error('Avaliação deve ser um número inteiro entre 1 e 5');
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
 
@@ -200,32 +278,98 @@ export const rateDeck = async (deckId, rating) => {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ rating })
+      body: JSON.stringify({ rating }),
+      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao submeter avaliação');
+        const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+        
+        switch (response.status) {
+            case 400:
+                if (errorData.code === 'SELF_RATING') {
+                    throw new Error('Você não pode avaliar seu próprio baralho');
+                }
+                throw new Error(errorData.message || 'Dados de avaliação inválidos');
+            case 401:
+                throw new Error('Sessão expirada. Faça login novamente.');
+            case 403:
+                throw new Error('Você não pode avaliar este baralho');
+            case 404:
+                throw new Error('Baralho não encontrado');
+            case 429:
+                throw new Error('Muitas avaliações. Tente novamente em uma hora.');
+            case 500:
+                throw new Error('Erro interno do servidor');
+            default:
+                throw new Error(errorData.message || 'Erro ao submeter avaliação');
+        }
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Validar resposta
+    if (!data.message) {
+      throw new Error('Resposta inválida do servidor');
+    }
+
+    return data;
   } catch (error) {
-    // A função handleApiError já mostra um toast de erro
+    if (error.name === 'TimeoutError') {
+      throw new Error('Tempo limite esgotado. Tente novamente.');
+    }
     return handleApiError(error, 'rateDeck');
   }
 };
 
 export const fetchSharedDeck = async (shareableId) => {
   try {
-    const response = await fetch(`/api/shared/${shareableId}`);
+    // Validar shareableId
+    if (!shareableId || typeof shareableId !== 'string') {
+      throw new Error('ID compartilhável é obrigatório');
+    }
+
+    // Validar formato do ID (deve ser alfanumérico)
+    if (!/^[a-zA-Z0-9_-]+$/.test(shareableId)) {
+      throw new Error('ID compartilhável inválido');
+    }
+
+    const response = await fetch(`/api/shared/${encodeURIComponent(shareableId)}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      signal: AbortSignal.timeout(10000) // Timeout de 10 segundos
+    });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Baralho compartilhado não encontrado');
+      const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+      
+      switch (response.status) {
+        case 400:
+          throw new Error('ID compartilhável inválido');
+        case 404:
+          throw new Error('Baralho compartilhado não encontrado ou acesso foi revogado');
+        case 429:
+          throw new Error('Muitas solicitações. Tente novamente em alguns minutos.');
+        case 500:
+          throw new Error('Erro interno do servidor');
+        default:
+          throw new Error(errorData.message || 'Erro ao carregar baralho compartilhado');
+      }
     }
     
-    return await response.json();
+    const data = await response.json();
+
+    // Validar estrutura da resposta
+    if (!data.title || !Array.isArray(data.flashcards)) {
+      throw new Error('Formato de dados inválido');
+    }
+
+    return data;
   } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw new Error('Tempo limite esgotado. Verifique sua conexão.');
+    }
     return handleApiError(error, 'fetchSharedDeck');
   }
 };

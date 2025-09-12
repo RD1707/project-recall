@@ -33,7 +33,7 @@ class FileProcessingService {
         this.validateFile(file);
         const { buffer, mimetype, originalname } = file;
         
-        console.log(`🔄 Processando arquivo: ${originalname} (${mimetype})`);
+        logger.info('Processing file', { originalname, mimetype, size: buffer.length });
         
         let extractedText;
         
@@ -42,31 +42,31 @@ class FileProcessingService {
                 case 'application/pdf':
                     const pdfData = await pdf(buffer);
                     extractedText = pdfData.text;
-                    console.log(`✅ PDF processado: ${extractedText.length} caracteres`);
+                    logger.info('PDF processed successfully', { originalname, textLength: extractedText.length });
                     break;
                     
                 case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                     const docxResult = await mammoth.extractRawText({ buffer });
                     extractedText = docxResult.value;
-                    console.log(`✅ DOCX processado: ${extractedText.length} caracteres`);
+                    logger.info('DOCX processed successfully', { originalname, textLength: extractedText.length });
                     break;
                     
                 case 'text/plain':
                 case 'text/markdown':
                     extractedText = buffer.toString('utf-8');
-                    console.log(`✅ Texto processado: ${extractedText.length} caracteres`);
+                    logger.info('Text file processed successfully', { originalname, textLength: extractedText.length });
                     break;
                     
                 case 'image/jpeg':
                 case 'image/jpg':
                 case 'image/png':
                 case 'image/webp':
-                    console.log('🔍 Iniciando OCR...');
+                    logger.info('Starting OCR processing', { originalname });
                     const startTime = Date.now();
                     const { data: { text } } = await Tesseract.recognize(buffer, 'por');
                     const processingTime = Date.now() - startTime;
                     extractedText = text;
-                    console.log(`✅ OCR concluído em ${processingTime}ms: ${extractedText.length} caracteres`);
+                    logger.info('OCR processing completed', { originalname, processingTime: `${processingTime}ms`, textLength: extractedText.length });
                     break;
                     
                 default:
@@ -83,10 +83,12 @@ class FileProcessingService {
                 ? cleanedText.substring(0, this.limits.maxTextLength) + '...'
                 : cleanedText;
             
-            console.log(`📊 Processamento concluído: ${originalname}`);
-            console.log(`   - Texto original: ${extractedText.length} chars`);
-            console.log(`   - Texto final: ${finalText.length} chars`);
-            console.log(`   - Foi otimizado: ${wasOptimized ? 'Sim' : 'Não'}`);
+            logger.info('File processing completed', {
+                originalname,
+                originalLength: extractedText.length,
+                finalLength: finalText.length,
+                wasOptimized
+            });
             
             return {
                 text: finalText,
@@ -106,7 +108,7 @@ class FileProcessingService {
     }
 
     async cleanup() {
-        console.log('🧹 FileProcessingService cleanup executado');
+        logger.info('FileProcessingService cleanup completed');
     }
 }
 

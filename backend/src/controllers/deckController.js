@@ -1,12 +1,22 @@
 const supabase = require('../config/supabaseClient');
 const { z } = require('zod');
 const logger = require('../config/logger'); 
-const pdf = require('pdf-parse');
 const { YoutubeTranscript } = require('youtube-transcript');
 const { flashcardGenerationQueue, isRedisConnected } = require('../config/queue');
 const { processGenerationAndSave } = require('../services/generationService');
 const FileProcessingService = require('../services/fileProcessingService');
 const { updateAchievementProgress } = require('../services/achievementService');
+
+// Constantes da aplicação
+const CONSTANTS = {
+    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
+    MAX_TEXT_LENGTH: 50000,
+    MIN_TEXT_LENGTH: 50,
+    MAX_CARDS_PER_GENERATION: 15,
+    MIN_CARDS_PER_GENERATION: 1,
+    DECK_TITLE_MAX_LENGTH: 255,
+    DECK_DESC_MAX_LENGTH: 1000,
+};
 
 const SUPPORTED_MIME_TYPES = {
     'text/plain': { extension: 'txt', category: 'text' },
@@ -22,15 +32,24 @@ const SUPPORTED_MIME_TYPES = {
     'image/webp': { extension: 'webp', category: 'image' }
 };
 
+// Schemas de validação
 const deckSchema = z.object({
-  title: z.string({ required_error: 'O título é obrigatório.' }).min(1, 'O título não pode estar vazio.'),
-  description: z.string().optional(),
-  color: z.string().optional(),
+    title: z.string({ required_error: 'O título é obrigatório.' })
+           .min(1, 'O título não pode estar vazio.')
+           .max(CONSTANTS.DECK_TITLE_MAX_LENGTH, 'Título muito longo.'),
+    description: z.string()
+                  .max(CONSTANTS.DECK_DESC_MAX_LENGTH, 'Descrição muito longa.')
+                  .optional(),
+    color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Cor inválida.').optional(),
 });
 
 const generateSchema = z.object({
-    textContent: z.string().min(50, 'O conteúdo de texto precisa ter pelo menos 50 caracteres.'),
-    count: z.coerce.number().int().min(1).max(15),
+    textContent: z.string()
+                  .min(CONSTANTS.MIN_TEXT_LENGTH, `O conteúdo precisa ter pelo menos ${CONSTANTS.MIN_TEXT_LENGTH} caracteres.`)
+                  .max(CONSTANTS.MAX_TEXT_LENGTH, 'Conteúdo muito longo.'),
+    count: z.coerce.number().int()
+            .min(CONSTANTS.MIN_CARDS_PER_GENERATION)
+            .max(CONSTANTS.MAX_CARDS_PER_GENERATION),
     type: z.enum(['Pergunta e Resposta', 'Múltipla Escolha']),
     difficulty: z.enum(['facil', 'medio', 'dificil']) 
 });
@@ -63,12 +82,10 @@ const getDecks = async (req, res) => {
 
 const createDeck = async (req, res) => {
   const userId = req.user.id;
-  console.log("🚀🚀🚀 CREATE DECK ENDPOINT CHAMADO - userId:", userId);
-  console.log("🚀🚀🚀 REQ BODY:", req.body);
-  logger.info(`[CREATE DECK] Usuário ${userId} tentando criar deck`);
+  logger.info('Creating new deck', { userId, title: req.body?.title });
+  
   try {
     const { title, description, color } = deckSchema.parse(req.body);
-    console.log("🟢 DADOS DO DECK PARSED:", { title, description, color });
 
     const { data, error } = await supabase
       .from('decks')

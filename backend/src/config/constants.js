@@ -1,0 +1,147 @@
+// Constantes globais do backend
+
+// Limites de arquivo e conteúdo
+const FILE_LIMITS = {
+    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
+    MAX_TEXT_LENGTH: 50000,
+    MIN_TEXT_LENGTH: 50,
+    ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    ALLOWED_DOCUMENT_TYPES: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    ALLOWED_TEXT_TYPES: ['text/plain', 'text/markdown'],
+};
+
+// Limites de conteúdo
+const CONTENT_LIMITS = {
+    DECK_TITLE_MAX_LENGTH: 255,
+    DECK_DESCRIPTION_MAX_LENGTH: 1000,
+    CARD_QUESTION_MAX_LENGTH: 2000,
+    CARD_ANSWER_MAX_LENGTH: 2000,
+    USERNAME_MAX_LENGTH: 50,
+    USERNAME_MIN_LENGTH: 3,
+    FULL_NAME_MAX_LENGTH: 100,
+};
+
+// Limites de geração
+const GENERATION_LIMITS = {
+    MAX_CARDS_PER_GENERATION: 15,
+    MIN_CARDS_PER_GENERATION: 1,
+    MAX_OPTIONS_PER_CARD: 6,
+    MIN_OPTIONS_PER_CARD: 2,
+};
+
+// Rate limiting
+const RATE_LIMITS = {
+    COMMUNITY_REQUESTS_PER_15MIN: 100,
+    CLONE_ATTEMPTS_PER_HOUR: 10,
+    RATING_ATTEMPTS_PER_HOUR: 20,
+    SHARE_REQUESTS_PER_15MIN: 200,
+    AUTH_ATTEMPTS_PER_HOUR: 50,
+};
+
+// Timeouts (em milissegundos)
+const TIMEOUTS = {
+    AUTH_TIMEOUT: 5000,
+    DATABASE_TIMEOUT: 10000,
+    FILE_PROCESSING_TIMEOUT: 60000,
+    OCR_TIMEOUT: 30000,
+    API_REQUEST_TIMEOUT: 15000,
+};
+
+// Configurações SRS (Spaced Repetition System)
+const SRS_CONFIG = {
+    DEFAULT_EASE_FACTOR: 2.5,
+    MIN_EASE_FACTOR: 1.3,
+    MAX_EASE_FACTOR: 4.0,
+    INITIAL_INTERVAL: 1,
+    GRADUATION_INTERVAL: 4,
+    EASE_BONUS: 0.15,
+    EASE_PENALTY: 0.20,
+};
+
+// Códigos de erro padronizados
+const ERROR_CODES = {
+    VALIDATION_ERROR: 'VALIDATION_ERROR',
+    AUTH_TOKEN_MISSING: 'AUTH_TOKEN_MISSING',
+    AUTH_TOKEN_INVALID: 'AUTH_TOKEN_INVALID',
+    AUTH_TOKEN_EXPIRED: 'AUTH_TOKEN_EXPIRED',
+    AUTH_USER_BANNED: 'AUTH_USER_BANNED',
+    PERMISSION_DENIED: 'PERMISSION_DENIED',
+    NOT_FOUND: 'NOT_FOUND',
+    DUPLICATE_RESOURCE: 'DUPLICATE_RESOURCE',
+    RATE_LIMITED: 'RATE_LIMITED',
+    FILE_TOO_LARGE: 'FILE_TOO_LARGE',
+    UNSUPPORTED_FILE_TYPE: 'UNSUPPORTED_FILE_TYPE',
+    PROCESSING_ERROR: 'PROCESSING_ERROR',
+    INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
+};
+
+// Mensagens de erro padronizadas
+const ERROR_MESSAGES = {
+    [ERROR_CODES.VALIDATION_ERROR]: 'Dados inválidos fornecidos.',
+    [ERROR_CODES.AUTH_TOKEN_MISSING]: 'Token de autenticação necessário.',
+    [ERROR_CODES.AUTH_TOKEN_INVALID]: 'Token de autenticação inválido.',
+    [ERROR_CODES.AUTH_TOKEN_EXPIRED]: 'Token expirado. Faça login novamente.',
+    [ERROR_CODES.AUTH_USER_BANNED]: 'Conta temporariamente suspensa.',
+    [ERROR_CODES.PERMISSION_DENIED]: 'Permissão negada para esta operação.',
+    [ERROR_CODES.NOT_FOUND]: 'Recurso não encontrado.',
+    [ERROR_CODES.DUPLICATE_RESOURCE]: 'Recurso já existe.',
+    [ERROR_CODES.RATE_LIMITED]: 'Muitas solicitações. Tente novamente mais tarde.',
+    [ERROR_CODES.FILE_TOO_LARGE]: 'Arquivo muito grande.',
+    [ERROR_CODES.UNSUPPORTED_FILE_TYPE]: 'Tipo de arquivo não suportado.',
+    [ERROR_CODES.PROCESSING_ERROR]: 'Erro durante o processamento.',
+    [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'Erro interno do servidor.',
+};
+
+// Status HTTP
+const HTTP_STATUS = {
+    OK: 200,
+    CREATED: 201,
+    NO_CONTENT: 204,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    UNPROCESSABLE_ENTITY: 422,
+    TOO_MANY_REQUESTS: 429,
+    INTERNAL_SERVER_ERROR: 500,
+    SERVICE_UNAVAILABLE: 503,
+};
+
+// Configurações de cache
+const CACHE_CONFIG = {
+    USER_SESSION_TTL: 24 * 60 * 60, // 24 horas em segundos
+    DECK_LIST_TTL: 5 * 60, // 5 minutos
+    ANALYTICS_TTL: 15 * 60, // 15 minutos
+    ACHIEVEMENTS_TTL: 10 * 60, // 10 minutos
+};
+
+// Configurações de paginação
+const PAGINATION = {
+    DEFAULT_LIMIT: 20,
+    MAX_LIMIT: 100,
+    MAX_OFFSET: 10000,
+};
+
+// Configurações de logs
+const LOG_LEVELS = {
+    ERROR: 'error',
+    WARN: 'warn', 
+    INFO: 'info',
+    DEBUG: 'debug',
+};
+
+module.exports = {
+    FILE_LIMITS,
+    CONTENT_LIMITS,
+    GENERATION_LIMITS,
+    RATE_LIMITS,
+    TIMEOUTS,
+    SRS_CONFIG,
+    ERROR_CODES,
+    ERROR_MESSAGES,
+    HTTP_STATUS,
+    CACHE_CONFIG,
+    PAGINATION,
+    LOG_LEVELS,
+};

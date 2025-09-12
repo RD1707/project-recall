@@ -1,24 +1,41 @@
 import toast from 'react-hot-toast';
 import { supabase } from './supabaseClient';
+import { TIMEOUTS, MESSAGES } from '../constants';
 
+/**
+ * Manipula erros de API de forma consistente
+ * @param {Response} response - Resposta da API
+ * @returns {Promise<never>} - Sempre lança um erro
+ */
 const handleApiError = async (response) => {
     let errorData;
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get('content-type');
 
-    if (contentType && contentType.indexOf("application/json") !== -1) {
-        errorData = await response.json();
-    } else {
-        const text = await response.text();
-        errorData = { error: `Ocorreu um erro no servidor (Status: ${response.status})`, details: text };
+    try {
+        if (contentType?.includes('application/json')) {
+            errorData = await response.json();
+        } else {
+            const text = await response.text();
+            errorData = { 
+                error: `Erro no servidor (Status: ${response.status})`, 
+                details: text 
+            };
+        }
+    } catch (parseError) {
+        errorData = { 
+            error: 'Erro ao processar resposta do servidor',
+            status: response.status 
+        };
     }
     
-    console.error("Erro da API:", errorData);
+    console.error('API Error:', { status: response.status, errorData });
     
+    // Erros de campo específicos (para formulários)
     if (errorData.field && errorData.type === 'FIELD_ERROR') {
         throw errorData; 
     }
 
-    const errorMessage = errorData.error || errorData.message || 'Ocorreu um erro desconhecido.';
+    const errorMessage = errorData.error || errorData.message || MESSAGES.ERROR.GENERIC;
     toast.error(errorMessage);
     throw new Error(errorMessage);
 };
