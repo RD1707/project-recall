@@ -107,17 +107,10 @@ export const logout = async () => {
 
 export const fetchLeaderboard = async (period = 'all_time') => {
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        
-        if (session) {
-            headers['Authorization'] = `Bearer ${session.access_token}`;
-        }
-
         const response = await fetch(`/api/profile/leaderboard?period=${period}`, {
-            headers
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
         
         if (!response.ok) {
