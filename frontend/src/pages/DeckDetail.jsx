@@ -7,7 +7,7 @@ import AIGenerator from '../components/decks/AIGenerator';
 import Modal from '../components/common/Modal';
 import { useSocket } from '../context/SocketContext'; 
 
-import { fetchDeckById, fetchFlashcardsByDeckId, shareDeck } from '../api/decks';
+import { fetchDeckById, fetchFlashcardsByDeckId, publishDeck } from '../api/decks';
 import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashcards';
 import { fetchProfile } from '../api/profile';
 import { useAchievementActions } from '../hooks/useAchievementActions';
@@ -262,7 +262,7 @@ function DeckDetail() {
     // Função que confirma a publicação e chama a API
     const confirmPublish = async () => {
         closeModal(); // Fecha o modal de confirmação
-        const promise = shareDeck(deckId); // A API é a mesma, só muda como a usamos
+        const promise = publishDeck(deckId, true); // Publica o baralho na comunidade
 
         toast.promise(promise, {
             loading: 'Publicando baralho na comunidade...',
