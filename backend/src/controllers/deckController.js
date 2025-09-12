@@ -27,7 +27,7 @@ const deckSchema = z.object({
            .min(1, 'O título não pode estar vazio.')
            .max(CONTENT_LIMITS.DECK_TITLE_MAX, `Título muito longo. Máximo de ${CONTENT_LIMITS.DECK_TITLE_MAX} caracteres.`), 
     description: z.string()
-                  .max(CONTENT_LIMITS.DECK_DESC_MAX_LENGTH, 'Descrição muito longa.')
+                  .max(CONTENT_LIMITS.DECK_DESCRIPTION_MAX, 'Descrição muito longa.')
                   .optional(),
     color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Cor inválida.').optional(),
 });
