@@ -5,10 +5,11 @@ const helmet = require('helmet');
 require('dotenv').config();
 const http = require('http');
 const { Server } = require("socket.io");
+const fs = require('fs');
 
 const authRoutes = require('./src/routes/authRoutes');
 const deckRoutes = require('./src/routes/deckRoutes');
-const flashcardRoutes = require('./src/routes/flashcardRoutes'); 
+const flashcardRoutes = require('./src/routes/flashcardRoutes');
 const profileRoutes = require('./src/routes/profileRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const shareRoutes = require('./src/routes/shareRoutes');
@@ -91,7 +92,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/flashcards', flashcardRoutes);
-app.use('/api/decks/:deckId/flashcards', flashcardRoutes); 
+app.use('/api/decks/:deckId/flashcards', flashcardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api', shareRoutes);
