@@ -1,9 +1,17 @@
 import { supabase } from './supabaseClient';
-import { handleError } from '../utils/errorHandler'; 
+import toast from 'react-hot-toast';
+
+const handleApiError = (error, context) => {
+  console.error(`Erro em ${context}:`, error);
+  const errorMessage = error.message || `Ocorreu um erro em: ${context}.`;
+  toast.error(errorMessage);
+  throw new Error(errorMessage);
+};
 
 const getAuthHeader = async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
+    toast.error("Sessão inválida. Por favor, faça login novamente.");
     throw new Error("Usuário não autenticado");
   }
   return `Bearer ${session.access_token}`;
@@ -37,7 +45,7 @@ export const fetchProfile = async () => {
     };
 
   } catch (error) {
-    return handleError(error, { context: 'fetchProfile' });
+    return handleApiError(error, 'fetchProfile');
   }
 };
 
@@ -58,7 +66,7 @@ export const updateProfile = async (profileData) => {
         }
         return await response.json();
     } catch (error) {
-        throw handleError(error, { context: 'updateProfile' });
+        throw handleApiError(error, 'updateProfile');
     }
 };
 
@@ -81,7 +89,7 @@ export const uploadAvatar = async (file) => {
         }
         return await response.json();
     } catch (error) {
-       throw handleError(error, { context: 'uploadAvatar' });
+       throw handleApiError(error, 'uploadAvatar');
     }
 };
 
@@ -93,7 +101,7 @@ export const logout = async () => {
         }
         return true;
     } catch (error) {
-        return handleError(error, { context: 'logout' });
+        return handleApiError(error, 'logout');
     }
 };
 
@@ -111,7 +119,7 @@ export const fetchLeaderboard = async (period = 'all_time') => {
         }
         return await response.json();
     } catch (error) {
-        throw handleError(error, { context: 'fetchLeaderboard' });
+        throw handleApiError(error, 'fetchLeaderboard');
     }
 };
 
@@ -131,7 +139,7 @@ export const markOnboardingAsComplete = async () => {
     return await response.json();
   } catch (error) {
     console.error("Erro ao marcar onboarding como completo:", error);
-    throw handleError(error, { context: 'markOnboardingAsComplete' });
+    throw error;
   }
 };
 
@@ -153,6 +161,6 @@ export const fetchPublicProfile = async (username) => {
     
     return await response.json();
   } catch (error) {
-    throw handleError(error, { context: 'fetchPublicProfile' });
+    throw handleApiError(error, 'fetchPublicProfile');
   }
 };

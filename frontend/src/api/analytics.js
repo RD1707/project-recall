@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { handleError } from '../utils/errorHandler'; // Importamos o handler central
+import toast from 'react-hot-toast';
 
 async function apiCall(endpoint) {
   try {
@@ -33,7 +33,9 @@ async function apiCall(endpoint) {
     return data;
 
   } catch (error) {
-    throw handleError(error, { context: `apiCall:${endpoint}` });
+    console.error(`Erro na chamada da API para ${endpoint}:`, error);
+    toast.error(error.message || `Falha ao buscar dados de ${endpoint}.`);
+    throw error;
   }
 }
 

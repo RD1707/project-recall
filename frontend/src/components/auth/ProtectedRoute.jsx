@@ -1,28 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; 
-import LoadingSpinner from '../common/LoadingSpinner';
-import toast from 'react-hot-toast';
+import { supabase } from '../../api/supabaseClient';
+import LoadingSpinner from '../common/LoadingSpinner'; 
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, profile, loading } = useAuth();
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
 
+  useEffect(() => {
+    const checkUser = async () => {
+      if (loading === false) setLoading(true);
+
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+
+      if (currentSession) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('username, full_name')
+          .eq('id', currentSession.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Erro ao buscar perfil:', profileError);
+        } else {
+          setProfile(userProfile);
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [location]);
+
   if (loading) {
-    return <LoadingSpinner message="Verificando autenticação..." />;
+    return <LoadingSpinner message="Carregando sua sessão..." />;
   }
 
-  if (!isAuthenticated) {
+  if (!session) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const needsProfileCompletion = (!profile || !profile.username) && location.pathname !== '/complete-profile';
-  if (needsProfileCompletion) {
+  if ((!profile || !profile.username) && location.pathname !== '/complete-profile') {
     return <Navigate to="/complete-profile" replace />;
   }
 
-  const hasProfileButOnCompleteProfilePage = profile?.username && location.pathname === '/complete-profile';
-  if (hasProfileButOnCompleteProfilePage) {
+  if (profile?.username && location.pathname === '/complete-profile') {
     return <Navigate to="/dashboard" replace />;
   }
 

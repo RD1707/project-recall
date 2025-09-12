@@ -84,9 +84,10 @@ const createFlashcard = async (req, res) => {
                 .select('id, decks!inner(user_id)', { count: 'exact', head: true })
                 .eq('decks.user_id', userId);
             
-            if (totalCards !== null) {
-                await updateAchievementProgress(userId, 'cards_created_total', totalCards);
-            }
+            // Não há métrica para cards_created no banco atual
+            // if (totalCards !== null) {
+            //     await updateAchievementProgress(userId, 'cards_created', totalCards);
+            // }
         } catch (achievementError) {
             logger.error(`Falha ao atualizar conquistas após criação de flashcard:`, achievementError);
         }

@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import Header from '../components/common/Header';
+import Footer from '../components/common/Footer'; 
 import DeckCard from '../components/decks/DeckCard';
 import CreateDeckCard from '../components/decks/CreateDeckCard';
 import Modal from '../components/common/Modal';
 import { fetchDecks, createDeck, updateDeck, deleteDeck } from '../api/decks';
-import { markOnboardingAsComplete } from '../api/profile';
+import { supabase } from '../api/supabaseClient'; 
+import { markOnboardingAsComplete } from '../api/profile'; 
 import OnboardingTour from '../components/common/OnboardingTour';
 import { useAchievementActions } from '../hooks/useAchievementActions';
-import { useAuth } from '../context/AuthContext'; 
 
 import '../assets/css/dashboard.css';
 
@@ -23,6 +24,7 @@ const SkeletonDeckCard = () => (
 
 const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color: '#6366f1' }, formId }) => {
     const [formData, setFormData] = useState(initialData);
+
     const colors = ['#6366f1', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
 
     const handleChange = (e) => {
@@ -72,7 +74,6 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
 
 function Dashboard() {
     const { triggerAchievementUpdate } = useAchievementActions();
-    const { profile } = useAuth(); 
     const [decks, setDecks] = useState([]);
     const [status, setStatus] = useState('loading');
     const [searchTerm, setSearchTerm] = useState('');
@@ -90,20 +91,33 @@ function Dashboard() {
         const loadInitialData = async () => {
             try {
                 setStatus('loading');
+                
                 const decksData = await fetchDecks();
                 setDecks(decksData);
 
-                if (profile && !profile.has_completed_onboarding) {
-                    setTimeout(() => setShowTour(true), 500);
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data: profile, error } = await supabase
+                        .from('profiles')
+                        .select('has_completed_onboarding')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (error && error.code !== 'PGRST116') throw error;
+                    
+                    if (profile && !profile.has_completed_onboarding) {
+                        setTimeout(() => setShowTour(true), 500);
+                    }
                 }
 
                 setStatus('success');
             } catch (err) {
                 setStatus('error');
+                toast.error('Não foi possível carregar seus dados.');
             }
         };
         loadInitialData();
-    }, [profile]);
+    }, []);
     
     const filteredDecks = useMemo(() => {
         let decksToRender = [...decks];
@@ -146,11 +160,12 @@ function Dashboard() {
             const resultDeck = await toast.promise(promise, {
                 loading: `${isCreating ? 'Criando' : 'Salvando'} baralho...`,
                 success: `Baralho ${isCreating ? 'criado' : 'atualizado'} com sucesso!`,
-                error: (err) => err.message || `Não foi possível ${isCreating ? 'criar' : 'salvar'} o baralho.`,
+                error: `Não foi possível ${isCreating ? 'criar' : 'salvar'} o baralho.`,
             });
             
             if (isCreating) {
                 setDecks(prevDecks => [resultDeck, ...prevDecks]);
+                // Trigger achievement update after creating deck
                 triggerAchievementUpdate('create_deck');
             } else {
                 setDecks(decks.map(d => (d.id === resultDeck.id ? resultDeck : d)));
@@ -169,7 +184,7 @@ function Dashboard() {
             await toast.promise(deleteDeck(modalState.deckData.id), {
                 loading: 'Excluindo baralho...',
                 success: 'Baralho excluído com sucesso.',
-                error: (err) => err.message || 'Não foi possível excluir o baralho.',
+                error: 'Não foi possível excluir o baralho.',
             });
             setDecks(decks.filter(d => d.id !== modalState.deckData.id));
             closeModal();
@@ -195,7 +210,7 @@ function Dashboard() {
             );
         }
         if (status === 'error') {
-            return <div className="error-state">Ocorreu um erro ao buscar seus dados. Por favor, tente recarregar a página.</div>;
+            return <div className="error-state">Ocorreu um erro ao buscar seus dados.</div>;
         }
         if (decks.length === 0) {
             return (

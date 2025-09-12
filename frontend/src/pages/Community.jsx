@@ -19,76 +19,27 @@ function Community() {
     const [hasMore, setHasMore] = useState(true);
     const initialLoad = useRef(true);
 
-    const abortControllerRef = useRef(null);
-
     const loadDecks = useCallback(async (currentPage, currentSearch, currentSort) => {
-        // Cancelar request anterior se ainda estiver em andamento
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
-
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
 
         try {
-            const params = { 
-                page: currentPage, 
-                search: currentSearch?.trim() || '', 
-                sort: currentSort 
-            };
+            const params = { page: currentPage, search: currentSearch, sort: currentSort };
             const newDecks = await fetchPublicDecks(params);
             
-            // Verificar se o componente ainda está montado
-            if (abortControllerRef.current?.signal.aborted) return;
-            
-            if (!Array.isArray(newDecks)) {
-                throw new Error('Formato de dados inválido');
-            }
-
             if (newDecks.length < 20) {
                 setHasMore(false);
             } else {
                 setHasMore(true);
             }
 
-            setDecks(prevDecks => {
-                if (currentPage === 1) {
-                    return newDecks;
-                }
-                
-                // Evitar duplicatas baseado no ID
-                const existingIds = new Set(prevDecks.map(deck => deck.id));
-                const uniqueNewDecks = newDecks.filter(deck => !existingIds.has(deck.id));
-                
-                return [...prevDecks, ...uniqueNewDecks];
-            });
+            setDecks(prevDecks => currentPage === 1 ? newDecks : [...prevDecks, ...newDecks]);
         } catch (error) {
-            // Não mostrar erro se foi cancelado
-            if (error.name === 'AbortError') return;
-            
-            console.error('Erro ao carregar baralhos da comunidade:', error);
-            
-            // Mostrar erro específico baseado no tipo
-            if (error.message.includes('Sessão expirada')) {
-                toast.error("Sua sessão expirou. Faça login novamente.");
-            } else if (error.message.includes('Muitas solicitações')) {
-                toast.error("Muitas solicitações. Aguarde um momento e tente novamente.");
-            } else {
-                toast.error("Não foi possível carregar os baralhos da comunidade.");
-            }
+            toast.error("Não foi possível carregar os baralhos da comunidade.");
         } finally {
             if (currentPage === 1) setLoading(false);
             else setLoadingMore(false);
         }
-    }, []);
-
-    // Cleanup ao desmontar o componente
-    useEffect(() => {
-        return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
     }, []);
     
     useEffect(() => {

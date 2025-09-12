@@ -1,20 +1,20 @@
 const supabase = require('../config/supabaseClient');
 const { z } = require('zod');
-const logger = require('../config/logger');
+const logger = require('../config/logger'); 
+const pdf = require('pdf-parse');
 const { YoutubeTranscript } = require('youtube-transcript');
 const { flashcardGenerationQueue, isRedisConnected } = require('../config/queue');
 const { processGenerationAndSave } = require('../services/generationService');
 const FileProcessingService = require('../services/fileProcessingService');
 const { updateAchievementProgress } = require('../services/achievementService');
-const { CONTENT_LIMITS, FILE_LIMITS } = require('../config/constants');
 
 const SUPPORTED_MIME_TYPES = {
     'text/plain': { extension: 'txt', category: 'text' },
     'text/markdown': { extension: 'md', category: 'text' },
     'application/pdf': { extension: 'pdf', category: 'document' },
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
-        extension: 'docx',
-        category: 'document'
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': { 
+        extension: 'docx', 
+        category: 'document' 
     },
     'image/jpeg': { extension: 'jpg', category: 'image' },
     'image/jpg': { extension: 'jpg', category: 'image' },
@@ -23,26 +23,17 @@ const SUPPORTED_MIME_TYPES = {
 };
 
 const deckSchema = z.object({
-    title: z.string({ required_error: 'O título é obrigatório.' })
-           .min(1, 'O título não pode estar vazio.')
-           .max(CONTENT_LIMITS.DECK_TITLE_MAX, `Título muito longo. Máximo de ${CONTENT_LIMITS.DECK_TITLE_MAX} caracteres.`), 
-    description: z.string()
-                  .max(CONTENT_LIMITS.DECK_DESCRIPTION_MAX, 'Descrição muito longa.')
-                  .optional(),
-    color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Cor inválida.').optional(),
+  title: z.string({ required_error: 'O título é obrigatório.' }).min(1, 'O título não pode estar vazio.'),
+  description: z.string().optional(),
+  color: z.string().optional(),
 });
 
 const generateSchema = z.object({
-    textContent: z.string()
-                  .min(FILE_LIMITS.MIN_TEXT_LENGTH, `O conteúdo precisa ter pelo menos ${FILE_LIMITS.MIN_TEXT_LENGTH} caracteres.`)
-                  .max(FILE_LIMITS.MAX_TEXT_LENGTH, 'Conteúdo muito longo.'),
-    count: z.coerce.number().int()
-            .min(1)
-            .max(15),
+    textContent: z.string().min(50, 'O conteúdo de texto precisa ter pelo menos 50 caracteres.'),
+    count: z.coerce.number().int().min(1).max(15),
     type: z.enum(['Pergunta e Resposta', 'Múltipla Escolha']),
-    difficulty: z.enum(['facil', 'medio', 'dificil'])
+    difficulty: z.enum(['facil', 'medio', 'dificil']) 
 });
-
 
 const getDecks = async (req, res) => {
   const userId = req.user.id;
@@ -54,7 +45,7 @@ const getDecks = async (req, res) => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-
+    
     const decksWithCount = data.map(deck => {
         const { flashcards, ...deckData } = deck;
         return {
@@ -72,10 +63,12 @@ const getDecks = async (req, res) => {
 
 const createDeck = async (req, res) => {
   const userId = req.user.id;
-  logger.info('Creating new deck', { userId, title: req.body?.title });
-
+  console.log("🚀🚀🚀 CREATE DECK ENDPOINT CHAMADO - userId:", userId);
+  console.log("🚀🚀🚀 REQ BODY:", req.body);
+  logger.info(`[CREATE DECK] Usuário ${userId} tentando criar deck`);
   try {
     const { title, description, color } = deckSchema.parse(req.body);
+    console.log("🟢 DADOS DO DECK PARSED:", { title, description, color });
 
     const { data, error } = await supabase
       .from('decks')
@@ -84,18 +77,20 @@ const createDeck = async (req, res) => {
       .single();
 
     if (error) throw error;
-
+    
+    // Atualizar conquistas de criação de baralhos
     try {
         logger.info(`[DECK CREATION] Atualizando conquistas para usuário ${userId}`);
         const { count, error: countError } = await supabase
             .from('decks')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', userId);
-
+        
         if (countError) throw countError;
 
         logger.info(`[DECK CREATION] Usuário ${userId} agora tem ${count} decks`);
-
+        
+        // Usar a métrica correta baseada na contagem
         if (count === 1) {
             logger.info(`[DECK CREATION] Primeiro deck! Atualizando decks_created para ${count}`);
             await updateAchievementProgress(userId, 'decks_created', count);
@@ -146,7 +141,7 @@ const updateDeck = async (req, res) => {
 const deleteDeck = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-
+    
     try {
         const { data: deck, error: deckError } = await supabase
             .from('decks')
@@ -213,9 +208,9 @@ const generateCardsFromFile = async (req, res) => {
     try {
 
         if (!req.file) {
-            return res.status(400).json({
-                message: 'Nenhum arquivo foi enviado.',
-                code: 'VALIDATION_ERROR'
+            return res.status(400).json({ 
+                message: 'Nenhum arquivo foi enviado.', 
+                code: 'VALIDATION_ERROR' 
             });
         }
 
@@ -223,10 +218,10 @@ const generateCardsFromFile = async (req, res) => {
             const supportedTypes = Object.keys(SUPPORTED_MIME_TYPES)
                 .map(type => SUPPORTED_MIME_TYPES[type].extension.toUpperCase())
                 .join(', ');
-
-            return res.status(400).json({
-                message: `Tipo de arquivo não suportado. Suportados: ${supportedTypes}`,
-                code: 'UNSUPPORTED_FILE_TYPE'
+            
+            return res.status(400).json({ 
+                message: `Tipo de arquivo não suportado. Suportados: ${supportedTypes}`, 
+                code: 'UNSUPPORTED_FILE_TYPE' 
             });
         }
 
@@ -234,9 +229,9 @@ const generateCardsFromFile = async (req, res) => {
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
         if (deckError || !deck) {
-            return res.status(404).json({
-                message: 'Baralho não encontrado.',
-                code: 'NOT_FOUND'
+            return res.status(404).json({ 
+                message: 'Baralho não encontrado.', 
+                code: 'NOT_FOUND' 
             });
         }
 
@@ -245,9 +240,9 @@ const generateCardsFromFile = async (req, res) => {
             extractionResult = await FileProcessingService.extractText(req.file);
         } catch (extractionError) {
             logger.error(`Erro na extração: ${extractionError.message}`);
-            return res.status(400).json({
-                message: extractionError.message,
-                code: 'TEXT_EXTRACTION_FAILED'
+            return res.status(400).json({ 
+                message: extractionError.message, 
+                code: 'TEXT_EXTRACTION_FAILED' 
             });
         }
 
@@ -273,20 +268,20 @@ const generateCardsFromFile = async (req, res) => {
 
         if (isRedisConnected) {
             await flashcardGenerationQueue.add('generate-file', jobData);
-
-            const responseMessage = wasOptimized
+            
+            const responseMessage = wasOptimized 
                 ? `Arquivo processado! Texto otimizado de ${originalLength} para ${textContent.length} caracteres.`
                 : 'Arquivo processado com sucesso!';
 
-            res.status(202).json({
-                processing: true,
+            res.status(202).json({ 
+                processing: true, 
                 message: responseMessage,
                 fileInfo: jobData.fileInfo,
             });
         } else {
             const savedFlashcards = await processGenerationAndSave(jobData);
-            res.status(201).json({
-                message: 'Flashcards gerados com sucesso!',
+            res.status(201).json({ 
+                message: 'Flashcards gerados com sucesso!', 
                 flashcards: savedFlashcards,
                 fileInfo: jobData.fileInfo,
             });
@@ -298,9 +293,9 @@ const generateCardsFromFile = async (req, res) => {
         }
         console.error('ERRO COMPLETO na generateCardsFromFile:', error);
         logger.error(`Erro na geração via arquivo: ${error.message}`);
-        res.status(500).json({
-            message: error.message || 'Erro ao gerar flashcards do arquivo.',
-            code: 'GENERATION_ERROR'
+        res.status(500).json({ 
+            message: error.message || 'Erro ao gerar flashcards do arquivo.', 
+            code: 'GENERATION_ERROR' 
         });
     }
 };
@@ -326,16 +321,16 @@ const generateCardsFromYouTube = async (req, res) => {
             const transcriptArray = await YoutubeTranscript.fetchTranscript(youtubeUrl, { lang: 'pt' });
             transcript = transcriptArray.map(item => item.text).join(' ');
         } catch (error) {
-            return res.status(400).json({
-                message: 'Não foi possível obter a transcrição do vídeo.',
-                code: 'YOUTUBE_TRANSCRIPT_ERROR'
+            return res.status(400).json({ 
+                message: 'Não foi possível obter a transcrição do vídeo.', 
+                code: 'YOUTUBE_TRANSCRIPT_ERROR' 
             });
         }
 
         if (!transcript || transcript.trim().length < 50) {
-            return res.status(400).json({
-                message: 'Transcrição muito curta para gerar flashcards.',
-                code: 'INSUFFICIENT_TRANSCRIPT_CONTENT'
+            return res.status(400).json({ 
+                message: 'Transcrição muito curta para gerar flashcards.', 
+                code: 'INSUFFICIENT_TRANSCRIPT_CONTENT' 
             });
         }
 
@@ -376,7 +371,7 @@ const getReviewCardsForDeck = async (req, res) => {
             .select('*')
             .eq('deck_id', deckId)
             .or(`due_date.lte.${today},due_date.is.null`)
-            .limit(20);
+            .limit(20); 
 
         if (error) throw error;
         res.status(200).json(data);
@@ -408,12 +403,12 @@ const publishDeck = async (req, res) => {
             .from('decks')
             .update({ is_shared: is_shared })
             .eq('id', deckId)
-            .eq('user_id', userId)
+            .eq('user_id', userId) // <-- A verificação de segurança que faltava
             .select('id, is_shared')
             .single();
 
         if (updateError) throw updateError;
-
+        
         const message = is_shared ? 'Baralho publicado com sucesso!' : 'Baralho tornado privado com sucesso!';
         res.status(200).json({ message, deck: updatedDeck });
 
@@ -432,5 +427,5 @@ module.exports = {
     generateCardsFromFile,
     generateCardsFromYouTube,
     getReviewCardsForDeck,
-    publishDeck
+    publishDeck // <--- Nome atualizado aqui
 };

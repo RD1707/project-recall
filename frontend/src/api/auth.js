@@ -1,23 +1,52 @@
+import toast from 'react-hot-toast';
 import { supabase } from './supabaseClient';
-import { handleError } from '../utils/errorHandler'; 
-import { MESSAGES } from '../constants';
+
+const handleApiError = async (response) => {
+    let errorData;
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        errorData = await response.json();
+    } else {
+        const text = await response.text();
+        errorData = { error: `Ocorreu um erro no servidor (Status: ${response.status})`, details: text };
+    }
+    
+    console.error("Erro da API:", errorData);
+    
+    if (errorData.field && errorData.type === 'FIELD_ERROR') {
+        throw errorData; 
+    }
+
+    const errorMessage = errorData.error || errorData.message || 'Ocorreu um erro desconhecido.';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+};
 
 export const loginUser = async (credentials) => {
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: credentials.email,
-            password: credentials.password,
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials),
         });
-        if (error) {
-            if (error.message.includes('Invalid login credentials')) {
-                throw new Error('E-mail ou senha inválidos.');
-            }
-            throw error;
+
+        if (!response.ok) {
+            await handleApiError(response);
+        }
+
+        const data = await response.json();
+        
+        if (data.session) {
+            await supabase.auth.setSession({
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token
+            });
         }
 
         return data;
     } catch (error) {
-        throw handleError(error, { context: 'loginUser' });
+        throw error;
     }
 };
 
@@ -30,19 +59,12 @@ export const registerUser = async (userData) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            if (errorData.field) {
-                throw errorData;
-            }
-            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
+            await handleApiError(response);
         }
 
         return await response.json();
     } catch (error) {
-        if (error.field) {
-            throw error; 
-        }
-        throw handleError(error, { context: 'registerUser' });
+        throw error;
     }
 };
 
@@ -62,17 +84,12 @@ export const completeUserProfile = async (profileData) => {
         
         const data = await response.json();
         if (!response.ok) {
-            if (data.field) {
-                throw { ...data, message: data.error };
-            }
             throw new Error(data.error || 'Falha ao completar o perfil.');
         }
         return data;
     } catch (error) {
-        if (error.field) {
-            throw error; 
-        }
-        throw handleError(error, { context: 'completeUserProfile' });
+        toast.error(error.message);
+        throw error;
     }
 };
 
@@ -85,13 +102,12 @@ export const requestPasswordReset = async (email) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
+            await handleApiError(response);
         }
 
         return await response.json();
     } catch (error) {
-        throw handleError(error, { context: 'requestPasswordReset' });
+        throw error;
     }
 };
 
@@ -102,6 +118,7 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
             password: newPassword 
         };
         
+        // Só incluir refresh_token se não estiver vazio
         if (refreshToken && refreshToken.trim() !== '') {
             body.refresh_token = refreshToken;
         }
@@ -113,12 +130,11 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || MESSAGES.ERROR.GENERIC);
+            await handleApiError(response);
         }
 
         return await response.json();
     } catch (error) {
-        throw handleError(error, { context: 'resetPassword' });
+        throw error;
     }
 };

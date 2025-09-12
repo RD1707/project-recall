@@ -5,10 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(authMiddleware.authenticateToken);
 
-router.route('/in-deck/:deckId')
-    .get(flashcardController.getFlashcardsInDeck)
-    .post(flashcardController.createFlashcard);
-
 router.route('/:cardId')
     .put(flashcardController.updateFlashcard)
     .delete(flashcardController.deleteFlashcard);
