@@ -12,6 +12,57 @@ import '../assets/css/study.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Componente simples para renderizar markdown básico
+const MarkdownRenderer = ({ text }) => {
+    const parseMarkdown = (text) => {
+        // Escape HTML
+        const escapeHtml = (unsafe) => {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        };
+
+        let html = escapeHtml(text);
+
+        // Parse markdown patterns
+        // Bold **text**
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Italic *text*
+        html = html.replace(/(?<!\*)\*(?!\*)([^\*]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+        
+        // Code `code`
+        html = html.replace(/`([^`]+?)`/g, '<code class="inline-code">$1</code>');
+        
+        // Code blocks ```code```
+        html = html.replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre class="code-block"><code>$2</code></pre>');
+        
+        // Line breaks
+        html = html.replace(/\n/g, '<br>');
+        
+        // Lists (simple implementation)
+        html = html.replace(/^[-*+] (.+)$/gm, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        
+        // Headers
+        html = html.replace(/^### (.+)$/gm, '<h3 class="markdown-h3">$1</h3>');
+        html = html.replace(/^## (.+)$/gm, '<h2 class="markdown-h2">$1</h2>');
+        html = html.replace(/^# (.+)$/gm, '<h1 class="markdown-h1">$1</h1>');
+
+        return html;
+    };
+
+    return (
+        <div 
+            className="markdown-content" 
+            dangerouslySetInnerHTML={{ __html: parseMarkdown(text) }}
+        />
+    );
+};
+
 const LoadingScreen = () => (
     <div className="state-container loading-state">
         <div className="loading-animation">
@@ -500,7 +551,11 @@ function StudySession() {
                         <div className="chat-messages">
                             {messages.map((msg, index) => (
                                 <div key={index} className={`chat-bubble ${msg.role.toLowerCase()}`}>
-                                    {msg.message}
+                                    {msg.role === 'CHATBOT' ? (
+                                        <MarkdownRenderer text={msg.message} />
+                                    ) : (
+                                        msg.message
+                                    )}
                                 </div>
                             ))}
                             {isChatLoading && (

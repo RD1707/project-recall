@@ -39,9 +39,9 @@ const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => (
                     <i className={isCreatingQuiz ? "fas fa-spinner fa-spin" : "fas fa-users"}></i>
                     <span>{isCreatingQuiz ? 'A criar sala...' : 'Jogar Quiz em Grupo'}</span>
                 </button>
-                {/* O botão agora chama onPublish e tem um texto diferente */}
-                <button onClick={onPublish} className="btn btn-secondary">
-                    <i className="fas fa-globe-americas"></i> Publicar na Comunidade
+                <button onClick={onPublish} className={`btn ${deck.is_shared ? 'btn-error' : 'btn-secondary'}`}>
+                    <i className={`fas ${deck.is_shared ? 'fa-eye-slash' : 'fa-globe-americas'}`}></i> 
+                    {deck.is_shared ? 'Despublicar' : 'Publicar na Comunidade'}
                 </button>
             </div>
         </div>
@@ -261,23 +261,42 @@ function DeckDetail() {
         }
     };
 
-    // Função de publicação que abre o novo modal
+    // Função de publicação que abre o modal apropriado
     const handlePublish = () => {
-        openModal('publish');
+        if (deck.is_shared) {
+            openModal('unpublish');
+        } else {
+            openModal('publish');
+        }
     };
 
     // Função que confirma a publicação e chama a API
     const confirmPublish = async () => {
-        closeModal(); // Fecha o modal de confirmação
-        const promise = publishDeck(deckId, true); // Publica o baralho na comunidade
+        closeModal(); 
+        const promise = publishDeck(deckId, true); 
 
         toast.promise(promise, {
             loading: 'Publicando baralho na comunidade...',
             success: () => {
-                navigate('/community'); // Leva o usuário para a comunidade para ver o baralho
+                setDeck(prev => ({ ...prev, is_shared: true }));
                 return 'Baralho publicado com sucesso!';
             },
             error: 'Falha ao publicar o baralho.',
+        });
+    };
+
+    // Função que confirma a despublicação e chama a API
+    const confirmUnpublish = async () => {
+        closeModal();
+        const promise = publishDeck(deckId, false); 
+
+        toast.promise(promise, {
+            loading: 'Despublicando baralho...',
+            success: () => {
+                setDeck(prev => ({ ...prev, is_shared: false }));
+                return 'Baralho despublicado com sucesso!';
+            },
+            error: 'Falha ao despublicar o baralho.',
         });
     };
     
@@ -365,11 +384,23 @@ function DeckDetail() {
                 <div className="modal-body">
                     <p>Você está prestes a tornar o baralho "<strong>{deck.title}</strong>" público.</p>
                     <p>Ele ficará visível para todos os outros usuários na página da Comunidade. Eles poderão visualizar e clonar o seu baralho.</p>
-                    <p>Você pode reverter essa ação a qualquer momento nas configurações do baralho.</p>
+                    <p>Você pode reverter essa ação a qualquer momento.</p>
                 </div>
                 <div className="modal-footer">
                     <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
                     <button className="btn btn-primary" onClick={confirmPublish}>Confirmar e Publicar</button>
+                </div>
+            </Modal>
+
+            <Modal isOpen={modalState.type === 'unpublish'} onClose={closeModal} title="Despublicar Baralho">
+                <div className="modal-body">
+                    <p>Você está prestes a tornar o baralho "<strong>{deck.title}</strong>" privado.</p>
+                    <p>Ele será removido da página da Comunidade e não ficará mais visível para outros usuários.</p>
+                    <p>Você pode publicá-lo novamente a qualquer momento.</p>
+                </div>
+                <div className="modal-footer">
+                    <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
+                    <button className="btn btn-error" onClick={confirmUnpublish}>Confirmar e Despublicar</button>
                 </div>
             </Modal>
         </>

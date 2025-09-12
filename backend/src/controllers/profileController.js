@@ -241,12 +241,28 @@ const getPublicProfile = async (req, res) => {
         
         // Passo 2: Buscar todos os baralhos públicos desse utilizador
         const { data: publicDecks, error: decksError } = await supabase
-            .from('public_decks_with_ratings')
-            .select('id, title, description, color, card_count, average_rating, rating_count')
+            .from('decks')
+            .select(`
+                id,
+                title,
+                description,
+                color,
+                created_at,
+                flashcards(count)
+            `)
             .eq('user_id', profile.id)
+            .eq('is_shared', true)
             .order('created_at', { ascending: false });
 
         if (decksError) throw decksError;
+
+        // Formatar os dados dos decks
+        const formattedDecks = publicDecks.map(deck => ({
+            ...deck,
+            card_count: deck.flashcards[0]?.count || 0,
+            average_rating: 0, // Placeholder - pode ser implementado depois
+            rating_count: 0    // Placeholder - pode ser implementado depois
+        }));
 
         // Passo 3: Combinar os dados e enviar a resposta
         const responsePayload = {
@@ -257,7 +273,7 @@ const getPublicProfile = async (req, res) => {
                 avatarUrl: profile.avatar_url
                 // A propriedade memberSince foi removida daqui
             },
-            decks: publicDecks
+            decks: formattedDecks
         };
         
         res.status(200).json(responsePayload);

@@ -26,15 +26,19 @@ const RankingRow = ({ user, rank }) => (
 function Ranking() {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [activePeriod, setActivePeriod] = useState('all_time'); 
 
     useEffect(() => {
         const loadLeaderboard = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const data = await fetchLeaderboard(activePeriod);
-                setLeaderboard(data);
+                setLeaderboard(data || []);
             } catch (error) {
+                console.error('Erro ao carregar ranking:', error);
+                setError(error.message || "Não foi possível carregar o ranking.");
                 toast.error("Não foi possível carregar o ranking.");
             } finally {
                 setLoading(false);
@@ -47,6 +51,9 @@ function Ranking() {
     const renderBody = () => {
         if (loading) {
             return <div className="loading-state">Carregando ranking...</div>;
+        }
+        if (error) {
+            return <div className="error-state">Erro: {error}</div>;
         }
         if (leaderboard.length === 0) {
             return <div className="empty-state">Ainda não há dados para este ranking. Comece a estudar!</div>;
