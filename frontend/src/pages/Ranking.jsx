@@ -11,12 +11,16 @@ const RankingRow = ({ user, rank }) => (
         </div>
         <div className="user-cell">
             <div className="user-avatar">
-                {user.avatar_url ? <img src={user.avatar_url} alt={user.username} /> : <span>{user.username.charAt(0).toUpperCase()}</span>}
+                {user.avatar_url ? (
+                    <img src={user.avatar_url} alt={user.username || 'Avatar do usuário'} />
+                ) : (
+                    <span>{(user.username || '?').charAt(0).toUpperCase()}</span>
+                )}
             </div>
-            <span className="username">{user.username}</span>
+            <span className="username">{user.username || 'Usuário Anônimo'}</span>
         </div>
         <div className="points-cell">
-            <span className="points-value">{user.points.toLocaleString('pt-BR')}</span>
+            <span className="points-value">{(user.points || 0).toLocaleString('pt-BR')}</span>
             <span className="points-label">pontos</span>
         </div>
     </div>

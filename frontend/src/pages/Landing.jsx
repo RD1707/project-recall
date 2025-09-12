@@ -156,10 +156,6 @@ function Landing() {
                                     <i className="fas fa-rocket"></i>
                                     Começar Gratuitamente
                                 </Link>
-                                <button onClick={() => setVideoModalOpen(true)} className="btn-video">
-                                    <span className="play-icon"><i className="fas fa-play"></i></span>
-                                    <span>Ver Demo (2 min)</span>
-                                </button>
                             </div>
                             <div className="hero-trust">
                                 <p>
