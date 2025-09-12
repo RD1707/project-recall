@@ -244,8 +244,10 @@
 }
 
 .field-error::before {
-  content: '⚠';
+  content: '!';
   font-size: 0.75rem;
+  font-weight: bold;
+  color: #f59e0b;
 }
 
 .field-help {

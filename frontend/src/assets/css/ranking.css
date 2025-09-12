@@ -113,12 +113,6 @@
     position: relative;
 }
 
-.ranking-row:hover {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
-    transform: translateX(4px);
-    border-left: 4px solid var(--color-warning-500, #f59e0b);
-    padding-left: calc(2rem - 4px);
-}
 
 .ranking-row:last-child {
     border-bottom: none;
@@ -150,10 +144,6 @@
     box-shadow: var(--shadow-soft);
 }
 
-.ranking-row:hover .rank-badge {
-    transform: scale(1.1) rotate(-5deg);
-    box-shadow: var(--shadow-md);
-}
 
 .rank-badge.rank-1 {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -210,11 +200,6 @@
     box-shadow: var(--shadow-sm);
 }
 
-.ranking-row:hover .user-avatar {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-primary-300);
-}
 
 .user-avatar img {
     width: 100%;
@@ -239,10 +224,6 @@
     transition: all 0.3s ease;
 }
 
-.ranking-row:hover .points-value {
-    color: var(--color-warning-600, #d97706);
-    transform: scale(1.05);
-}
 
 .points-label {
     font-size: 0.875rem;
@@ -292,10 +273,8 @@
 }
 
 .filter-btn:hover {
-    background: linear-gradient(135deg, var(--color-background-subtle) 0%, var(--color-surface) 100%);
-    color: var(--color-dark-800);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-600);
 }
 
 .filter-btn.active {
@@ -360,16 +339,19 @@
 }
 
 .error-state::before {
-    content: '⚠️';
+    content: '!';
     font-size: 2rem;
     margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #f59e0b;
 }
 
 .empty-state::before {
-    content: '🏆';
+    content: '★';
     font-size: 2rem;
     margin-bottom: 0.5rem;
     opacity: 0.7;
+    color: #fbbf24;
 }
 
 @keyframes spin {

@@ -126,8 +126,7 @@ button {
 }
 
 .btn:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    opacity: 0.9;
 }
 
 .btn:disabled {
@@ -145,6 +144,7 @@ button {
 
 .btn-primary:hover {
     background-color: var(--color-primary-600);
+    opacity: 0.9;
 }
 
 .btn-secondary {
@@ -154,7 +154,7 @@ button {
 }
 
 .btn-secondary:hover {
-    background-color: var(--color-primary-100);
+    background-color: var(--color-primary-50);
 }
 
 .btn-error {
@@ -164,6 +164,7 @@ button {
 
 .btn-error:hover {
     background-color: #dc2626;
+    opacity: 0.9;
 }
 
 .form-group {

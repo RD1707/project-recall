@@ -195,7 +195,7 @@ const Achievements = () => {
             <div className="card-header">
                 <h2>Conquistas</h2>
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                    Atualização automática ✨
+                    Atualização automática
                 </div>
             </div>
             {loading ? (
