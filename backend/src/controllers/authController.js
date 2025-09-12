@@ -135,8 +135,86 @@ const completeGoogleProfile = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: 'E-mail é obrigatório.' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Por favor, insira um e-mail válido.' });
+    }
+
+    try {
+        const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password`;
+        
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: redirectUrl
+        });
+
+        if (error) {
+            logger.error(`Erro ao enviar email de recuperação para ${email}: ${error.message}`);
+            // Não revelar se o email existe ou não por questões de segurança
+        }
+
+        // Sempre retornar sucesso, mesmo se o email não existir
+        res.status(200).json({ 
+            message: 'Se o e-mail estiver cadastrado, você receberá um link de recuperação.' 
+        });
+
+    } catch (err) {
+        logger.error(`Erro inesperado no forgot password: ${err.message}`);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    const { access_token, refresh_token, password } = req.body;
+
+    if (!access_token || !refresh_token || !password) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'A senha deve ter pelo menos 6 caracteres.' });
+    }
+
+    try {
+        // Usar os tokens para autenticar e redefinir a senha
+        const { error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token
+        });
+
+        if (error) {
+            logger.error(`Erro ao definir sessão para reset: ${error.message}`);
+            return res.status(400).json({ error: 'Token de recuperação inválido ou expirado.' });
+        }
+
+        // Atualizar a senha
+        const { error: updateError } = await supabase.auth.updateUser({
+            password: password
+        });
+
+        if (updateError) {
+            logger.error(`Erro ao atualizar senha: ${updateError.message}`);
+            return res.status(400).json({ error: 'Falha ao redefinir a senha.' });
+        }
+
+        logger.info('Senha redefinida com sucesso');
+        res.status(200).json({ message: 'Senha redefinida com sucesso!' });
+
+    } catch (err) {
+        logger.error(`Erro inesperado no reset password: ${err.message}`);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+};
+
 module.exports = {
   signup,
   login,
   completeGoogleProfile,
+  forgotPassword,
+  resetPassword,
 };

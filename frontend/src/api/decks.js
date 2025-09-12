@@ -214,3 +214,18 @@ export const rateDeck = async (deckId, rating) => {
     return handleApiError(error, 'rateDeck');
   }
 };
+
+export const fetchSharedDeck = async (shareableId) => {
+  try {
+    const response = await fetch(`/api/shared/${shareableId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Baralho compartilhado não encontrado');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    return handleApiError(error, 'fetchSharedDeck');
+  }
+};

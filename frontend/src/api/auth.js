@@ -92,3 +92,43 @@ export const completeUserProfile = async (profileData) => {
         throw error;
     }
 };
+
+export const requestPasswordReset = async (email) => {
+    try {
+        const response = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            await handleApiError(response);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const resetPassword = async ({ accessToken, refreshToken, newPassword }) => {
+    try {
+        const response = await fetch('/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                access_token: accessToken, 
+                refresh_token: refreshToken, 
+                password: newPassword 
+            }),
+        });
+
+        if (!response.ok) {
+            await handleApiError(response);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};

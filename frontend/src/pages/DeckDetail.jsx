@@ -98,7 +98,7 @@ const FlashcardItem = React.memo(({ card, onEdit, onDelete }) => {
 });
 
 
-const FlashcardList = ({ flashcards, onAdd, onEdit, onDelete }) => (
+const FlashcardList = ({ flashcards, onEdit, onDelete }) => (
     <section className="flashcards-section">
         <div className="flashcards-grid">
             {flashcards.length > 0 ? (
@@ -147,6 +147,7 @@ function DeckDetail() {
                 setFlashcards(flashcardsData);
                 setStatus('success');
             } catch (error) {
+                console.error('Erro ao carregar baralho:', error);
                 toast.error("Baralho não encontrado. Redirecionando...");
                 setStatus('error');
                 setTimeout(() => navigate('/dashboard'), 2000);
@@ -164,6 +165,7 @@ function DeckDetail() {
                     setCurrentUser(profile);
                 }
             } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
                 toast.error("Não foi possível carregar os seus dados de perfil.");
             }
         };
@@ -197,6 +199,7 @@ function DeckDetail() {
                     clearInterval(pollingIntervalRef.current);
                 }
             } catch (error) {
+                console.error('Erro ao verificar novos cards:', error);
                 toast.error("Erro ao verificar novos cards.");
                 clearInterval(pollingIntervalRef.current);
             }
@@ -239,7 +242,9 @@ function DeckDetail() {
                 triggerAchievementUpdate('create_card');
             }
             closeModal();
-        } catch (err) {}
+        } catch (err) {
+            console.error('Erro ao salvar card:', err);
+        }
     };
     
     const handleDeleteCard = async (cardId) => {
@@ -251,7 +256,9 @@ function DeckDetail() {
                 error: 'Falha ao excluir.',
             });
             setFlashcards(prev => prev.filter(card => card.id !== cardId));
-        } catch (err) {}
+        } catch (err) {
+            console.error('Erro ao excluir card:', err);
+        }
     };
 
     // Função de publicação que abre o novo modal
@@ -326,7 +333,6 @@ function DeckDetail() {
                 <div className="deck-content-grid">
                     <FlashcardList
                         flashcards={flashcards}
-                        onAdd={() => openModal('add')}
                         onEdit={(card) => openModal('edit', card)}
                         onDelete={handleDeleteCard}
                     />
