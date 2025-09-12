@@ -42,7 +42,7 @@ function PublicProfile() {
         );
     }
 
-    if (!profileData) {
+    if (!profileData || !profileData.profile) {
         return (
             <>
                 <Header />
@@ -66,20 +66,20 @@ function PublicProfile() {
                 <header className="profile-header">
                     <div className="profile-avatar">
                         {profile.avatarUrl ? (
-                            <img src={profile.avatarUrl} alt={profile.username} />
+                            <img src={profile.avatarUrl} alt={profile.username || 'Avatar'} />
                         ) : (
-                            <span>{profile.username.charAt(0).toUpperCase()}</span>
+                            <span>{(profile.username || '?').charAt(0).toUpperCase()}</span>
                         )}
                     </div>
                     <div className="profile-info">
-                        <h1>{profile.fullName || profile.username}</h1>
-                        <p className="username">@{profile.username}</p>
+                        <h1>{profile.fullName || profile.username || 'Usuário Anônimo'}</h1>
+                        <p className="username">@{profile.username || 'anonimo'}</p>
                         {profile.bio && <p className="bio">{profile.bio}</p>}
                     </div>
                 </header>
 
                 <section className="profile-decks-section">
-                    <h2>Baralhos Públicos de {profile.username} ({decks.length})</h2>
+                    <h2>Baralhos Públicos de {profile.username || 'Usuário'} ({decks.length})</h2>
                     {decks.length > 0 ? (
                         <div className="community-grid">
                             {decks.map(deck => (
@@ -88,7 +88,7 @@ function PublicProfile() {
                         </div>
                     ) : (
                         <div className="empty-state" style={{ padding: '2rem' }}>
-                            <p>{profile.username} ainda não publicou nenhum baralho.</p>
+                            <p>{profile.username || 'Este usuário'} ainda não publicou nenhum baralho.</p>
                         </div>
                     )}
                 </section>
