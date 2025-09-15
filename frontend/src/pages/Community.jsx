@@ -138,7 +138,7 @@ function Community() {
                         style={{ width: '200px', height: '44px' }}
                     >
                         <option value="created_at">Mais Recentes</option>
-                        <option value="title">Alfabética</option>
+                        <option value="engagement">Mais Engajados</option>
                         <option value="created_at_asc">Mais Antigos</option>
                     </select>
                 </div>

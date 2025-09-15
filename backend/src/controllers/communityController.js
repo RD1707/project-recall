@@ -64,9 +64,11 @@ const getPublicDecks = async (req, res) => {
                 logger.info(`[GET PUBLIC DECKS] Ordenando por data de criação (mais antigos primeiro)`);
                 query = query.order('created_at', { ascending: true });
                 break;
-            case 'title':
-                logger.info(`[GET PUBLIC DECKS] Ordenando alfabeticamente por título`);
-                query = query.order('title', { ascending: true }); // Alphabetical A-Z
+            case 'engagement':
+                // For engagement, we need to sort after calculating engagement_score
+                // So we'll fetch all data first and sort in memory
+                logger.info(`[GET PUBLIC DECKS] Ordenação por engajamento será aplicada após cálculo do score`);
+                // No ORDER BY here - will be handled after engagement calculation
                 break;
             default:
                 logger.info(`[GET PUBLIC DECKS] Ordenação padrão: published_at/created_at descendente`);
@@ -125,21 +127,55 @@ const getPublicDecks = async (req, res) => {
         const decksWithCount = data.map(deck => {
             const { flashcards, profiles, ...deckData } = deck;
             const ratings = ratingsMap[deck.id] || [];
-            const average_rating = ratings.length > 0 
-                ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
+            const average_rating = ratings.length > 0
+                ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
                 : 0;
             const rating_count = ratings.length;
+
+            // Calculate engagement score: quality × log(quantity + 1) × quantity
+            // This balances high ratings with number of people who voted
+            let engagement_score = 0;
+            if (rating_count > 0) {
+                engagement_score = average_rating * Math.log(rating_count + 1) * rating_count;
+                // Round to 2 decimals for cleaner values
+                engagement_score = Math.round(engagement_score * 100) / 100;
+            }
 
             return {
                 ...deckData,
                 card_count: flashcards[0]?.count || 0,
                 author: profiles || { username: 'Anônimo', avatar_url: null },
                 average_rating: Math.round(average_rating * 10) / 10, // Round to 1 decimal
-                rating_count
+                rating_count,
+                engagement_score // New field for sorting
             };
         });
-        
-        res.status(200).json(decksWithCount);
+
+        // Apply engagement sorting if requested
+        let finalDecks = decksWithCount;
+        if (sortBy === 'engagement') {
+            logger.info(`[GET PUBLIC DECKS] Aplicando ordenação por engagement score`);
+            finalDecks = decksWithCount.sort((a, b) => {
+                // Primary sort: engagement_score (higher first)
+                if (b.engagement_score !== a.engagement_score) {
+                    return b.engagement_score - a.engagement_score;
+                }
+                // Secondary sort: published_at or created_at (more recent first)
+                const dateA = new Date(a.published_at || a.created_at);
+                const dateB = new Date(b.published_at || b.created_at);
+                return dateB - dateA;
+            });
+
+            // Log top 3 decks for debugging
+            if (finalDecks.length > 0) {
+                const top3 = finalDecks.slice(0, 3);
+                logger.info(`[GET PUBLIC DECKS] Top 3 por engajamento: ${top3.map(d =>
+                    `${d.title} (score: ${d.engagement_score}, avg: ${d.average_rating}, votes: ${d.rating_count})`
+                ).join(' | ')}`);
+            }
+        }
+
+        res.status(200).json(finalDecks);
 
     } catch (error) {
         logger.error(`Error fetching public decks: ${error.message}`);
