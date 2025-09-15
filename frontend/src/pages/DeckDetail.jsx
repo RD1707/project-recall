@@ -270,34 +270,52 @@ function DeckDetail() {
         }
     };
 
+    // Função para refazer fetch do deck
+    const refetchDeck = async () => {
+        try {
+            console.log(`[FRONTEND] Refazendo fetch do deck ${deckId}`);
+            const updatedDeck = await fetchDeckById(deckId);
+            setDeck(updatedDeck);
+            console.log(`[FRONTEND] Deck atualizado - is_shared: ${updatedDeck.is_shared}`);
+        } catch (error) {
+            console.error('[FRONTEND] Erro ao refazer fetch do deck:', error);
+        }
+    };
+
     // Função que confirma a publicação e chama a API
     const confirmPublish = async () => {
-        closeModal(); 
-        const promise = publishDeck(deckId, true); 
+        closeModal();
 
-        toast.promise(promise, {
-            loading: 'Publicando baralho na comunidade...',
-            success: () => {
-                setDeck(prev => ({ ...prev, is_shared: true }));
-                return 'Baralho publicado com sucesso!';
-            },
-            error: 'Falha ao publicar o baralho.',
-        });
+        try {
+            await toast.promise(publishDeck(deckId, true), {
+                loading: 'Publicando baralho na comunidade...',
+                success: 'Baralho publicado com sucesso!',
+                error: 'Falha ao publicar o baralho.',
+            });
+
+            // Refetch do deck para garantir estado correto
+            await refetchDeck();
+        } catch (error) {
+            console.error('[FRONTEND] Erro na publicação:', error);
+        }
     };
 
     // Função que confirma a despublicação e chama a API
     const confirmUnpublish = async () => {
         closeModal();
-        const promise = publishDeck(deckId, false); 
 
-        toast.promise(promise, {
-            loading: 'Despublicando baralho...',
-            success: () => {
-                setDeck(prev => ({ ...prev, is_shared: false }));
-                return 'Baralho despublicado com sucesso!';
-            },
-            error: 'Falha ao despublicar o baralho.',
-        });
+        try {
+            await toast.promise(publishDeck(deckId, false), {
+                loading: 'Despublicando baralho...',
+                success: 'Baralho despublicado com sucesso!',
+                error: 'Falha ao despublicar o baralho.',
+            });
+
+            // Refetch do deck para garantir estado correto
+            await refetchDeck();
+        } catch (error) {
+            console.error('[FRONTEND] Erro na despublicação:', error);
+        }
     };
     
     const handleCreateQuiz = () => {

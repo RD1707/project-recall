@@ -12,6 +12,8 @@ const getPublicDecks = async (req, res) => {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
+    logger.info(`[GET PUBLIC DECKS] Busca iniciada - userId: ${userId}, page: ${page}, filterType: '${filterType}', searchTerm: '${searchTerm}', sortBy: ${sortBy}`);
+
     try {
         // First get the base decks with ratings aggregation
         let query = supabase
@@ -33,9 +35,13 @@ const getPublicDecks = async (req, res) => {
 
         // Apply filter based on filterType
         if (filterType === 'my_decks') {
+            logger.info(`[GET PUBLIC DECKS] Aplicando filtro: apenas baralhos do usuário ${userId}`);
             query = query.eq('user_id', userId); // Show only user's own decks
         } else if (filterType === 'others') {
+            logger.info(`[GET PUBLIC DECKS] Aplicando filtro: apenas baralhos de outros usuários (excluindo ${userId})`);
             query = query.neq('user_id', userId); // Show only other users' decks
+        } else {
+            logger.info(`[GET PUBLIC DECKS] Sem filtro de usuário: mostrando todos os baralhos públicos`);
         }
         // If no filterType, show all decks (including user's own)
 
@@ -61,7 +67,24 @@ const getPublicDecks = async (req, res) => {
 
         const { data, error } = await query.range(from, to);
 
-        if (error) throw error;
+        if (error) {
+            logger.error(`[GET PUBLIC DECKS] Erro na query principal: ${error.message}`);
+            throw error;
+        }
+
+        logger.info(`[GET PUBLIC DECKS] Query executada com sucesso - ${data.length} baralhos encontrados na página ${page}`);
+
+        // Log detalhes dos baralhos encontrados
+        if (data.length > 0) {
+            const userDecks = data.filter(deck => deck.user_id === userId);
+            const otherDecks = data.filter(deck => deck.user_id !== userId);
+            logger.info(`[GET PUBLIC DECKS] Breakdown: ${userDecks.length} próprios, ${otherDecks.length} de outros usuários`);
+
+            // Log dos próprios baralhos se existirem
+            if (userDecks.length > 0) {
+                logger.info(`[GET PUBLIC DECKS] Baralhos próprios encontrados: ${userDecks.map(d => `${d.id}(${d.title})`).join(', ')}`);
+            }
+        }
 
         // Get ratings for all decks in this batch
         const deckIds = data.map(deck => deck.id);

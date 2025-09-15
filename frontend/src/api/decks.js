@@ -118,10 +118,17 @@ export const fetchFlashcardsByDeckId = async (deckId) => {
 };
 
 export const publishDeck = async (deckId, is_shared) => {
+  console.log(`[FRONTEND] publishDeck chamado - deckId: ${deckId}, is_shared: ${is_shared}`);
+
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('Utilizador não autenticado');
-    
+    if (!session) {
+      console.error('[FRONTEND] Sessão não encontrada ao tentar publicar deck');
+      throw new Error('Utilizador não autenticado');
+    }
+
+    console.log(`[FRONTEND] Sessão encontrada, userId: ${session.user?.id}`);
+
     const response = await fetch(`/api/decks/${deckId}/publish`, {
         method: 'POST',
         headers: {
@@ -132,11 +139,37 @@ export const publishDeck = async (deckId, is_shared) => {
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Falha ao atualizar o status do baralho.");
-    
+
+    console.log(`[FRONTEND] Resposta recebida - status: ${response.status}, data:`, data);
+
+    if (!response.ok) {
+      // Melhorar mensagens de erro baseadas no status
+      let errorMessage = data.message || "Falha ao atualizar o status do baralho.";
+
+      switch (response.status) {
+        case 404:
+          errorMessage = "Baralho não encontrado. Pode ter sido excluído ou você não tem permissão para acessá-lo.";
+          break;
+        case 403:
+          errorMessage = "Você não tem permissão para modificar este baralho.";
+          break;
+        case 401:
+          errorMessage = "Sessão expirada. Por favor, faça login novamente.";
+          break;
+        case 500:
+          errorMessage = "Erro interno do servidor. Tente novamente em alguns momentos.";
+          break;
+      }
+
+      console.error(`[FRONTEND] Erro HTTP ${response.status}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    console.log(`[FRONTEND] publishDeck concluído com sucesso`);
     return data;
-    
+
   } catch (error) {
+    console.error(`[FRONTEND] Erro em publishDeck:`, error);
     return handleApiError(error, 'publishDeck');
   }
 }

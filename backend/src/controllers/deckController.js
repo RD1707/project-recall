@@ -387,15 +387,44 @@ const publishDeck = async (req, res) => {
     const userId = req.user.id;
     const { is_shared } = req.body;
 
+    logger.info(`[PUBLISH DECK] Iniciando publicação - deckId: ${deckId}, userId: ${userId}, is_shared: ${is_shared}`);
+
     if (typeof is_shared !== 'boolean') {
+        logger.warn(`[PUBLISH DECK] Valor is_shared inválido: ${is_shared}`);
         return res.status(400).json({ message: 'O valor de is_shared é inválido.', code: 'VALIDATION_ERROR' });
     }
 
     try {
+        // Primeiro, verificar se o deck existe sem filtrar por usuário
+        const { data: deckExists, error: existsError } = await supabase
+            .from('decks')
+            .select('id, user_id, is_shared, title')
+            .eq('id', deckId)
+            .single();
+
+        if (existsError) {
+            logger.error(`[PUBLISH DECK] Erro ao verificar existência do deck ${deckId}: ${existsError.message}`);
+        }
+
+        if (!deckExists) {
+            logger.warn(`[PUBLISH DECK] Deck ${deckId} não existe na base de dados`);
+            return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        logger.info(`[PUBLISH DECK] Deck encontrado - ID: ${deckExists.id}, Owner: ${deckExists.user_id}, Current is_shared: ${deckExists.is_shared}, Title: ${deckExists.title}`);
+
+        // Verificar se o usuário é o proprietário
+        if (deckExists.user_id !== userId) {
+            logger.warn(`[PUBLISH DECK] Tentativa de acesso negada - userId: ${userId} não é proprietário do deck ${deckId} (proprietário: ${deckExists.user_id})`);
+            return res.status(403).json({ message: 'Você não tem permissão para modificar este baralho.', code: 'FORBIDDEN' });
+        }
+
+        // Agora fazer a verificação original para compatibilidade
         const { data: deck, error: deckError } = await supabase
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
         if (deckError || !deck) {
+            logger.error(`[PUBLISH DECK] Erro na verificação de propriedade - deckError: ${deckError?.message}, deck: ${deck}`);
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
@@ -403,17 +432,22 @@ const publishDeck = async (req, res) => {
             .from('decks')
             .update({ is_shared: is_shared })
             .eq('id', deckId)
-            .eq('user_id', userId) // <-- A verificação de segurança que faltava
+            .eq('user_id', userId)
             .select('id, is_shared')
             .single();
 
-        if (updateError) throw updateError;
-        
+        if (updateError) {
+            logger.error(`[PUBLISH DECK] Erro ao atualizar deck ${deckId}: ${updateError.message}`);
+            throw updateError;
+        }
+
+        logger.info(`[PUBLISH DECK] Deck ${deckId} atualizado com sucesso - is_shared: ${updatedDeck.is_shared}`);
+
         const message = is_shared ? 'Baralho publicado com sucesso!' : 'Baralho tornado privado com sucesso!';
         res.status(200).json({ message, deck: updatedDeck });
 
     } catch (error) {
-        logger.error(`Error updating publish status for deck ${deckId}: ${error.message}`);
+        logger.error(`[PUBLISH DECK] Error updating publish status for deck ${deckId}: ${error.message}`);
         res.status(500).json({ message: 'Erro ao atualizar o status do baralho.', code: 'INTERNAL_SERVER_ERROR' });
     }
 };
