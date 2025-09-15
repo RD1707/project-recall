@@ -24,6 +24,7 @@ const getPublicDecks = async (req, res) => {
                 description,
                 color,
                 created_at,
+                published_at,
                 user_id,
                 flashcards(count),
                 profiles (
@@ -52,16 +53,25 @@ const getPublicDecks = async (req, res) => {
         // Apply sorting with correct ascending/descending logic
         switch (sortBy) {
             case 'created_at':
-                query = query.order('created_at', { ascending: false }); // Most recent first
+                // Use published_at if available (when deck was last published), otherwise use created_at
+                // This makes republished decks appear as most recent
+                logger.info(`[GET PUBLIC DECKS] Ordenando por data de publicação (published_at) ou criação (created_at)`);
+                query = query.order('published_at', { ascending: false, nullsLast: true })
+                            .order('created_at', { ascending: false }); // Secondary sort for nulls
                 break;
             case 'created_at_asc':
-                query = query.order('created_at', { ascending: true }); // Oldest first
+                // For oldest first, use created_at as primary since published_at might be null
+                logger.info(`[GET PUBLIC DECKS] Ordenando por data de criação (mais antigos primeiro)`);
+                query = query.order('created_at', { ascending: true });
                 break;
             case 'title':
+                logger.info(`[GET PUBLIC DECKS] Ordenando alfabeticamente por título`);
                 query = query.order('title', { ascending: true }); // Alphabetical A-Z
                 break;
             default:
-                query = query.order('created_at', { ascending: false }); // Default to most recent
+                logger.info(`[GET PUBLIC DECKS] Ordenação padrão: published_at/created_at descendente`);
+                query = query.order('published_at', { ascending: false, nullsLast: true })
+                            .order('created_at', { ascending: false }); // Default to most recent
                 break;
         }
 

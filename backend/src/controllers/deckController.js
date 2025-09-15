@@ -428,12 +428,23 @@ const publishDeck = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
+        // Prepare update data - if publishing, also update published_at
+        const updateData = { is_shared: is_shared };
+        if (is_shared) {
+            updateData.published_at = new Date().toISOString();
+            logger.info(`[PUBLISH DECK] Definindo published_at para deck ${deckId}: ${updateData.published_at}`);
+        } else {
+            // When unpublishing, we could set published_at to null or keep it for history
+            // Keeping it for now to maintain publication history
+            logger.info(`[PUBLISH DECK] Despublicando deck ${deckId} - mantendo published_at para histórico`);
+        }
+
         const { data: updatedDeck, error: updateError } = await supabase
             .from('decks')
-            .update({ is_shared: is_shared })
+            .update(updateData)
             .eq('id', deckId)
             .eq('user_id', userId)
-            .select('id, is_shared')
+            .select('id, is_shared, published_at')
             .single();
 
         if (updateError) {
