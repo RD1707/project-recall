@@ -43,7 +43,21 @@ const getPublicDecks = async (req, res) => {
             query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
         }
 
-        query = query.order(sortBy, { ascending: false });
+        // Apply sorting with correct ascending/descending logic
+        switch (sortBy) {
+            case 'created_at':
+                query = query.order('created_at', { ascending: false }); // Most recent first
+                break;
+            case 'created_at_asc':
+                query = query.order('created_at', { ascending: true }); // Oldest first
+                break;
+            case 'title':
+                query = query.order('title', { ascending: true }); // Alphabetical A-Z
+                break;
+            default:
+                query = query.order('created_at', { ascending: false }); // Default to most recent
+                break;
+        }
 
         const { data, error } = await query.range(from, to);
 

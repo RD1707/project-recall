@@ -139,7 +139,7 @@ function Community() {
                     >
                         <option value="created_at">Mais Recentes</option>
                         <option value="title">Alfabética</option>
-                        <option value="flashcard_count">Mais Cards</option>
+                        <option value="created_at_asc">Mais Antigos</option>
                     </select>
                 </div>
 
