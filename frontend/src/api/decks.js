@@ -142,12 +142,12 @@ export const publishDeck = async (deckId, is_shared) => {
 }
 
 export const fetchPublicDecks = async (params = {}) => {
-  const { page = 1, search = '', sort = 'created_at' } = params;
+  const { page = 1, search = '', sort = 'created_at', filterType = '' } = params;
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
 
-    const query = new URLSearchParams({ page, limit: 20, search, sort }).toString();
+    const query = new URLSearchParams({ page, limit: 20, search, sort, filterType }).toString();
     
     const response = await fetch(`/api/community/decks?${query}`, {
       headers: {

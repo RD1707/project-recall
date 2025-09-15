@@ -5,9 +5,10 @@ const getPublicDecks = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 20;
     const searchTerm = req.query.search || '';
-    const sortBy = req.query.sort || 'created_at'; 
-    const userId = req.user.id; // Current user ID to filter out own decks
-    
+    const sortBy = req.query.sort || 'created_at';
+    const filterType = req.query.filterType || '';
+    const userId = req.user.id;
+
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -28,8 +29,15 @@ const getPublicDecks = async (req, res) => {
                     avatar_url
                 )
             `, { count: 'exact' })
-            .eq('is_shared', true)
-            .neq('user_id', userId); // Exclude user's own decks
+            .eq('is_shared', true);
+
+        // Apply filter based on filterType
+        if (filterType === 'my_decks') {
+            query = query.eq('user_id', userId); // Show only user's own decks
+        } else if (filterType === 'others') {
+            query = query.neq('user_id', userId); // Show only other users' decks
+        }
+        // If no filterType, show all decks (including user's own)
 
         if (searchTerm) {
             query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);

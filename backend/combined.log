@@ -1,24 +1,38 @@
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:27:41"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 16:27:44"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:27:45"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:29:08"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:29:14"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:29:16"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:29:18"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:29:23"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:29:37"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:29:40"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:30:10"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:30:16"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:30:18"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:30:39"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:30:46"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:30:48"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 16:31:38"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:31:40"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:31:52"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:31:54"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:33:26"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:33:29"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:34:17"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:34:23"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:34:30"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:34:36"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:34:39"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:35:01"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:35:04"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:36:02"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:36:07"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:37:13"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:37:15"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 16:37:25"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:37:27"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:38:11"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:38:17"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:38:19"}
@@ -26,13 +40,20 @@
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:38:28"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:38:30"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:38:32"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:38:34"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:39:35"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:39:39"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:40:24"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:40:26"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:42:29"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 16:42:30"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:42:31"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:43:03"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:43:09"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:43:11"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:43:36"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:43:42"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-09-15 16:43:49"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: getaddrinfo ENOTFOUND composed-oarfish-6687.upstash.io","service":"recall-api","timestamp":"2025-09-15 16:43:55"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 16:43:58"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 16:44:35"}
