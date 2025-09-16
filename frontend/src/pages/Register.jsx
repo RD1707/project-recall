@@ -38,6 +38,8 @@ function Register() {
     });
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
 
     const passwordRef = useRef(null);
@@ -105,10 +107,12 @@ function Register() {
         }
     };
     
-    const togglePasswordVisibility = (ref) => {
-        if (ref.current) {
-            ref.current.type = ref.current.type === 'password' ? 'text' : 'password';
-        }
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
     };
 
     return (
@@ -152,16 +156,16 @@ function Register() {
                         <div className="form-group">
                             <label htmlFor="password">Senha</label>
                             <div className="input-group">
-                                <input ref={passwordRef} type="password" id="password" className={`form-control ${errors.password ? 'error' : ''}`} required onChange={handleChange} value={formData.password} />
-                                <button type="button" className="password-toggle" onClick={() => togglePasswordVisibility(passwordRef)} aria-label="Mostrar/ocultar senha"><i className="fas fa-eye"></i></button>
+                                <input ref={passwordRef} type={showPassword ? "text" : "password"} id="password" className={`form-control ${errors.password ? 'error' : ''}`} required onChange={handleChange} value={formData.password} />
+                                <button type="button" className="password-toggle" onClick={togglePasswordVisibility} aria-label="Mostrar/ocultar senha"><i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i></button>
                             </div>
                             {errors.password && <span className="field-error">{errors.password}</span>}
                         </div>
                         <div className="form-group">
                             <label htmlFor="confirmPassword">Confirmar Senha</label>
                             <div className="input-group">
-                                <input ref={confirmPasswordRef} type="password" id="confirmPassword" className={`form-control ${errors.confirmPassword ? 'error' : ''}`} required onChange={handleChange} value={formData.confirmPassword} />
-                                <button type="button" className="password-toggle" onClick={() => togglePasswordVisibility(confirmPasswordRef)} aria-label="Mostrar/ocultar senha"><i className="fas fa-eye"></i></button>
+                                <input ref={confirmPasswordRef} type={showConfirmPassword ? "text" : "password"} id="confirmPassword" className={`form-control ${errors.confirmPassword ? 'error' : ''}`} required onChange={handleChange} value={formData.confirmPassword} />
+                                <button type="button" className="password-toggle" onClick={toggleConfirmPasswordVisibility} aria-label="Mostrar/ocultar senha"><i className={showConfirmPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i></button>
                             </div>
                             {errors.confirmPassword && <span className="field-error">{errors.confirmPassword}</span>}
                         </div>

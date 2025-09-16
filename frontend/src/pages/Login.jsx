@@ -31,6 +31,7 @@ function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const passwordRef = useRef(null);
     const navigate = useNavigate();
 
@@ -78,9 +79,7 @@ function Login() {
     };
 
     const togglePasswordVisibility = () => {
-        if (passwordRef.current) {
-            passwordRef.current.type = passwordRef.current.type === 'password' ? 'text' : 'password';
-        }
+        setShowPassword(!showPassword);
     };
 
     return (
@@ -124,7 +123,7 @@ function Login() {
                             <div className="input-group">
                                 <input
                                     ref={passwordRef}
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     id="password"
                                     className="form-control"
                                     required
@@ -133,7 +132,7 @@ function Login() {
                                     placeholder="Sua senha"
                                 />
                                 <button type="button" className="password-toggle" onClick={togglePasswordVisibility} aria-label="Mostrar/ocultar senha">
-                                    <i className="fas fa-eye"></i>
+                                    <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
                                 </button>
                             </div>
                         </div>

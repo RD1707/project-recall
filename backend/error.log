@@ -80,3 +80,4 @@
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 17:39:27"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 17:39:29"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 17:41:03"}
+{"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 23:30:21"}

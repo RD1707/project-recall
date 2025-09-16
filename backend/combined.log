@@ -155,3 +155,9 @@
 {"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 17:41:02"}
 {"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 17:41:03"}
 {"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 17:41:04"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 23:24:36"}
+{"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-15 23:30:21"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-15 23:30:23"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-15 23:42:35"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Email not confirmed","service":"recall-api","timestamp":"2025-09-15 23:42:40"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Email not confirmed","service":"recall-api","timestamp":"2025-09-15 23:42:43"}
