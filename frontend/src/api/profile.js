@@ -158,9 +158,31 @@ export const fetchPublicProfile = async (username) => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao buscar perfil público');
     }
-    
+
     return await response.json();
   } catch (error) {
     throw handleApiError(error, 'fetchPublicProfile');
+  }
+};
+
+export const deleteAccount = async (password) => {
+  try {
+    const response = await fetch('/api/profile/delete-account', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': await getAuthHeader(),
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Falha ao excluir conta.');
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw handleApiError(error, 'deleteAccount');
   }
 };

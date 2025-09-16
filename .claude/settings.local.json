@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(sed:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

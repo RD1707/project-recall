@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { updateProfile, uploadAvatar } from '../../api/profile'; 
+import { updateProfile, uploadAvatar, deleteAccount } from '../../api/profile';
 import Modal from '../common/Modal';
 
 const PasswordStrengthIndicator = ({ password }) => {
@@ -115,6 +115,9 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
   const [hasChanges, setHasChanges] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -130,7 +133,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       setHasChanges(false);
       setActiveTab('general');
     }
-  }, [user?.id, isOpen]); 
+  }, [user, isOpen]); 
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -196,8 +199,30 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       onClose();
       
     } catch (error) {
+      toast.error("Erro ao atualizar perfil.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      toast.error('Por favor, insira sua senha para confirmar a exclusão.');
+      return;
+    }
+
+    setDeleteLoading(true);
+    try {
+      await deleteAccount(deletePassword);
+
+      toast.success('Conta excluída com sucesso!');
+      localStorage.clear();
+      window.location.href = '/';
+
+    } catch (error) {
+      toast.error(error.message || 'Erro ao excluir conta');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -206,6 +231,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
     : <span className="avatar-text">{user?.initial}</span>;
 
   return (
+    <>
     <Modal
       isOpen={isOpen}
       onClose={onClose}
@@ -300,11 +326,79 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
                 placeholder="Confirme sua nova senha"
                 showToggle={true}
               />
+              
+              <div className="danger-zone">
+                <p>Excluir sua conta é uma ação permanente e não pode ser desfeita.</p>
+                <button 
+                  type="button" 
+                  className="btn btn-danger"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  <i className="fas fa-trash-alt"></i>
+                  Excluir Conta
+                </button>
+              </div>
             </div>
           )}
         </form>
       </div>
     </Modal>
+    
+    {/* Modal de Confirmação de Exclusão */}
+    <Modal
+      isOpen={showDeleteModal}
+      onClose={() => setShowDeleteModal(false)}
+      title="Excluir Conta"
+      footer={
+        <div className="modal-footer-enhanced">
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            onClick={() => setShowDeleteModal(false)}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-danger"
+            onClick={handleDeleteAccount}
+            disabled={deleteLoading || !deletePassword.trim()}
+          >
+            {deleteLoading ? 'Excluindo...' : 'Excluir Conta'}
+          </button>
+        </div>
+      }
+    >
+      <div className="delete-account-content">
+        <div className="warning-icon">
+          <i className="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Você tem certeza?</h3>
+        <p>Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta e removerá todos os seus dados do nosso servidor.</p>
+        
+        <FormField
+          label="Digite sua senha para confirmar:"
+          id="deletePassword"
+          type="password"
+          value={deletePassword}
+          onChange={(e) => setDeletePassword(e.target.value)}
+          placeholder="Sua senha atual"
+          showToggle={true}
+        />
+        
+        <div className="warning-list">
+          <h4>O que será excluído:</h4>
+          <ul>
+            <li>Seu perfil e dados pessoais</li>
+            <li>Todos os seus decks e flashcards</li>
+            <li>Histórico de estudos e progresso</li>
+            <li>Conquistas e estatísticas</li>
+            <li>Participação em comunidades</li>
+          </ul>
+        </div>
+      </div>
+    </Modal>
+    </>
   );
 }
 

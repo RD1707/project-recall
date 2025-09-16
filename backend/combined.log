@@ -161,3 +161,45 @@
 {"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-15 23:42:35"}
 {"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Email not confirmed","service":"recall-api","timestamp":"2025-09-15 23:42:40"}
 {"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Email not confirmed","service":"recall-api","timestamp":"2025-09-15 23:42:43"}
+{"level":"info","message":"Usuário 9aca47a6-a93c-420e-b258-e034751afd30 registrado com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:02:09"}
+{"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-16 00:11:39"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:11:41"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:13:50"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-16 00:19:13"}
+{"level":"info","message":"[CREATE DECK] Usuário 9aca47a6-a93c-420e-b258-e034751afd30 tentando criar deck","service":"recall-api","timestamp":"2025-09-16 00:20:09"}
+{"level":"info","message":"[DECK CREATION] Atualizando conquistas para usuário 9aca47a6-a93c-420e-b258-e034751afd30","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"info","message":"[DECK CREATION] Usuário 9aca47a6-a93c-420e-b258-e034751afd30 agora tem 1 decks","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"info","message":"[DECK CREATION] Primeiro deck! Atualizando decks_created para 1","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"info","message":"[ACHIEVEMENTS] ⭐ Iniciando updateAchievementProgress - userId: 9aca47a6-a93c-420e-b258-e034751afd30, metric: decks_created, value: 1","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"warn","message":"[ACHIEVEMENTS] Nenhuma conquista encontrada para a métrica: decks_created","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"info","message":"[DECK CREATION] Atualizando decks_created_total para 1","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"info","message":"[ACHIEVEMENTS] ⭐ Iniciando updateAchievementProgress - userId: 9aca47a6-a93c-420e-b258-e034751afd30, metric: decks_created_total, value: 1","service":"recall-api","timestamp":"2025-09-16 00:20:10"}
+{"level":"warn","message":"[ACHIEVEMENTS] Nenhuma conquista encontrada para a métrica: decks_created_total","service":"recall-api","timestamp":"2025-09-16 00:20:11"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:36:42"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:37:07"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:37:11"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:37:14"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 00:37:30"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-16 00:59:35"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-16 00:59:41"}
+{"level":"warn","message":"Erro ao limpar tabela achievements para usuário 9aca47a6-a93c-420e-b258-e034751afd30: column achievements.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:01:11"}
+{"level":"warn","message":"Erro ao limpar tabela study_sessions para usuário 9aca47a6-a93c-420e-b258-e034751afd30: Could not find the table 'public.study_sessions' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:01:12"}
+{"level":"warn","message":"Erro ao limpar tabela flashcard_progress para usuário 9aca47a6-a93c-420e-b258-e034751afd30: Could not find the table 'public.flashcard_progress' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:01:12"}
+{"level":"warn","message":"Erro ao limpar tabela community_deck_ratings para usuário 9aca47a6-a93c-420e-b258-e034751afd30: Could not find the table 'public.community_deck_ratings' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:01:12"}
+{"level":"warn","message":"Erro ao limpar tabela flashcards para usuário 9aca47a6-a93c-420e-b258-e034751afd30: column flashcards.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:01:12"}
+{"level":"warn","message":"Erro ao limpar tabela profiles para usuário 9aca47a6-a93c-420e-b258-e034751afd30: column profiles.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:01:13"}
+{"level":"info","message":"Conta excluída com sucesso para o usuário 9aca47a6-a93c-420e-b258-e034751afd30 (guilhermesecundario790@gmail.com)","service":"recall-api","timestamp":"2025-09-16 01:01:13"}
+{"level":"info","message":"Usuário a4738f50-6eec-4762-be93-970064fe9571 registrado com sucesso.","service":"recall-api","timestamp":"2025-09-16 01:02:44"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 01:15:53"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 01:21:43"}
+{"level":"warn","message":"Tentativa de login falhou para guilhermesecundario790@gmail.com: Invalid login credentials","service":"recall-api","timestamp":"2025-09-16 01:21:54"}
+{"level":"warn","message":"Erro ao limpar tabela achievements para usuário a4738f50-6eec-4762-be93-970064fe9571: column achievements.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:22:15"}
+{"level":"warn","message":"Erro ao limpar tabela study_sessions para usuário a4738f50-6eec-4762-be93-970064fe9571: Could not find the table 'public.study_sessions' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:22:16"}
+{"level":"warn","message":"Erro ao limpar tabela flashcard_progress para usuário a4738f50-6eec-4762-be93-970064fe9571: Could not find the table 'public.flashcard_progress' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:22:16"}
+{"level":"warn","message":"Erro ao limpar tabela community_deck_ratings para usuário a4738f50-6eec-4762-be93-970064fe9571: Could not find the table 'public.community_deck_ratings' in the schema cache","service":"recall-api","timestamp":"2025-09-16 01:22:17"}
+{"level":"warn","message":"Erro ao limpar tabela flashcards para usuário a4738f50-6eec-4762-be93-970064fe9571: column flashcards.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:22:17"}
+{"level":"warn","message":"Erro ao limpar tabela profiles para usuário a4738f50-6eec-4762-be93-970064fe9571: column profiles.user_id does not exist","service":"recall-api","timestamp":"2025-09-16 01:22:18"}
+{"level":"info","message":"Conta excluída com sucesso para o usuário a4738f50-6eec-4762-be93-970064fe9571 (guilhermesecundario790@gmail.com)","service":"recall-api","timestamp":"2025-09-16 01:22:18"}
+{"level":"error","message":"❌ Erro de conexão com o Redis: read ECONNRESET","service":"recall-api","timestamp":"2025-09-16 01:22:30"}
+{"level":"info","message":"✅ Conectado ao Redis com sucesso.","service":"recall-api","timestamp":"2025-09-16 01:22:32"}
+{"level":"info","message":"Usuário 32416dcd-9635-43a9-81db-5983e5801ac8 registrado com sucesso.","service":"recall-api","timestamp":"2025-09-16 01:22:47"}

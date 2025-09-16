@@ -88,7 +88,7 @@ function Register() {
             });
 
             toast.success('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
-            navigate('/login');
+            navigate('/email-verification', { state: { email: formData.email } });
 
         } catch (err) {
             if (err.field) {

@@ -8,7 +8,8 @@ const {
     getProfileByUsername, 
     getLeaderboard,
     completeOnboarding,
-    getPublicProfile 
+    getPublicProfile,
+    deleteAccount
 } = require('../controllers/profileController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -34,6 +35,7 @@ router.use(authMiddleware.authenticateToken);
 
 router.get('/', getProfile);
 router.put('/', updateProfile);
+router.delete('/delete-account', deleteAccount);
 
 router.post('/avatar', upload.single('avatar'), uploadAvatar);
 

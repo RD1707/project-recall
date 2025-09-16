@@ -23,6 +23,8 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: 'Este nome de usuário já está em uso.', field: 'username', type: 'FIELD_ERROR' });
     }
 
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/email-verification/confirm?verified=true`;
+
     const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -30,7 +32,8 @@ const signup = async (req, res) => {
         data: {
           full_name: full_name.trim(),
           username: username.trim(),
-        }
+        },
+        emailRedirectTo: redirectUrl
       }
     });
 

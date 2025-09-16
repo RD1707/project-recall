@@ -13,6 +13,10 @@ const profileUpdateSchema = z.object({
     password: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.').optional(),
 }).strict();
 
+const deleteAccountSchema = z.object({
+    password: z.string().min(1, 'A senha é obrigatória para confirmar a exclusão.'),
+}).strict();
+
 
 const getProfile = async (req, res) => {
     try {
@@ -283,6 +287,78 @@ const getPublicProfile = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar perfil público.', code: 'INTERNAL_SERVER_ERROR' });
     }
 };
+
+const deleteAccount = async (req, res) => {
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+    
+    try {
+        const { password } = deleteAccountSchema.parse(req.body);
+        
+        // Verificar se a senha está correta
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: userEmail,
+            password: password
+        });
+
+        if (authError) {
+            return res.status(400).json({ 
+                message: 'Senha incorreta. Não foi possível excluir a conta.', 
+                code: 'INVALID_PASSWORD' 
+            });
+        }
+
+        // Excluir dados relacionados do usuário em ordem específica para evitar problemas de foreign key
+        const tablesToClean = [
+            'achievements',
+            'study_sessions', 
+            'flashcard_progress',
+            'deck_ratings',
+            'community_deck_ratings',
+            'flashcards',
+            'decks',
+            'profiles'
+        ];
+
+        for (const table of tablesToClean) {
+            const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq('user_id', userId);
+            
+            if (error) {
+                logger.warn(`Erro ao limpar tabela ${table} para usuário ${userId}: ${error.message}`);
+            }
+        }
+
+        // Excluir o usuário da autenticação do Supabase
+        const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId);
+        
+        if (deleteAuthError) {
+            logger.error(`Erro ao excluir usuário da autenticação ${userId}: ${deleteAuthError.message}`);
+            return res.status(500).json({ 
+                message: 'Erro ao excluir conta. Tente novamente.', 
+                code: 'DELETE_ERROR' 
+            });
+        }
+
+        logger.info(`Conta excluída com sucesso para o usuário ${userId} (${userEmail})`);
+        res.status(200).json({ 
+            message: 'Conta excluída com sucesso. Todos os seus dados foram removidos permanentemente.' 
+        });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: error.errors[0].message, code: 'VALIDATION_ERROR' });
+        }
+        logger.error(`Erro ao excluir conta para o usuário ${userId}: ${error.message}`);
+        res.status(500).json({ 
+            message: 'Erro interno ao excluir a conta. Tente novamente.', 
+            code: 'INTERNAL_SERVER_ERROR' 
+        });
+    }
+};
+
 module.exports = { 
     getProfile, 
     updateProfile,
@@ -290,5 +366,6 @@ module.exports = {
     uploadAvatar,
     getLeaderboard,
     completeOnboarding,
-    getPublicProfile
+    getPublicProfile,
+    deleteAccount
 };

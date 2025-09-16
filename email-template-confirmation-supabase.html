@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirme seu Email - Recall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .brain-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-message h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
+            color: #6c757d;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .user-email {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #ffffff;
+            color: #f5576c;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-text {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .steps {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .steps h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .steps ol {
+            padding-left: 20px;
+        }
+
+        .steps li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .security-note {
+            background: #e8f4fd;
+            border-left: 4px solid #0066cc;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .security-note .icon {
+            color: #0066cc;
+            margin-right: 8px;
+        }
+
+        .security-note p {
+            color: #0066cc;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .alternative-link {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .alternative-link p {
+            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .alternative-link code {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #495057;
+            display: block;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .footer-brain {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .footer p {
+            font-size: 14px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #bdc3c7;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .expiration-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .highlight-box h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+
+            .header, .content, .footer {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .cta-section {
+                padding: 25px 20px;
+            }
+
+            .cta-button {
+                padding: 14px 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="brain-icon">🧠</div>
+                <span>Recall</span>
+            </div>
+            <h1>Bem-vindo ao Recall!</h1>
+            <p>Sua jornada de estudos inteligentes começa agora</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="welcome-message">
+                <h2>✉️ Confirme seu Email</h2>
+                <p>Olá! Falta apenas um passo para ativar sua conta.</p>
+                <p>Enviamos este email para:</p>
+                <div class="user-email">{{ .Email }}</div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <div class="cta-text">🚀 Clique no botão abaixo para confirmar sua conta e começar a usar o Recall:</div>
+                <a href="{{ .ConfirmationURL }}" class="cta-button">
+                    ✅ Confirmar Meu Email
+                </a>
+            </div>
+
+            <!-- Highlight Box -->
+            <div class="highlight-box">
+                <h3>🎯 O que você poderá fazer:</h3>
+                <p>Criar flashcards com IA • Estudar com repetição espaçada • Acompanhar seu progresso • Participar da comunidade</p>
+            </div>
+
+            <!-- Steps -->
+            <div class="steps">
+                <h3>📋 Próximos passos:</h3>
+                <ol>
+                    <li><strong>Clique no botão de confirmação</strong> acima</li>
+                    <li><strong>Seja redirecionado</strong> automaticamente para o Recall</li>
+                    <li><strong>Complete seu perfil</strong> e personalize sua experiência</li>
+                    <li><strong>Crie seus primeiros flashcards</strong> com nossa IA</li>
+                    <li><strong>Comece a estudar</strong> de forma mais eficiente!</li>
+                </ol>
+            </div>
+
+            <!-- Security Note -->
+            <div class="security-note">
+                <p>
+                    <span class="icon">🔒</span>
+                    <strong>Segurança:</strong> Este link é único para sua conta e expira em 24 horas por motivos de segurança.
+                </p>
+            </div>
+
+            <!-- Expiration Warning -->
+            <div class="expiration-warning">
+                ⏰ <strong>Importante:</strong> Este link expira em 24 horas. Confirme seu email o quanto antes para não perder o acesso!
+            </div>
+
+            <!-- Alternative Link -->
+            <div class="alternative-link">
+                <p><strong>🔗 Problemas com o botão?</strong> Copie e cole este link no seu navegador:</p>
+                <code>{{ .ConfirmationURL }}</code>
+            </div>
+
+            <!-- Help Section -->
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                <p style="margin-bottom: 10px; color: #6c757d;">
+                    <strong>🤔 Não recebeu este email?</strong>
+                </p>
+                <p style="font-size: 14px; color: #6c757d; margin-bottom: 8px;">
+                    📧 Verifique sua pasta de spam ou lixo eletrônico<br>
+                    ⭐ Adicione noreply@recall.com à sua lista de contatos seguros<br>
+                    💬 Caso continue com problemas, entre em contato conosco
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-logo">
+                <div class="footer-brain">🧠</div>
+                <span>Recall</span>
+            </div>
+            <p>🚀 A plataforma inteligente para revolucionar seus estudos</p>
+            <p>📚 Transformando conhecimento em memória desde 2024</p>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #34495e;">
+                <p style="font-size: 12px; opacity: 0.7;">
+                    Este email foi enviado para {{ .Email }}.<br>
+                    Se você não criou uma conta no Recall, pode ignorar este email com segurança.
+                </p>
+                <p style="font-size: 12px; margin-top: 10px;">
+                    <a href="mailto:suporte@recall.com">💬 Suporte</a> •
+                    <a href="#">🔒 Política de Privacidade</a> •
+                    <a href="#">📄 Termos de Uso</a>
+                </p>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <p style="font-size: 11px; opacity: 0.6;">
+                    💡 Dica: Adicione-nos aos seus contatos para não perder nenhuma atualização importante!
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
