@@ -971,8 +971,7 @@ function Profile() {
                                 </div>
                             ) : (
                                 <>
-                            
-                            <div style={styles.statsSection}>
+                                    <div style={styles.statsSection}>
                                 <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
                                     <i className="fas fa-chart-line" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
                                     Desempenho de Estudo
@@ -1063,6 +1062,7 @@ function Profile() {
                                     )}
                                 </div>
                             </div>
+                                </>
                             )}
                         </div>
                     )}
