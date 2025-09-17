@@ -27,7 +27,7 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
 
     try {
         const response = await cohere.chat({
-            model: 'command-r', 
+            model: 'command-a-03-2025', 
             message: message,
             temperature: 0.3, 
         });
@@ -72,7 +72,7 @@ const getExplanationForFlashcard = async (question, answer) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-r',
+            model: 'command-a-03-2025',
             message: message,
             temperature: 0.5,
         });
@@ -105,7 +105,7 @@ const generateStudyInsight = async (performanceData) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-r',
+            model: 'command-a-03-2025',
             message: message,
             temperature: 0.6,
         });
@@ -131,10 +131,10 @@ const getChatResponse = async (question, answer, chatHistory) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-r',
+            model: 'command-a-03-2025',
             preamble: preamble,
-            chatHistory: historyForApi,      
-            message: userMessage.message,    
+            chatHistory: historyForApi,
+            message: userMessage.message,
             temperature: 0.5,
         });
 
