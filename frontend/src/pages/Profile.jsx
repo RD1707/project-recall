@@ -259,6 +259,37 @@ const styles = {
         border: '1px solid var(--color-border)',
         marginBottom: '1.5rem',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+    },
+    detailedStats: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+    },
+    detailedStat: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem',
+        background: 'var(--color-background)',
+        borderRadius: '8px',
+        transition: 'all 0.3s ease',
+        border: '1px solid transparent'
+    },
+    detailedStatLabel: {
+        color: 'var(--color-text-muted)',
+        fontWeight: '500',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
+    },
+    detailedStatValue: {
+        color: 'var(--color-text-default)',
+        fontWeight: '700',
+        fontSize: '1.2rem',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text'
     }
 };
 
@@ -301,6 +332,7 @@ function Profile() {
     // Achievements data
     const [achievements, setAchievements] = useState([]);
     const [userRank, setUserRank] = useState(null);
+    const [recentActivity, setRecentActivity] = useState([]);
 
     useEffect(() => {
         loadAllData();
@@ -323,7 +355,29 @@ function Profile() {
             // Load achievements
             try {
                 const achievementsData = await fetchAchievements();
-                setAchievements(achievementsData || []);
+                // Garantir que as conquistas tenham o formato correto
+                const formattedAchievements = achievementsData.map(ach => ({
+                    ...ach,
+                    unlocked: ach.unlocked || ach.completed || false,
+                    name: ach.name || ach.title || '',
+                    description: ach.description || '',
+                    unlockedAt: ach.unlockedAt || ach.unlocked_at || ach.completed_at
+                }));
+                setAchievements(formattedAchievements || []);
+                
+                // Criar atividades recentes baseadas nas conquistas desbloqueadas
+                const recentAchievements = formattedAchievements
+                    .filter(ach => ach.unlocked && ach.unlockedAt)
+                    .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
+                    .slice(0, 3)
+                    .map(ach => ({
+                        type: 'achievement',
+                        icon: 'fas fa-trophy',
+                        text: `Desbloqueou conquista: ${ach.name}`,
+                        time: new Date(ach.unlockedAt)
+                    }));
+                
+                setRecentActivity(recentAchievements);
             } catch (error) {
                 console.error('Error loading achievements:', error);
             }
@@ -426,6 +480,27 @@ function Profile() {
         return '🌟';
     };
 
+    const formatTimeAgo = (date) => {
+        if (!date) return '';
+        const now = new Date();
+        const past = new Date(date);
+        const diffMs = now - past;
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffDays > 0) {
+            return diffDays === 1 ? 'Ontem' : `Há ${diffDays} dias`;
+        } else if (diffHours > 0) {
+            return `Há ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+        } else if (diffMins > 0) {
+            return `Há ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+        } else {
+            return 'Agora mesmo';
+        }
+    };
+
     const getAchievementIcon = (achievement) => {
         const icons = {
             'first_deck': '📚',
@@ -438,18 +513,27 @@ function Profile() {
             'reviews_1000': '📚',
             'perfect_day': '✨',
             'early_bird': '🌅',
-            'night_owl': '🦉'
+            'night_owl': '🦉',
+            'Pioneiro': '🚩',
+            'Estudante Dedicado': '🔥',
+            'Leitor Voraz': '📖',
+            'Mestre do Saber': '🎓',
+            'Criador de Conteúdo': '✍️',
+            'content_creator': '✍️',
+            'deck_creator': '✍️'
         };
-        return icons[achievement.type] || '🏅';
+        return icons[achievement.name] || icons[achievement.type] || '🏅';
     };
 
     if (loading) {
         return (
             <>
                 <Header />
-                <div className="profile-page-loading">
-                    <div className="loading-spinner"></div>
-                    <p>Carregando perfil...</p>
+                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh'}}>
+                    <div style={{textAlign: 'center'}}>
+                        <div className="loading-spinner"></div>
+                        <p style={{marginTop: '1rem', color: 'var(--color-text-muted)'}}>Carregando perfil...</p>
+                    </div>
                 </div>
             </>
         );
@@ -654,28 +738,105 @@ function Profile() {
 
                             <div style={styles.recentActivity}>
                                 <h2 style={{margin: '0 0 1.5rem', fontSize: '1.3rem', color: 'var(--color-text-default)'}}>Atividade Recente</h2>
-                                <div className="activity-list">
-                                    <div className="activity-item">
-                                        <i className="fas fa-book"></i>
-                                        <div className="activity-info">
-                                            <p>Estudou 30 cartões hoje</p>
-                                            <span className="activity-time">Há 2 horas</span>
-                                        </div>
-                                    </div>
-                                    <div className="activity-item">
-                                        <i className="fas fa-trophy"></i>
-                                        <div className="activity-info">
-                                            <p>Desbloqueou nova conquista: Estudante Dedicado</p>
-                                            <span className="activity-time">Ontem</span>
-                                        </div>
-                                    </div>
-                                    <div className="activity-item">
-                                        <i className="fas fa-fire"></i>
-                                        <div className="activity-info">
-                                            <p>Manteve sequência de 7 dias!</p>
-                                            <span className="activity-time">Há 2 dias</span>
-                                        </div>
-                                    </div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                                    {recentActivity.length > 0 ? (
+                                        recentActivity.map((activity, index) => (
+                                            <div key={index} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '1rem',
+                                                padding: '1rem',
+                                                background: 'var(--color-background)',
+                                                borderRadius: '8px',
+                                                transition: 'all 0.3s ease'
+                                            }}>
+                                                <div style={{
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                    borderRadius: '50%',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: 'white'
+                                                }}>
+                                                    <i className={activity.icon}></i>
+                                                </div>
+                                                <div style={{flex: 1}}>
+                                                    <p style={{margin: 0, color: 'var(--color-text-default)'}}>{activity.text}</p>
+                                                    <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                                                        {formatTimeAgo(activity.time)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <>
+                                            {/* Atividades padrão quando não há dados reais */}
+                                            {stats.totalReviews > 0 && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '1rem',
+                                                    padding: '1rem',
+                                                    background: 'var(--color-background)',
+                                                    borderRadius: '8px'
+                                                }}>
+                                                    <div style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        color: 'white'
+                                                    }}>
+                                                        <i className="fas fa-book"></i>
+                                                    </div>
+                                                    <div style={{flex: 1}}>
+                                                        <p style={{margin: 0, color: 'var(--color-text-default)'}}>
+                                                            {stats.totalReviews} revisões completadas
+                                                        </p>
+                                                        <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                                                            Total acumulado
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {userData.current_streak > 0 && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '1rem',
+                                                    padding: '1rem',
+                                                    background: 'var(--color-background)',
+                                                    borderRadius: '8px'
+                                                }}>
+                                                    <div style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        color: 'white'
+                                                    }}>
+                                                        <i className="fas fa-fire"></i>
+                                                    </div>
+                                                    <div style={{flex: 1}}>
+                                                        <p style={{margin: 0, color: 'var(--color-text-default)'}}>
+                                                            Sequência atual de {userData.current_streak} dias!
+                                                        </p>
+                                                        <span style={{fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                                                            Continue estudando!
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -721,59 +882,95 @@ function Profile() {
 
                     {activeTab === 'statistics' && (
                         <div className="tab-content statistics-content">
-                            <h2>Estatísticas Detalhadas</h2>
+                            <h2 style={{margin: '0 0 2rem', fontSize: '1.5rem', color: 'var(--color-text-default)'}}>Estatísticas Detalhadas</h2>
                             
                             <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Desempenho de Estudo</h3>
-                                <div className="detailed-stats">
-                                    <div className="detailed-stat">
-                                        <label>Total de Baralhos:</label>
-                                        <span>{stats.totalDecks}</span>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                    <i className="fas fa-chart-line" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                    Desempenho de Estudo
+                                </h3>
+                                <div style={styles.detailedStats}>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-layer-group" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Total de Baralhos:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{stats.totalDecks}</span>
                                     </div>
-                                    <div className="detailed-stat">
-                                        <label>Total de Cartões:</label>
-                                        <span>{stats.totalCards}</span>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-clone" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Total de Cartões:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{stats.totalCards}</span>
                                     </div>
-                                    <div className="detailed-stat">
-                                        <label>Revisões Completadas:</label>
-                                        <span>{stats.totalReviews}</span>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-redo" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Revisões Completadas:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{stats.totalReviews}</span>
                                     </div>
-                                    <div className="detailed-stat">
-                                        <label>Tempo Total de Estudo:</label>
-                                        <span>{formatStudyTime(stats.studyTime)}</span>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-clock" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Tempo Total de Estudo:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{formatStudyTime(stats.studyTime)}</span>
                                     </div>
-                                    <div className="detailed-stat">
-                                        <label>Taxa de Acerto Média:</label>
-                                        <span>{Math.round(stats.accuracy)}%</span>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-percentage" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Taxa de Acerto Média:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{Math.round(stats.accuracy)}%</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Sequências</h3>
-                                <div className="detailed-stats">
-                                    <div className="detailed-stat">
-                                        <label>Sequência Atual:</label>
-                                        <span>{userData.current_streak} dias {getStreakEmoji(userData.current_streak)}</span>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                    <i className="fas fa-fire" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                    Sequências
+                                </h3>
+                                <div style={styles.detailedStats}>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-fire-alt" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Sequência Atual:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{userData.current_streak} dias {getStreakEmoji(userData.current_streak)}</span>
                                     </div>
-                                    <div className="detailed-stat">
-                                        <label>Melhor Sequência:</label>
-                                        <span>{stats.bestStreak} dias</span>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-trophy" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Melhor Sequência:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{stats.bestStreak} dias</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Pontuação e Ranking</h3>
-                                <div className="detailed-stats">
-                                    <div className="detailed-stat">
-                                        <label>Pontos Totais:</label>
-                                        <span>{userData.points}</span>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                    <i className="fas fa-star" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                    Pontuação e Ranking
+                                </h3>
+                                <div style={styles.detailedStats}>
+                                    <div style={styles.detailedStat}>
+                                        <label style={styles.detailedStatLabel}>
+                                            <i className="fas fa-coins" style={{color: 'var(--color-primary-500)'}}></i>
+                                            Pontos Totais:
+                                        </label>
+                                        <span style={styles.detailedStatValue}>{userData.points}</span>
                                     </div>
                                     {userRank && (
-                                        <div className="detailed-stat">
-                                            <label>Posição no Ranking:</label>
-                                            <span>#{userRank}</span>
+                                        <div style={styles.detailedStat}>
+                                            <label style={styles.detailedStatLabel}>
+                                                <i className="fas fa-medal" style={{color: 'var(--color-primary-500)'}}></i>
+                                                Posição no Ranking:
+                                            </label>
+                                            <span style={styles.detailedStatValue}>#{userRank}</span>
                                         </div>
                                     )}
                                 </div>
