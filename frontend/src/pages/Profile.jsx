@@ -972,96 +972,96 @@ function Profile() {
                             ) : (
                                 <>
                                     <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
-                                    <i className="fas fa-chart-line" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
-                                    Desempenho de Estudo
-                                </h3>
-                                <div style={styles.detailedStats}>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-layer-group" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Total de Baralhos:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{stats.totalDecks}</span>
-                                    </div>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-clone" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Total de Cartões:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{stats.totalCards}</span>
-                                    </div>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-redo" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Revisões Completadas:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{stats.totalReviews}</span>
-                                    </div>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-clock" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Tempo Total de Estudo:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{formatStudyTime(stats.studyTime)}</span>
-                                    </div>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-percentage" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Taxa de Acerto Média:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{Math.round(stats.accuracy)}%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
-                                    <i className="fas fa-fire" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
-                                    Sequências
-                                </h3>
-                                <div style={styles.detailedStats}>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-fire-alt" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Sequência Atual:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{userData.current_streak} dias {getStreakEmoji(userData.current_streak)}</span>
-                                    </div>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-trophy" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Melhor Sequência:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{stats.bestStreak} dias</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style={styles.statsSection}>
-                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
-                                    <i className="fas fa-star" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
-                                    Pontuação e Ranking
-                                </h3>
-                                <div style={styles.detailedStats}>
-                                    <div style={styles.detailedStat}>
-                                        <label style={styles.detailedStatLabel}>
-                                            <i className="fas fa-coins" style={{color: 'var(--color-primary-500)'}}></i>
-                                            Pontos Totais:
-                                        </label>
-                                        <span style={styles.detailedStatValue}>{userData.points}</span>
-                                    </div>
-                                    {userRank && (
-                                        <div style={styles.detailedStat}>
-                                            <label style={styles.detailedStatLabel}>
-                                                <i className="fas fa-medal" style={{color: 'var(--color-primary-500)'}}></i>
-                                                Posição no Ranking:
-                                            </label>
-                                            <span style={styles.detailedStatValue}>#{userRank}</span>
+                                        <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                            <i className="fas fa-chart-line" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                            Desempenho de Estudo
+                                        </h3>
+                                        <div style={styles.detailedStats}>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-layer-group" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Total de Baralhos:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{stats.totalDecks}</span>
+                                            </div>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-clone" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Total de Cartões:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{stats.totalCards}</span>
+                                            </div>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-redo" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Revisões Completadas:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{stats.totalReviews}</span>
+                                            </div>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-clock" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Tempo Total de Estudo:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{formatStudyTime(stats.studyTime)}</span>
+                                            </div>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-percentage" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Taxa de Acerto Média:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{Math.round(stats.accuracy)}%</span>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                    </div>
+
+                                    <div style={styles.statsSection}>
+                                        <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                            <i className="fas fa-fire" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                            Sequências
+                                        </h3>
+                                        <div style={styles.detailedStats}>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-fire-alt" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Sequência Atual:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{userData.current_streak} dias {getStreakEmoji(userData.current_streak)}</span>
+                                            </div>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-trophy" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Melhor Sequência:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{stats.bestStreak} dias</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={styles.statsSection}>
+                                        <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
+                                            <i className="fas fa-star" style={{marginRight: '0.5rem', color: 'var(--color-primary-500)'}}></i>
+                                            Pontuação e Ranking
+                                        </h3>
+                                        <div style={styles.detailedStats}>
+                                            <div style={styles.detailedStat}>
+                                                <label style={styles.detailedStatLabel}>
+                                                    <i className="fas fa-coins" style={{color: 'var(--color-primary-500)'}}></i>
+                                                    Pontos Totais:
+                                                </label>
+                                                <span style={styles.detailedStatValue}>{userData.points}</span>
+                                            </div>
+                                            {userRank && (
+                                                <div style={styles.detailedStat}>
+                                                    <label style={styles.detailedStatLabel}>
+                                                        <i className="fas fa-medal" style={{color: 'var(--color-primary-500)'}}></i>
+                                                        Posição no Ranking:
+                                                    </label>
+                                                    <span style={styles.detailedStatValue}>#{userRank}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </>
                             )}
                         </div>
