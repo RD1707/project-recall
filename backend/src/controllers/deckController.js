@@ -29,7 +29,7 @@ const deckSchema = z.object({
 });
 
 const generateSchema = z.object({
-    textContent: z.string().min(50, 'O conteúdo de texto precisa ter pelo menos 50 caracteres.'),
+    textContent: z.string().min(30, 'O conteúdo de texto precisa ter pelo menos 30 caracteres.'),
     count: z.coerce.number().int().min(1).max(15),
     type: z.enum(['Pergunta e Resposta', 'Múltipla Escolha']),
     difficulty: z.enum(['facil', 'medio', 'dificil']) 
@@ -327,7 +327,7 @@ const generateCardsFromYouTube = async (req, res) => {
             });
         }
 
-        if (!transcript || transcript.trim().length < 50) {
+        if (!transcript || transcript.trim().length < 30) {
             return res.status(400).json({ 
                 message: 'Transcrição muito curta para gerar flashcards.', 
                 code: 'INSUFFICIENT_TRANSCRIPT_CONTENT' 
