@@ -14,11 +14,19 @@ const styles = {
         minHeight: '100vh',
         backgroundColor: 'var(--color-background)'
     },
+    profileContainer: {
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '0 2rem'
+    },
     profileBanner: {
         height: '200px',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        position: 'relative'
+        position: 'relative',
+        borderRadius: '12px',
+        marginTop: '2rem',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     },
     bannerEditBtn: {
         position: 'absolute',
@@ -33,10 +41,12 @@ const styles = {
     },
     profileHeaderSection: {
         background: 'var(--color-surface)',
-        borderBottom: '1px solid var(--color-border)',
+        borderRadius: '12px',
         padding: '0 2rem 2rem',
         marginTop: '-4rem',
-        position: 'relative'
+        position: 'relative',
+        marginBottom: '1.5rem',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
     },
     profileHeaderContent: {
         display: 'flex',
@@ -162,9 +172,11 @@ const styles = {
     },
     profileTabs: {
         background: 'var(--color-surface)',
-        borderBottom: '1px solid var(--color-border)',
+        borderRadius: '12px',
         display: 'flex',
-        padding: '0 2rem'
+        padding: '0 2rem',
+        marginBottom: '1.5rem',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
     },
     tabBtn: {
         padding: '1rem 1.5rem',
@@ -183,9 +195,7 @@ const styles = {
         borderBottomColor: 'var(--color-primary-500)'
     },
     profileContent: {
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '2rem'
+        marginTop: '1.5rem'
     },
     statsGrid: {
         display: 'grid',
@@ -233,6 +243,22 @@ const styles = {
     achievementCardLocked: {
         opacity: '0.5',
         filter: 'grayscale(1)'
+    },
+    // Estilos adicionais para melhor aparência
+    recentActivity: {
+        background: 'var(--color-surface)',
+        padding: '2rem',
+        borderRadius: '12px',
+        border: '1px solid var(--color-border)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+    },
+    statsSection: {
+        background: 'var(--color-surface)',
+        padding: '2rem',
+        borderRadius: '12px',
+        border: '1px solid var(--color-border)',
+        marginBottom: '1.5rem',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
     }
 };
 
@@ -433,19 +459,20 @@ function Profile() {
         <>
             <Header />
             <div style={styles.profilePage}>
-                {/* Banner Section */}
-                <div style={{ ...styles.profileBanner, backgroundImage: userData.banner_url ? `url(${userData.banner_url})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                    {isEditing && (
-                        <label style={styles.bannerEditBtn}>
-                            <i className="fas fa-camera"></i>
-                            <input type="file" accept="image/*" onChange={handleBannerChange} hidden />
-                        </label>
-                    )}
-                </div>
+                <div style={styles.profileContainer}>
+                    {/* Banner Section */}
+                    <div style={{ ...styles.profileBanner, backgroundImage: userData.banner_url ? `url(${userData.banner_url})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                        {isEditing && (
+                            <label style={styles.bannerEditBtn}>
+                                <i className="fas fa-camera"></i>
+                                <input type="file" accept="image/*" onChange={handleBannerChange} hidden />
+                            </label>
+                        )}
+                    </div>
 
-                {/* Profile Header */}
-                <div style={styles.profileHeaderSection}>
-                    <div style={styles.profileHeaderContent}>
+                    {/* Profile Header */}
+                    <div style={styles.profileHeaderSection}>
+                        <div style={styles.profileHeaderContent}>
                         <div className="profile-avatar-section">
                             <div style={styles.profileAvatarWrapper}>
                                 {userData.avatar_url ? (
@@ -625,8 +652,8 @@ function Profile() {
                                 </div>
                             </div>
 
-                            <div className="recent-activity">
-                                <h2>Atividade Recente</h2>
+                            <div style={styles.recentActivity}>
+                                <h2 style={{margin: '0 0 1.5rem', fontSize: '1.3rem', color: 'var(--color-text-default)'}}>Atividade Recente</h2>
                                 <div className="activity-list">
                                     <div className="activity-item">
                                         <i className="fas fa-book"></i>
@@ -696,8 +723,8 @@ function Profile() {
                         <div className="tab-content statistics-content">
                             <h2>Estatísticas Detalhadas</h2>
                             
-                            <div className="stats-section">
-                                <h3>Desempenho de Estudo</h3>
+                            <div style={styles.statsSection}>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Desempenho de Estudo</h3>
                                 <div className="detailed-stats">
                                     <div className="detailed-stat">
                                         <label>Total de Baralhos:</label>
@@ -722,8 +749,8 @@ function Profile() {
                                 </div>
                             </div>
 
-                            <div className="stats-section">
-                                <h3>Sequências</h3>
+                            <div style={styles.statsSection}>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Sequências</h3>
                                 <div className="detailed-stats">
                                     <div className="detailed-stat">
                                         <label>Sequência Atual:</label>
@@ -736,8 +763,8 @@ function Profile() {
                                 </div>
                             </div>
 
-                            <div className="stats-section">
-                                <h3>Pontuação e Ranking</h3>
+                            <div style={styles.statsSection}>
+                                <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>Pontuação e Ranking</h3>
                                 <div className="detailed-stats">
                                     <div className="detailed-stat">
                                         <label>Pontos Totais:</label>
@@ -753,6 +780,7 @@ function Profile() {
                             </div>
                         </div>
                     )}
+                </div>
                 </div>
             </div>
         </>
