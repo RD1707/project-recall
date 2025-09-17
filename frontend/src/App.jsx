@@ -24,6 +24,7 @@ import Ranking from './pages/Ranking';
 import QuizLobby from './pages/QuizLobby';
 import QuizGame from './pages/QuizGame'; 
 import Community from './pages/Community'; // NOVA IMPORTAÇÃO
+import Profile from './pages/Profile'; // Página de perfil do usuário
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import CookieBanner from './components/common/CookieBanner';
@@ -63,6 +64,7 @@ function App() {
           <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
           <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} /> 
           <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+          <Route path="/my-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
           <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
         </Routes>

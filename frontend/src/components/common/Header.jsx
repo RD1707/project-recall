@@ -119,7 +119,7 @@ function Header() {
                     </div>
                 </div>
                 <div className="dropdown-divider"></div>
-                <button className="dropdown-item" onClick={() => { setProfileModalOpen(true); setDropdownOpen(false); }}><i className="fas fa-user-circle"></i> Meu Perfil</button>
+                <Link to="/my-profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}><i className="fas fa-user-circle"></i> Meu Perfil</Link>
                 <button className="dropdown-item" onClick={() => { setSettingsModalOpen(true); setDropdownOpen(false); }}><i className="fas fa-cog"></i> Configurações</button>
                 <div className="dropdown-divider"></div>
                 <button id="logout-link" className="dropdown-item logout-btn" onClick={handleLogout}><i className="fas fa-sign-out-alt"></i> Sair</button>
