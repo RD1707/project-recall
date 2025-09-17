@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { fetchProfile, updateProfile, uploadAvatar } from '../api/profile';
-import { fetchAchievements } from '../api/achievements';
+import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
 import toast from 'react-hot-toast';
@@ -299,6 +299,9 @@ function Profile() {
     const [isEditing, setIsEditing] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
     
+    // Use o hook de conquistas do contexto
+    const { achievements: contextAchievements, loading: achievementsLoading } = useAchievements();
+    
     // User data
     const [userData, setUserData] = useState({
         id: '',
@@ -329,7 +332,7 @@ function Profile() {
         accuracy: 0
     });
 
-    // Achievements data
+    // Local state for achievements display
     const [achievements, setAchievements] = useState([]);
     const [userRank, setUserRank] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
@@ -337,6 +340,39 @@ function Profile() {
     useEffect(() => {
         loadAllData();
     }, []);
+
+    // Processa as conquistas quando elas mudam no contexto
+    useEffect(() => {
+        if (contextAchievements && contextAchievements.length > 0) {
+            console.log('Conquistas do contexto:', contextAchievements); // Debug
+            // Formatar as conquistas para o formato esperado
+            const formattedAchievements = contextAchievements.map(ach => ({
+                ...ach,
+                unlocked: !!ach.unlocked_at,
+                name: ach.name || ach.title || '',
+                description: ach.description || '',
+                unlockedAt: ach.unlocked_at,
+                progress: ach.progress || 0,
+                goal: ach.goal || 1
+            }));
+            console.log('Conquistas formatadas:', formattedAchievements); // Debug
+            setAchievements(formattedAchievements);
+            
+            // Criar atividades recentes baseadas nas conquistas desbloqueadas
+            const recentAchievements = formattedAchievements
+                .filter(ach => ach.unlocked && ach.unlockedAt)
+                .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
+                .slice(0, 3)
+                .map(ach => ({
+                    type: 'achievement',
+                    icon: 'fas fa-trophy',
+                    text: `Desbloqueou conquista: ${ach.name}`,
+                    time: new Date(ach.unlockedAt)
+                }));
+            
+            setRecentActivity(prev => [...recentAchievements, ...prev.filter(a => a.type !== 'achievement')]);
+        }
+    }, [contextAchievements]);
 
     const loadAllData = async () => {
         setLoading(true);
@@ -352,35 +388,7 @@ function Profile() {
                 });
             }
 
-            // Load achievements
-            try {
-                const achievementsData = await fetchAchievements();
-                // Garantir que as conquistas tenham o formato correto
-                const formattedAchievements = achievementsData.map(ach => ({
-                    ...ach,
-                    unlocked: ach.unlocked || ach.completed || false,
-                    name: ach.name || ach.title || '',
-                    description: ach.description || '',
-                    unlockedAt: ach.unlockedAt || ach.unlocked_at || ach.completed_at
-                }));
-                setAchievements(formattedAchievements || []);
-                
-                // Criar atividades recentes baseadas nas conquistas desbloqueadas
-                const recentAchievements = formattedAchievements
-                    .filter(ach => ach.unlocked && ach.unlockedAt)
-                    .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
-                    .slice(0, 3)
-                    .map(ach => ({
-                        type: 'achievement',
-                        icon: 'fas fa-trophy',
-                        text: `Desbloqueou conquista: ${ach.name}`,
-                        time: new Date(ach.unlockedAt)
-                    }));
-                
-                setRecentActivity(recentAchievements);
-            } catch (error) {
-                console.error('Error loading achievements:', error);
-            }
+            // As conquistas agora são carregadas do contexto
 
             // Load statistics
             try {
@@ -853,23 +861,62 @@ function Profile() {
                             
                             <div style={styles.achievementsGrid}>
                                 {achievements.length > 0 ? (
-                                    achievements.map((achievement, index) => (
-                                        <div 
-                                            key={index} 
-                                            style={{...styles.achievementCard, ...(achievement.unlocked ? styles.achievementCardUnlocked : styles.achievementCardLocked)}}
-                                        >
-                                            <div className="achievement-icon">
-                                                {getAchievementIcon(achievement)}
+                                    achievements.map((achievement, index) => {
+                                        const progressPercent = achievement.goal > 0 ? (achievement.progress / achievement.goal) * 100 : 0;
+                                        return (
+                                            <div 
+                                                key={achievement.id || index} 
+                                                style={{...styles.achievementCard, ...(achievement.unlocked ? styles.achievementCardUnlocked : styles.achievementCardLocked)}}
+                                            >
+                                                <div style={{fontSize: '2.5rem', marginBottom: '0.5rem'}}>
+                                                    {achievement.unlocked ? '✅' : getAchievementIcon(achievement)}
+                                                </div>
+                                                <h3 style={{margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--color-text-default)'}}>
+                                                    {achievement.name}
+                                                </h3>
+                                                <p style={{margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--color-text-muted)'}}>
+                                                    {achievement.description}
+                                                </p>
+                                                <div style={{marginTop: '0.5rem'}}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem'}}>
+                                                        <span>{achievement.progress}/{achievement.goal}</span>
+                                                        <span>{Math.round(progressPercent)}%</span>
+                                                    </div>
+                                                    <div style={{
+                                                        width: '100%',
+                                                        height: '6px',
+                                                        backgroundColor: 'var(--color-background)',
+                                                        borderRadius: '3px',
+                                                        overflow: 'hidden'
+                                                    }}>
+                                                        <div style={{
+                                                            width: `${progressPercent}%`,
+                                                            height: '100%',
+                                                            background: achievement.unlocked 
+                                                                ? 'var(--color-success)' 
+                                                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                            transition: 'width 0.3s ease'
+                                                        }}></div>
+                                                    </div>
+                                                </div>
+                                                {achievement.unlocked && achievement.unlockedAt && (
+                                                    <span style={{
+                                                        display: 'block',
+                                                        marginTop: '0.5rem',
+                                                        fontSize: '0.75rem',
+                                                        color: 'var(--color-success)'
+                                                    }}>
+                                                        Desbloqueado em {new Date(achievement.unlockedAt).toLocaleDateString('pt-BR')}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <h3>{achievement.name}</h3>
-                                            <p>{achievement.description}</p>
-                                            {achievement.unlocked && (
-                                                <span className="achievement-date">
-                                                    Desbloqueado em {new Date(achievement.unlockedAt).toLocaleDateString('pt-BR')}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ))
+                                        );
+                                    })
+                                ) : achievementsLoading ? (
+                                    <div style={{textAlign: 'center', padding: '2rem'}}>
+                                        <div className="loading-spinner"></div>
+                                        <p>Carregando conquistas...</p>
+                                    </div>
                                 ) : (
                                     <div className="no-achievements">
                                         <i className="fas fa-medal"></i>
