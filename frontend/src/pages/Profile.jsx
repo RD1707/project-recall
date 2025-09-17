@@ -491,11 +491,11 @@ function Profile() {
     };
 
     const getStreakEmoji = (streak) => {
-        if (streak === 0) return '❄️';
-        if (streak < 7) return '🔥';
-        if (streak < 30) return '🔥🔥';
-        if (streak < 100) return '🔥🔥🔥';
-        return '🌟';
+        if (streak === 0) return '';
+        if (streak < 7) return '';
+        if (streak < 30) return '';
+        if (streak < 100) return '';
+        return '';
     };
 
     const formatTimeAgo = (date) => {
@@ -521,26 +521,26 @@ function Profile() {
 
     const getAchievementIcon = (achievement) => {
         const icons = {
-            'first_deck': '📚',
-            'first_card': '🃏',
-            'streak_7': '🔥',
-            'streak_30': '💪',
-            'points_100': '⭐',
-            'points_1000': '🏆',
-            'reviews_100': '📖',
-            'reviews_1000': '📚',
-            'perfect_day': '✨',
-            'early_bird': '🌅',
-            'night_owl': '🦉',
-            'Pioneiro': '🚩',
-            'Estudante Dedicado': '🔥',
-            'Leitor Voraz': '📖',
-            'Mestre do Saber': '🎓',
-            'Criador de Conteúdo': '✍️',
-            'content_creator': '✍️',
-            'deck_creator': '✍️'
+            'first_deck': '',
+            'first_card': '',
+            'streak_7': '',
+            'streak_30': '',
+            'points_100': '',
+            'points_1000': '',
+            'reviews_100': '',
+            'reviews_1000': '',
+            'perfect_day': '',
+            'early_bird': '',
+            'night_owl': '',
+            'Pioneiro': '',
+            'Estudante Dedicado': '',
+            'Leitor Voraz': '',
+            'Mestre do Saber': '',
+            'Criador de Conteudo': '',
+            'content_creator': '',
+            'deck_creator': ''
         };
-        return icons[achievement.name] || icons[achievement.type] || '🏅';
+        return icons[achievement.name] || icons[achievement.type] || '';
     };
 
     if (loading) {
@@ -902,7 +902,7 @@ function Profile() {
                                                 style={{...styles.achievementCard, ...(achievement.unlocked ? styles.achievementCardUnlocked : styles.achievementCardLocked)}}
                                             >
                                                 <div style={{fontSize: '2.5rem', marginBottom: '0.5rem'}}>
-                                                    {achievement.unlocked ? '✅' : getAchievementIcon(achievement)}
+                                                    {achievement.unlocked ? <i className="fas fa-check-circle" style={{color: 'var(--color-success)'}}></i> : <i className="fas fa-medal"></i>}
                                                 </div>
                                                 <h3 style={{margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--color-text-default)'}}>
                                                     {achievement.name}
@@ -1055,7 +1055,7 @@ function Profile() {
                                                 <div style={styles.detailedStat}>
                                                     <label style={styles.detailedStatLabel}>
                                                         <i className="fas fa-medal" style={{color: 'var(--color-primary-500)'}}></i>
-                                                        Posição no Ranking:
+                                                        Posicao no Ranking:
                                                     </label>
                                                     <span style={styles.detailedStatValue}>#{userRank}</span>
                                                 </div>
