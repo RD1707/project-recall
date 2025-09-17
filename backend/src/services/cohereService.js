@@ -4,6 +4,72 @@ const cohere = new CohereClient({
     token: process.env.COHERE_API_KEY,
 });
 
+// Função auxiliar para extrair JSON da resposta da IA
+const extractJsonFromResponse = (responseText) => {
+    console.log('Resposta original da API Cohere:', responseText);
+
+    // Remove espaços em branco no início e fim
+    let cleaned = responseText.trim();
+
+    // Remove blocos de código markdown
+    cleaned = cleaned.replace(/^```(?:json)?\s*/gm, '');
+    cleaned = cleaned.replace(/```\s*$/gm, '');
+
+    // Remove texto antes do primeiro [ ou {
+    const jsonStart = Math.min(
+        cleaned.indexOf('[') >= 0 ? cleaned.indexOf('[') : Infinity,
+        cleaned.indexOf('{') >= 0 ? cleaned.indexOf('{') : Infinity
+    );
+
+    if (jsonStart !== Infinity) {
+        cleaned = cleaned.substring(jsonStart);
+    }
+
+    // Tenta encontrar o final do JSON (último ] ou })
+    let jsonEnd = -1;
+    let bracketCount = 0;
+    let inString = false;
+    let escapeNext = false;
+
+    for (let i = 0; i < cleaned.length; i++) {
+        const char = cleaned[i];
+
+        if (escapeNext) {
+            escapeNext = false;
+            continue;
+        }
+
+        if (char === '\\') {
+            escapeNext = true;
+            continue;
+        }
+
+        if (char === '"' && !escapeNext) {
+            inString = !inString;
+            continue;
+        }
+
+        if (!inString) {
+            if (char === '[' || char === '{') {
+                bracketCount++;
+            } else if (char === ']' || char === '}') {
+                bracketCount--;
+                if (bracketCount === 0) {
+                    jsonEnd = i + 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (jsonEnd > 0) {
+        cleaned = cleaned.substring(0, jsonEnd);
+    }
+
+    console.log('Resposta após limpeza:', cleaned);
+    return cleaned;
+};
+
 const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergunta e Resposta') => {
     
     let promptInstruction = '';
@@ -18,11 +84,10 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
         Baseado no texto a seguir, gere ${count} flashcards no formato de um array de objetos JSON.
         ${promptInstruction}
         As perguntas devem ser claras e diretas, e as respostas concisas.
-        Não inclua nenhuma explicação ou texto adicional fora do array JSON. Sua resposta deve ser apenas o array JSON puro.
+
+        IMPORTANTE: Sua resposta deve conter APENAS o array JSON válido, sem nenhum texto explicativo, comentários ou formatação markdown antes ou depois. Comece diretamente com [ e termine com ].
 
         Texto: "${textContent}"
-
-        JSON:
     `;
 
     try {
@@ -32,10 +97,7 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
             temperature: 0.3, 
         });
 
-        const cleanedResponse = response.text
-            .trim()
-            .replace(/^```json\s*/, '') 
-            .replace(/```$/, '');      
+        const cleanedResponse = extractJsonFromResponse(response.text);
 
         const flashcards = JSON.parse(cleanedResponse);
 

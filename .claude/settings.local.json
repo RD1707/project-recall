@@ -5,7 +5,8 @@
       "Bash(node:*)",
       "Bash(sed:*)",
       "Bash(npx eslint:*)",
-      "Read(//home/werkdev/recall-dev/**)"
+      "Read(//home/werkdev/recall-dev/**)",
+      "WebFetch(domain:docs.cohere.com)"
     ],
     "deny": [],
     "ask": []
