@@ -30,12 +30,16 @@ const getAnalyticsSummary = async (req, res) => {
         const { data, error } = await supabase.rpc('get_analytics_summary', { user_id_param: userId });
 
         if (error) throw error;
-        
+
         res.status(200).json(data[0] || {
             total_reviews: 0,
             average_accuracy: 0,
             mastered_cards: 0,
-            max_streak: 0
+            max_streak: 0,
+            total_decks: 0,
+            total_cards: 0,
+            best_streak: 0,
+            total_study_time: 0
         });
     } catch (error) {
         logger.error(`Error fetching analytics summary for user ${userId}: ${error.message}`);
@@ -59,8 +63,36 @@ const getPerformanceInsights = async (req, res) => {
     }
 };
 
+const getRecentActivity = async (req, res) => {
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit, 10) || 10;
+
+    try {
+        const { data, error } = await supabase.rpc('get_recent_activity', {
+            user_id_param: userId,
+            limit_param: limit
+        });
+
+        if (error) throw error;
+
+        const formattedActivities = data.map(activity => ({
+            type: activity.activity_type,
+            text: activity.activity_text,
+            icon: activity.activity_icon,
+            time: activity.activity_time,
+            details: activity.activity_details
+        }));
+
+        res.status(200).json(formattedActivities);
+    } catch (error) {
+        logger.error(`Error fetching recent activity for user ${userId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao buscar atividade recente.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = {
     getPerformanceInsights,
     getReviewsOverTime,
-    getAnalyticsSummary
+    getAnalyticsSummary,
+    getRecentActivity
 };

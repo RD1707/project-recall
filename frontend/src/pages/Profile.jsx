@@ -5,6 +5,7 @@ import { fetchProfile, updateProfile, uploadAvatar } from '../api/profile';
 import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
+import { fetchRecentActivity } from '../api/activity';
 import toast from 'react-hot-toast';
 import '../assets/css/profile.css';
 
@@ -332,6 +333,10 @@ function Profile() {
         accuracy: 0
     });
 
+    // Loading states
+    const [statsLoading, setStatsLoading] = useState(false);
+    const [activityLoading, setActivityLoading] = useState(false);
+
     // Local state for achievements display
     const [achievements, setAchievements] = useState([]);
     const [userRank, setUserRank] = useState(null);
@@ -358,19 +363,8 @@ function Profile() {
             console.log('Conquistas formatadas:', formattedAchievements); // Debug
             setAchievements(formattedAchievements);
             
-            // Criar atividades recentes baseadas nas conquistas desbloqueadas
-            const recentAchievements = formattedAchievements
-                .filter(ach => ach.unlocked && ach.unlockedAt)
-                .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
-                .slice(0, 3)
-                .map(ach => ({
-                    type: 'achievement',
-                    icon: 'fas fa-trophy',
-                    text: `Desbloqueou conquista: ${ach.name}`,
-                    time: new Date(ach.unlockedAt)
-                }));
-            
-            setRecentActivity(prev => [...recentAchievements, ...prev.filter(a => a.type !== 'achievement')]);
+            // As atividades recentes agora são carregadas diretamente da API
+            // Não precisamos mais criar atividades falsas baseadas nas conquistas
         }
     }, [contextAchievements]);
 
@@ -392,17 +386,21 @@ function Profile() {
 
             // Load statistics
             try {
+                setStatsLoading(true);
                 const statsData = await fetchAnalyticsSummary();
                 setStats({
                     totalCards: statsData.total_cards || 0,
                     totalDecks: statsData.total_decks || 0,
                     totalReviews: statsData.total_reviews || 0,
                     studyTime: statsData.total_study_time || 0,
-                    bestStreak: statsData.best_streak || 0,
+                    bestStreak: statsData.best_streak || statsData.max_streak || 0,
                     accuracy: statsData.average_accuracy || 0
                 });
             } catch (error) {
                 console.error('Error loading stats:', error);
+                toast.error('Erro ao carregar estatísticas');
+            } finally {
+                setStatsLoading(false);
             }
 
             // Load user rank
@@ -412,6 +410,18 @@ function Profile() {
                 setUserRank(currentUserRank > 0 ? currentUserRank : null);
             } catch (error) {
                 console.error('Error loading rank:', error);
+            }
+
+            // Load recent activity
+            try {
+                setActivityLoading(true);
+                const activityData = await fetchRecentActivity(5);
+                setRecentActivity(activityData || []);
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                // Não mostra toast de erro para atividade recente, pois é opcional
+            } finally {
+                setActivityLoading(false);
             }
 
         } catch (error) {
@@ -537,9 +547,21 @@ function Profile() {
         return (
             <>
                 <Header />
-                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh'}}>
-                    <div style={{textAlign: 'center'}}>
-                        <div className="loading-spinner"></div>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '80vh',
+                    width: '100%'
+                }}>
+                    <div style={{
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <div className="loading-spinner" style={{margin: '0 auto'}}></div>
                         <p style={{marginTop: '1rem', color: 'var(--color-text-muted)'}}>Carregando perfil...</p>
                     </div>
                 </div>
@@ -682,16 +704,22 @@ function Profile() {
                 <div style={styles.profileContent}>
                     {activeTab === 'overview' && (
                         <div className="tab-content overview-content">
-                            <div style={styles.statsGrid}>
-                                <div style={styles.statCard}>
-                                    <div style={styles.statIcon}>
-                                        <i className="fas fa-layer-group"></i>
-                                    </div>
-                                    <div className="stat-info">
-                                        <h3>{stats.totalDecks}</h3>
-                                        <p>Baralhos Criados</p>
-                                    </div>
+                            {statsLoading ? (
+                                <div style={{textAlign: 'center', padding: '3rem'}}>
+                                    <div className="loading-spinner" style={{margin: '0 auto'}}></div>
+                                    <p style={{marginTop: '1rem', color: 'var(--color-text-muted)'}}>Carregando estatísticas...</p>
                                 </div>
+                            ) : (
+                                <div style={styles.statsGrid}>
+                                    <div style={styles.statCard}>
+                                        <div style={styles.statIcon}>
+                                            <i className="fas fa-layer-group"></i>
+                                        </div>
+                                        <div className="stat-info">
+                                            <h3>{stats.totalDecks}</h3>
+                                            <p>Baralhos Criados</p>
+                                        </div>
+                                    </div>
 
                                 <div style={styles.statCard}>
                                     <div style={styles.statIcon}>
@@ -742,12 +770,17 @@ function Profile() {
                                         <p>Taxa de Acerto</p>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div style={styles.recentActivity}>
                                 <h2 style={{margin: '0 0 1.5rem', fontSize: '1.3rem', color: 'var(--color-text-default)'}}>Atividade Recente</h2>
                                 <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                                    {recentActivity.length > 0 ? (
+                                    {activityLoading ? (
+                                        <div style={{textAlign: 'center', padding: '2rem'}}>
+                                            <div className="loading-spinner" style={{margin: '0 auto', transform: 'scale(0.8)'}}></div>
+                                            <p style={{marginTop: '1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem'}}>Carregando atividades...</p>
+                                        </div>
+                                    ) : recentActivity.length > 0 ? (
                                         recentActivity.map((activity, index) => (
                                             <div key={index} style={{
                                                 display: 'flex',
@@ -930,6 +963,14 @@ function Profile() {
                     {activeTab === 'statistics' && (
                         <div className="tab-content statistics-content">
                             <h2 style={{margin: '0 0 2rem', fontSize: '1.5rem', color: 'var(--color-text-default)'}}>Estatísticas Detalhadas</h2>
+
+                            {statsLoading ? (
+                                <div style={{textAlign: 'center', padding: '3rem'}}>
+                                    <div className="loading-spinner" style={{margin: '0 auto'}}></div>
+                                    <p style={{marginTop: '1rem', color: 'var(--color-text-muted)'}}>Carregando estatísticas...</p>
+                                </div>
+                            ) : (
+                                <>
                             
                             <div style={styles.statsSection}>
                                 <h3 style={{margin: '0 0 1.5rem', fontSize: '1.2rem', color: 'var(--color-text-default)', paddingBottom: '1rem', borderBottom: '1px solid var(--color-border)'}}>
@@ -1022,6 +1063,7 @@ function Profile() {
                                     )}
                                 </div>
                             </div>
+                            )}
                         </div>
                     )}
                 </div>

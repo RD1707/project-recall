@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { 
-    getProfile, 
+const {
+    getProfile,
     updateProfile,
-    uploadAvatar, 
-    getProfileByUsername, 
+    uploadAvatar,
+    getProfileByUsername,
     getLeaderboard,
     completeOnboarding,
     getPublicProfile,
-    deleteAccount
+    deleteAccount,
+    getRecentActivity
 } = require('../controllers/profileController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -36,6 +37,7 @@ router.use(authMiddleware.authenticateToken);
 router.get('/', getProfile);
 router.put('/', updateProfile);
 router.delete('/delete-account', deleteAccount);
+router.get('/recent-activity', getRecentActivity);
 
 router.post('/avatar', upload.single('avatar'), uploadAvatar);
 

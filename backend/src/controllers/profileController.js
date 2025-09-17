@@ -359,13 +359,41 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-module.exports = { 
-    getProfile, 
+const getRecentActivity = async (req, res) => {
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit, 10) || 10;
+
+    try {
+        const { data, error } = await supabase.rpc('get_recent_activity', {
+            user_id_param: userId,
+            limit_param: limit
+        });
+
+        if (error) throw error;
+
+        const formattedActivities = data.map(activity => ({
+            type: activity.activity_type,
+            text: activity.activity_text,
+            icon: activity.activity_icon,
+            time: activity.activity_time,
+            details: activity.activity_details
+        }));
+
+        res.status(200).json(formattedActivities);
+    } catch (error) {
+        logger.error(`Error fetching recent activity for user ${userId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao buscar atividade recente.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
+module.exports = {
+    getProfile,
     updateProfile,
     getProfileByUsername,
     uploadAvatar,
     getLeaderboard,
     completeOnboarding,
     getPublicProfile,
-    deleteAccount
+    deleteAccount,
+    getRecentActivity
 };
