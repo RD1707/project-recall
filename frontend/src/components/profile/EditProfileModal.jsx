@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Camera, Plus, Check, Loader2 } from 'lucide-react';
 
 const EditProfileModal = ({ 
   isOpen, 
@@ -179,7 +178,7 @@ const EditProfileModal = ({
             onClick={handleClose}
             disabled={loading}
           >
-            <X size={20} />
+            <i className="fas fa-times"></i>
           </button>
           <h2>Editar perfil</h2>
           <button 
@@ -187,7 +186,7 @@ const EditProfileModal = ({
             onClick={handleSave}
             disabled={loading}
           >
-            {loading ? <Loader2 size={18} className="spin" /> : 'Salvar'}
+            {loading ? <i className="fas fa-spinner fa-spin"></i> : 'Salvar'}
           </button>
         </div>
 
@@ -195,7 +194,7 @@ const EditProfileModal = ({
         <div className="banner-section">
           <div className="banner-placeholder">
             <button className="banner-edit-btn">
-              <Camera size={20} />
+              <i className="fas fa-camera"></i>
             </button>
           </div>
         </div>
@@ -214,7 +213,7 @@ const EditProfileModal = ({
               className="avatar-edit-btn"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Camera size={16} />
+              <i className="fas fa-camera"></i>
             </button>
             <input
               ref={fileInputRef}
@@ -302,7 +301,7 @@ const EditProfileModal = ({
                     onClick={() => handleRemoveInterest(interest.id)}
                     className="remove-interest"
                   >
-                    <X size={14} />
+                    <i className="fas fa-times"></i>
                   </button>
                 </div>
               ))}
@@ -328,7 +327,7 @@ const EditProfileModal = ({
                       className="add-btn"
                       disabled={!newInterest.trim()}
                     >
-                      <Plus size={16} />
+                      <i className="fas fa-plus"></i>
                     </button>
                   </div>
                   
@@ -344,7 +343,7 @@ const EditProfileModal = ({
                             setShowColorPicker(false);
                           }}
                         >
-                          {selectedColor === color && <Check size={12} />}
+                          {selectedColor === color && <i className="fas fa-check"></i>}
                         </button>
                       ))}
                     </div>
