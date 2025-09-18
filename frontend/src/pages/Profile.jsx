@@ -189,11 +189,15 @@ const styles = {
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        gap: '0.5rem'
+        gap: '0.5rem',
+        position: 'relative',
+        transition: 'all 0.2s ease',
+        marginBottom: '-1px' // Garante que a borda fique alinhada com o container
     },
     tabBtnActive: {
         color: 'var(--color-primary-500)',
-        borderBottomColor: 'var(--color-primary-500)'
+        borderBottom: '3px solid var(--color-primary-500)',
+        backgroundColor: 'transparent'
     },
     profileContent: {
         marginTop: '1.5rem'
@@ -681,19 +685,31 @@ function Profile() {
                 {/* Tabs Navigation */}
                 <div style={styles.profileTabs}>
                     <button 
-                        style={{...styles.tabBtn, ...(activeTab === 'overview' ? styles.tabBtnActive : {})}}
+                        style={{
+                            ...styles.tabBtn,
+                            ...(activeTab === 'overview' ? styles.tabBtnActive : {}),
+                            borderBottom: activeTab === 'overview' ? '3px solid var(--color-primary-500)' : '3px solid transparent'
+                        }}
                         onClick={() => setActiveTab('overview')}
                     >
                         <i className="fas fa-chart-pie"></i> Visão Geral
                     </button>
                     <button 
-                        style={{...styles.tabBtn, ...(activeTab === 'achievements' ? styles.tabBtnActive : {})}}
+                        style={{
+                            ...styles.tabBtn,
+                            ...(activeTab === 'achievements' ? styles.tabBtnActive : {}),
+                            borderBottom: activeTab === 'achievements' ? '3px solid var(--color-primary-500)' : '3px solid transparent'
+                        }}
                         onClick={() => setActiveTab('achievements')}
                     >
                         <i className="fas fa-medal"></i> Conquistas
                     </button>
                     <button 
-                        style={{...styles.tabBtn, ...(activeTab === 'statistics' ? styles.tabBtnActive : {})}}
+                        style={{
+                            ...styles.tabBtn,
+                            ...(activeTab === 'statistics' ? styles.tabBtnActive : {}),
+                            borderBottom: activeTab === 'statistics' ? '3px solid var(--color-primary-500)' : '3px solid transparent'
+                        }}
                         onClick={() => setActiveTab('statistics')}
                     >
                         <i className="fas fa-chart-bar"></i> Estatísticas
