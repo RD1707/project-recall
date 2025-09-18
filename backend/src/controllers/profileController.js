@@ -11,6 +11,12 @@ const profileUpdateSchema = z.object({
         .optional(),
     bio: z.string().max(160, 'A bio não pode exceder 160 caracteres.').optional().nullable(),
     password: z.string().min(6, 'A nova senha deve ter pelo menos 6 caracteres.').optional(),
+    interests: z.array(
+        z.object({
+            name: z.string().min(1, 'Nome do interesse é obrigatório.').max(50, 'Nome do interesse deve ter no máximo 50 caracteres.'),
+            color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Cor deve ser um hex válido (ex: #FF5733).')
+        })
+    ).max(10, 'Máximo de 10 interesses permitidos.').optional(),
 }).strict();
 
 const deleteAccountSchema = z.object({
@@ -22,20 +28,21 @@ const getProfile = async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('points, current_streak, full_name, username, bio, avatar_url, has_completed_onboarding') 
+            .select('points, current_streak, full_name, username, bio, avatar_url, has_completed_onboarding, interests') 
             .eq('id', req.user.id)
             .single();
 
         if (error && error.code === 'PGRST116') {
             logger.warn(`Perfil não encontrado para o usuário ${req.user.id}. Retornando perfil padrão.`);
             return res.status(200).json({ 
-                points: 0, 
-                current_streak: 0, 
-                full_name: '', 
+                points: 0,
+                current_streak: 0,
+                full_name: '',
                 username: '',
                 bio: '',
                 avatar_url: null,
-                has_completed_onboarding: false, 
+                has_completed_onboarding: false,
+                interests: [],
                 email: req.user.email 
             });
         }
@@ -53,7 +60,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     const userId = req.user.id;
     try {
-        const { full_name, username, bio, password } = profileUpdateSchema.parse(req.body);
+        const { full_name, username, bio, password, interests } = profileUpdateSchema.parse(req.body);
         let profileDataToUpdate = {};
         
         if (username) {
@@ -80,13 +87,14 @@ const updateProfile = async (req, res) => {
 
         if (full_name !== undefined) profileDataToUpdate.full_name = full_name;
         if (bio !== undefined) profileDataToUpdate.bio = bio;
+        if (interests !== undefined) profileDataToUpdate.interests = interests;
         
         if (Object.keys(profileDataToUpdate).length > 0) {
             const { data: updatedProfile, error: profileError } = await supabase
                 .from('profiles')
                 .update(profileDataToUpdate)
                 .eq('id', userId)
-                .select('full_name, username, bio') 
+                .select('full_name, username, bio, interests') 
                 .single();
                 
             if (profileError) throw new Error(`Erro ao atualizar perfil: ${profileError.message}`);

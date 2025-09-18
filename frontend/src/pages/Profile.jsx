@@ -6,6 +6,7 @@ import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
 import { fetchRecentActivity } from '../api/activity';
+import EditProfileModal from '../components/profile/EditProfileModal';
 import toast from 'react-hot-toast';
 import '../assets/css/profile.css';
 
@@ -303,6 +304,7 @@ function Profile() {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
+    const [isEditModalOpen, setEditModalOpen] = useState(false);
     
     // Use o hook de conquistas do contexto
     const { achievements: contextAchievements, loading: achievementsLoading } = useAchievements();
@@ -317,7 +319,8 @@ function Profile() {
         avatar_url: null,
         points: 0,
         current_streak: 0,
-        banner_url: null
+        banner_url: null,
+        interests: []
     });
 
     // Edit form data
@@ -485,6 +488,44 @@ function Profile() {
         }
     };
 
+    // Handlers para integração com o EditProfileModal
+    const handleProfileSave = async (formData) => {
+        try {
+            const profileData = {
+                full_name: formData.fullName, // Note: backend espera full_name, não fullName
+                username: formData.username,
+                bio: formData.bio,
+                interests: formData.interests
+            };
+
+            const result = await updateProfile(profileData);
+            setUserData(prev => ({
+                ...prev,
+                fullName: formData.fullName,
+                username: formData.username,
+                bio: formData.bio,
+                interests: formData.interests
+            }));
+            toast.success('Perfil atualizado com sucesso!');
+            setEditModalOpen(false);
+            return result;
+        } catch (error) {
+            toast.error('Erro ao atualizar perfil');
+            throw error;
+        }
+    };
+
+    const handleAvatarUpload = async (file) => {
+        try {
+            const result = await uploadAvatar(file);
+            setUserData(prev => ({ ...prev, avatar_url: result.avatarUrl }));
+            return result;
+        } catch (error) {
+            toast.error('Erro ao atualizar avatar');
+            throw error;
+        }
+    };
+
     const formatStudyTime = (minutes) => {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
@@ -620,7 +661,7 @@ function Profile() {
                                     </button>
                                 </>
                             ) : (
-                                <button style={styles.btnEditProfile} onClick={handleEditToggle}>
+                                <button style={styles.btnEditProfile} onClick={() => setEditModalOpen(true)}>
                                     <i className="fas fa-edit"></i> Editar perfil
                                 </button>
                             )}
@@ -1086,6 +1127,18 @@ function Profile() {
                 </div>
                 </div>
             </div>
+
+            {/* Modal de Edição de Perfil */}
+            <EditProfileModal
+                isOpen={isEditModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                user={{
+                    ...userData,
+                    interests: userData.interests || []
+                }}
+                onSave={handleProfileSave}
+                onAvatarUpload={handleAvatarUpload}
+            />
         </>
     );
 }
