@@ -38,6 +38,7 @@ const EditProfileModal = ({
   const colorPalette = [
     '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',
     '#f59e0b', '#84cc16', '#10b981', '#06b6d4',
+    '#0ea5e9', '#3b82f6', '#6d28d9', '#a855f7'
   ];
 
   useEffect(() => {
@@ -115,19 +116,65 @@ const EditProfileModal = ({
   const addInterest = (e) => {
     e.preventDefault();
     const interestText = newInterest.trim();
+
     if (!interestText || formData.interests.length >= MAX_INTERESTS) return;
-    
+
+    // Check if interest already exists (case insensitive)
+    const exists = formData.interests.some(
+      interest => interest.name.toLowerCase() === interestText.toLowerCase()
+    );
+
+    if (exists) {
+      setErrors(prev => ({
+        ...prev,
+        interest: 'Este interesse já foi adicionado.'
+      }));
+      return;
+    }
+
     const interest = { name: interestText, color: selectedColor };
     setFormData(prev => ({ ...prev, interests: [...prev.interests, interest] }));
     setNewInterest('');
+    setSelectedColor('#6366f1'); // Reset to default color
+    setErrors(prev => ({ ...prev, interest: null })); // Clear any error
   };
 
   const removeInterest = (index) => {
     setFormData(prev => ({ ...prev, interests: prev.interests.filter((_, i) => i !== index) }));
   };
 
+  const customHeader = (
+    <div className="edit-profile-header">
+      <div className="header-left">
+        <button className="close-modal-btn" onClick={onClose} aria-label="Fechar modal">
+          <i className="fas fa-times"></i>
+        </button>
+        <h2 className="modal-title">Editar perfil</h2>
+      </div>
+      <button
+        className="save-profile-btn"
+        onClick={handleSave}
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <i className="fas fa-spinner fa-spin"></i>
+            Salvando...
+          </>
+        ) : (
+          'Salvar alterações'
+        )}
+      </button>
+    </div>
+  );
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Editar perfil" className="edit-profile-modal">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className="edit-profile-modal"
+      customHeader={customHeader}
+    >
       <div className="edit-profile-content">
         <div className="banner-section" onClick={() => bannerInputRef.current?.click()}>
           <div className="banner-image" style={bannerPreview ? { backgroundImage: `url(${bannerPreview})` } : {}}></div>
@@ -156,7 +203,6 @@ const EditProfileModal = ({
               {avatarPreview && (
                 <button className="remove-btn" onClick={handleRemoveAvatar} type="button">
                   <i className="fas fa-trash"></i>
-                  <span>Remover</span>
                 </button>
               )}
             </div>
@@ -183,24 +229,91 @@ const EditProfileModal = ({
           </div>
           <div className="interests-section">
             <label className="form-label">Interesses</label>
+            <p className="interests-description">
+              Adicione até {MAX_INTERESTS} interesses para personalizar seu perfil
+            </p>
+
             <div className="interests-list">
               {formData.interests.map((interest, index) => (
                 <div key={index} className="interest-tag" style={{ backgroundColor: interest.color }}>
                   <span>{interest.name}</span>
-                  <button type="button" className="interest-remove" onClick={() => removeInterest(index)} disabled={loading}>
+                  <button
+                    type="button"
+                    className="interest-remove"
+                    onClick={() => removeInterest(index)}
+                    disabled={loading}
+                    aria-label={`Remover ${interest.name}`}
+                  >
                     <i className="fas fa-times"></i>
                   </button>
                 </div>
               ))}
             </div>
+
             {formData.interests.length < MAX_INTERESTS && (
               <form onSubmit={addInterest} className="add-interest-form">
-                <input type="text" className="add-interest-input" value={newInterest} onChange={(e) => setNewInterest(e.target.value)} placeholder="Adicionar interesse" disabled={loading} />
-                <button type="submit" className="add-interest-btn" disabled={!newInterest.trim() || loading}>
-                  <i className="fas fa-plus"></i>
-                </button>
+                <div className="form-input-group">
+                  <input
+                    type="text"
+                    className="add-interest-input"
+                    value={newInterest}
+                    onChange={(e) => setNewInterest(e.target.value)}
+                    placeholder="Ex: Programação, Design, Música..."
+                    disabled={loading}
+                    maxLength={30}
+                  />
+
+                  <div className="color-picker-container">
+                    <button
+                      type="button"
+                      className="color-preview"
+                      style={{ backgroundColor: selectedColor }}
+                      onClick={() => setShowColorPicker(!showColorPicker)}
+                      aria-label="Selecionar cor"
+                    >
+                      {showColorPicker && (
+                        <div className="color-palette">
+                          {colorPalette.map(color => (
+                            <button
+                              key={color}
+                              type="button"
+                              className="color-option"
+                              style={{ backgroundColor: color }}
+                              onClick={() => {
+                                setSelectedColor(color);
+                                setShowColorPicker(false);
+                              }}
+                              aria-label={`Selecionar cor ${color}`}
+                            >
+                              {selectedColor === color && (
+                                <i className="fas fa-check check-icon"></i>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="add-interest-btn"
+                    disabled={!newInterest.trim() || loading}
+                    aria-label="Adicionar interesse"
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                </div>
+
+                {errors.interest && (
+                  <div className="error-message">{errors.interest}</div>
+                )}
               </form>
             )}
+
+            <div className={`interests-limit ${formData.interests.length >= MAX_INTERESTS ? 'error' : formData.interests.length >= MAX_INTERESTS - 2 ? 'warning' : ''}`}>
+              {formData.interests.length} de {MAX_INTERESTS} interesses adicionados
+            </div>
           </div>
         </div>
       </div>
