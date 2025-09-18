@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Camera, Plus, Check, XCircle, Trash2, Image as ImageIcon } from 'react-feather';
 import Modal from '../common/Modal';
 import './EditProfileModal.css';
 
@@ -267,7 +266,7 @@ const EditProfileModal = ({
           onClick={() => bannerInputRef.current?.click()}
         >
           <div className="banner-edit-overlay">
-            <button 
+            <button
               className="banner-edit-btn"
               type="button"
               onClick={(e) => {
@@ -275,11 +274,11 @@ const EditProfileModal = ({
                 bannerInputRef.current?.click();
               }}
             >
-              <Camera size={16} />
+              <i className="fas fa-camera"></i>
               <span>Alterar banner</span>
             </button>
             {bannerPreview && (
-              <button 
+              <button
                 className="remove-btn"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -287,7 +286,7 @@ const EditProfileModal = ({
                 }}
                 type="button"
               >
-                <Trash2 size={14} />
+                <i className="fas fa-trash"></i>
                 Remover
               </button>
             )}
@@ -312,14 +311,14 @@ const EditProfileModal = ({
                 {formData.fullName ? formData.fullName.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
-            <div 
+            <div
               className="avatar-edit-overlay"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Camera size={20} />
+              <i className="fas fa-camera"></i>
               <span>Alterar</span>
               {avatarPreview && (
-                <button 
+                <button
                   className="remove-btn"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -327,7 +326,7 @@ const EditProfileModal = ({
                   }}
                   type="button"
                 >
-                  <Trash2 size={12} />
+                  <i className="fas fa-trash"></i>
                   Remover
                 </button>
               )}
@@ -418,7 +417,7 @@ const EditProfileModal = ({
                     disabled={loading}
                     aria-label={`Remover ${interest.name}`}
                   >
-                    <X size={14} />
+                    <i className="fas fa-times"></i>
                   </button>
                 </div>
               ))}
@@ -462,7 +461,7 @@ const EditProfileModal = ({
                               }}
                               aria-label={`Selecionar cor ${color}`}
                             >
-                              {selectedColor === color && <Check size={14} className="check-icon" />}
+                              {selectedColor === color && <i className="fas fa-check check-icon"></i>}
                             </button>
                           ))}
                         </div>
@@ -475,7 +474,7 @@ const EditProfileModal = ({
                     disabled={!newInterest.trim() || loading}
                     aria-label="Adicionar interesse"
                   >
-                    <Plus size={20} />
+                    <i className="fas fa-plus"></i>
                   </button>
                 </div>
                 {errors.interest && <div className="error-message">{errors.interest}</div>}
@@ -490,7 +489,7 @@ const EditProfileModal = ({
         
         {errors.save && (
           <div className="alert alert-error">
-            <XCircle size={18} />
+            <i className="fas fa-exclamation-circle"></i>
             <span>{errors.save}</span>
           </div>
         )}
