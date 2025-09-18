@@ -731,8 +731,8 @@ function Profile() {
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon">
+                                <div style={styles.statCard}>
+                                    <div style={styles.statIcon}>
                                         <i className="fas fa-redo"></i>
                                     </div>
                                     <div className="stat-info">
@@ -741,8 +741,8 @@ function Profile() {
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon">
+                                <div style={styles.statCard}>
+                                    <div style={styles.statIcon}>
                                         <i className="fas fa-clock"></i>
                                     </div>
                                     <div className="stat-info">
@@ -751,8 +751,8 @@ function Profile() {
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon">
+                                <div style={styles.statCard}>
+                                    <div style={styles.statIcon}>
                                         <i className="fas fa-fire-alt"></i>
                                     </div>
                                     <div className="stat-info">
@@ -761,8 +761,8 @@ function Profile() {
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon">
+                                <div style={styles.statCard}>
+                                    <div style={styles.statIcon}>
                                         <i className="fas fa-percentage"></i>
                                     </div>
                                     <div className="stat-info">
@@ -770,6 +770,7 @@ function Profile() {
                                         <p>Taxa de Acerto</p>
                                     </div>
                                 </div>
+                            </div>
                             )}
 
                             <div style={styles.recentActivity}>
