@@ -1,13 +1,7 @@
 import { Queue } from 'bullmq';
-import IORedis, { Redis } from 'ioredis';
+import IORedis, { Redis, RedisOptions } from 'ioredis';
 import { logger } from '@/config/logger';
 import { environmentConfig } from '@/config/environment';
-
-interface QueueConnection {
-  flashcardGenerationQueue: Queue | null;
-  connection: Redis | null;
-  isRedisConnected: boolean;
-}
 
 class QueueManager {
   private static instance: QueueManager;
@@ -36,17 +30,18 @@ class QueueManager {
     }
 
     try {
-      this.connection = new IORedis(redisUrl, {
+      const redisOptions: RedisOptions = {
         maxRetriesPerRequest: null,
         connectTimeout: 5000,
-        retryDelayOnFailover: 100,
         lazyConnect: true,
         keepAlive: 30000,
         commandTimeout: 5000,
         family: 4,
         enableReadyCheck: false,
         maxLoadingTimeout: 5000,
-      });
+      };
+
+      this.connection = new IORedis(redisUrl, redisOptions);
 
       this.setupEventHandlers();
       this.flashcardGenerationQueue = new Queue('flashcardGeneration', {
@@ -66,7 +61,7 @@ class QueueManager {
     } catch (error) {
       logger.error('Failed to initialize Redis connection:', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        redisUrl: redisUrl.replace(/\/\/.*@/, '//***@'), 
+        redisUrl: redisUrl.replace(/\/\/.*@/, '//***@'),
       });
     }
   }
@@ -183,8 +178,11 @@ const queueManager = QueueManager.getInstance();
 export const flashcardGenerationQueue = queueManager.getFlashcardGenerationQueue();
 export const connection = queueManager.getConnection();
 export const isRedisConnected = (): boolean => queueManager.isRedisConnected;
-export const queueHealthCheck = (): Promise<ReturnType<QueueManager['healthCheck']>> =>
-  queueManager.healthCheck();
+export const queueHealthCheck = (): Promise<{
+  connected: boolean;
+  status: string;
+  queueStatus: string;
+}> => queueManager.healthCheck();
 export const gracefulShutdown = (): Promise<void> => queueManager.gracefulShutdown();
 
 export default {

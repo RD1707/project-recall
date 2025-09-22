@@ -125,6 +125,7 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   message?: string;
+  code?: string;
 }
 
 export interface PaginationParams {
@@ -203,6 +204,8 @@ export interface SocketUser {
   id: string;
   username: string;
   avatar_url?: string;
+  socketId: string;
+  score: number;
 }
 
 export interface QuizRoom {
@@ -215,6 +218,9 @@ export interface QuizRoom {
   total_questions: number;
   status: 'waiting' | 'active' | 'finished';
   created_at: string;
+  questions: Flashcard[];
+  currentQuestionIndex: number;
+  players: SocketUser[];
 }
 
 export interface QuizAnswer {
@@ -283,6 +289,11 @@ export interface Environment {
   RATE_LIMIT_MAX_REQUESTS: number;
   LOG_LEVEL: 'error' | 'warn' | 'info' | 'debug';
   SENTRY_DSN?: string;
+  ENABLE_REGISTRATION: boolean;
+  ENABLE_FILE_UPLOAD: boolean;
+  ENABLE_AI_GENERATION: boolean;
+  ENABLE_COMMUNITY_FEATURES: boolean;
+  ENABLE_ANALYTICS: boolean;
 }
 
 export type DeepPartial<T> = {
