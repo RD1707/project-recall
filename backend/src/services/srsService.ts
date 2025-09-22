@@ -1,5 +1,3 @@
-// Definimos uma interface para os parâmetros de entrada da nossa função.
-// Isso garante que quem chamar a função sempre passará os dados corretos.
 interface SrsParametersInput {
   quality: number;
   repetitions: number;
@@ -7,8 +5,6 @@ interface SrsParametersInput {
   interval: number;
 }
 
-// Definimos uma interface para o objeto de retorno da função.
-// Isso garante que o resultado terá sempre o formato esperado.
 interface SrsParametersOutput {
   repetitions: number;
   ease_factor: number;
@@ -17,16 +13,9 @@ interface SrsParametersOutput {
   is_new: boolean;
 }
 
-/**
- * Calcula os próximos parâmetros do SRS (Spaced Repetition System) baseado na qualidade da resposta.
- * Esta função implementa uma versão do algoritmo SM-2.
- * @param {SrsParametersInput} params - Os parâmetros atuais do card.
- * @returns {SrsParametersOutput} - Os novos parâmetros calculados para o card.
- */
 export const calculateSrsParameters = (params: SrsParametersInput): SrsParametersOutput => {
   let { quality, repetitions, easeFactor, interval } = params;
 
-  // Se a resposta for ruim (menor que 3), reseta o número de repetições.
   if (quality < 3) {
     repetitions = 0;
     interval = 1; 

@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import supabase from '../config/supabaseClient';
 
-// Criamos uma interface para a requisição autenticada, que usaremos em várias funções
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
@@ -10,7 +9,6 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-// Esquema de validação com Zod para a atualização do perfil
 const profileUpdateSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters long').optional(),
   full_name: z.string().optional(),
@@ -19,7 +17,6 @@ const profileUpdateSchema = z.object({
   interests: z.array(z.string()).optional(),
 });
 
-// Função para obter o perfil do usuário logado
 export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -43,7 +40,6 @@ export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Resp
   }
 };
 
-// Função para atualizar o perfil
 export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -51,7 +47,6 @@ export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: R
   }
 
   try {
-    // Validamos o corpo da requisição com o esquema do Zod
     const validatedData = profileUpdateSchema.parse(req.body);
 
     const { data, error } = await supabase
@@ -73,7 +68,6 @@ export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: R
   }
 };
 
-// Função para deletar o perfil
 export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -81,7 +75,6 @@ export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: R
   }
 
   try {
-    // No Supabase, isso geralmente é feito com uma Remote Procedure Call (RPC)
     const { error } = await supabase.rpc('delete_user');
 
     if (error) throw error;
@@ -93,7 +86,6 @@ export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: R
   }
 };
 
-// Função para obter o status do perfil
 export const getProfileStatus = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -120,7 +112,6 @@ export const getProfileStatus = async (req: AuthenticatedRequest, res: Response)
   }
 };
 
-// Função para obter perfil público pelo username
 export const getUserProfileByUsername = async (req: Request, res: Response) => {
   const { username } = req.params;
 

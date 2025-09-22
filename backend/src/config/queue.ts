@@ -3,14 +3,12 @@ import IORedis, { Redis } from 'ioredis';
 import { logger } from '@/config/logger';
 import { environmentConfig } from '@/config/environment';
 
-// Types for queue configuration
 interface QueueConnection {
   flashcardGenerationQueue: Queue | null;
   connection: Redis | null;
   isRedisConnected: boolean;
 }
 
-// Queue configuration class
 class QueueManager {
   private static instance: QueueManager;
   private flashcardGenerationQueue: Queue | null = null;
@@ -33,7 +31,7 @@ class QueueManager {
     const redisUrl = environmentConfig.database.redisUrl;
 
     if (!redisUrl || redisUrl === 'DISABLED') {
-      logger.warn('⚠️  Redis is disabled or not configured. AI generation will be synchronous.');
+      logger.warn(' Redis is disabled or not configured. AI generation will be synchronous.');
       return;
     }
 
@@ -45,7 +43,6 @@ class QueueManager {
         lazyConnect: true,
         keepAlive: 30000,
         commandTimeout: 5000,
-        // Connection pool settings
         family: 4,
         enableReadyCheck: false,
         maxLoadingTimeout: 5000,
@@ -69,7 +66,7 @@ class QueueManager {
     } catch (error) {
       logger.error('Failed to initialize Redis connection:', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        redisUrl: redisUrl.replace(/\/\/.*@/, '//***@'), // Hide credentials in logs
+        redisUrl: redisUrl.replace(/\/\/.*@/, '//***@'), 
       });
     }
   }
@@ -181,7 +178,6 @@ class QueueManager {
   }
 }
 
-// Export singleton instance and utilities
 const queueManager = QueueManager.getInstance();
 
 export const flashcardGenerationQueue = queueManager.getFlashcardGenerationQueue();
@@ -191,7 +187,6 @@ export const queueHealthCheck = (): Promise<ReturnType<QueueManager['healthCheck
   queueManager.healthCheck();
 export const gracefulShutdown = (): Promise<void> => queueManager.gracefulShutdown();
 
-// Default export for backward compatibility
 export default {
   flashcardGenerationQueue,
   connection,

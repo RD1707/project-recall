@@ -4,10 +4,8 @@ import { QuizRoom, SocketUser, Flashcard } from '@/types';
 import { ValidationError } from '@/middleware/errorHandler';
 import { logger } from '@/config/logger';
 
-// In-memory quiz storage (consider using Redis for production)
 const quizzes: Record<string, QuizRoom> = {};
 
-// Helper function to create safe question (without answer)
 const getSafeQuestion = (question: Flashcard): Omit<Flashcard, 'answer'> | null => {
   if (!question) return null;
   const { answer, ...safeQuestion } = question;
@@ -19,7 +17,6 @@ export const createQuiz = async (deckId: string, hostUser: SocketUser & { socket
   roomId: string;
 }> => {
   try {
-    // Fetch flashcards for the quiz
     const { data: flashcards, error } = await supabase
       .from('flashcards')
       .select('id, question, answer, options, card_type')
@@ -86,10 +83,8 @@ export const joinQuiz = (roomId: string, player: SocketUser & { socketId: string
     throw new ValidationError('Quiz has already started');
   }
 
-  // Check if player already in room
   const existingPlayer = quiz.players.find(p => p.id === player.id);
   if (existingPlayer) {
-    // Update socket ID
     existingPlayer.socketId = player.socketId;
   } else {
     quiz.players.push({ ...player, score: 0 });

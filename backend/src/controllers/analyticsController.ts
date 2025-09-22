@@ -7,7 +7,6 @@ interface AuthenticatedRequest extends Request {
   user: AuthUser;
 }
 
-// TODO: Implement analytics controller
 export const getAnalytics = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   logger.info('Analytics endpoint called', { userId: req.user.id });
 

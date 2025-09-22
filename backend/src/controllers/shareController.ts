@@ -7,7 +7,6 @@ interface AuthenticatedRequest extends Request {
   user: AuthUser;
 }
 
-// TODO: Implement share controller
 export const getSharedDecks = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   logger.info('Share endpoint called', { userId: req.user.id });
 

@@ -6,12 +6,10 @@ import { ApiResponse } from '@/types';
 
 const router = Router();
 
-// Health check endpoint
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   const checks: Record<string, boolean> = {};
   let overallStatus: 'healthy' | 'unhealthy' = 'healthy';
 
-  // Check Supabase connection
   try {
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       const supabase = createClient(
@@ -29,7 +27,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     logger.error('Supabase health check failed', { error });
   }
 
-  // Check Redis connection
   try {
     if (process.env.REDIS_URL) {
       const redis = new Redis(process.env.REDIS_URL);
@@ -44,15 +41,12 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     logger.error('Redis health check failed', { error });
   }
 
-  // Check memory usage
   const memUsage = process.memoryUsage();
-  const maxHeapUsed = 1024 * 1024 * 1024; // 1GB limit
+  const maxHeapUsed = 1024 * 1024 * 1024; 
   checks.memory = memUsage.heapUsed < maxHeapUsed;
 
-  // Check disk space (simplified)
-  checks.disk = true; // Would implement actual disk space check in production
+  checks.disk = true; 
 
-  // Check environment variables
   const requiredEnvVars = [
     'SUPABASE_URL',
     'SUPABASE_SERVICE_ROLE_KEY',
@@ -62,10 +56,8 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 
   checks.environment = requiredEnvVars.every(varName => !!process.env[varName]);
 
-  // Overall status
   overallStatus = Object.values(checks).every(Boolean) ? 'healthy' : 'unhealthy';
 
-  // Log health check result
   lifecycleLogger.healthCheck(overallStatus, checks);
 
   const response: ApiResponse<{
@@ -101,7 +93,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
   res.status(statusCode).json(response);
 });
 
-// Detailed health check endpoint
 router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
   const startTime = Date.now();
   const checks: Record<string, {
@@ -111,7 +102,6 @@ router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
     details?: any;
   }> = {};
 
-  // Supabase detailed check
   const supabaseStart = Date.now();
   try {
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -141,7 +131,6 @@ router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
     };
   }
 
-  // Redis detailed check
   const redisStart = Date.now();
   try {
     if (process.env.REDIS_URL) {
@@ -173,7 +162,6 @@ router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
     };
   }
 
-  // System metrics
   const memUsage = process.memoryUsage();
   const cpuUsage = process.cpuUsage();
 
@@ -214,15 +202,12 @@ router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
   res.status(statusCode).json(response);
 });
 
-// Readiness probe (for Kubernetes)
 router.get('/ready', async (req: Request, res: Response): Promise<void> => {
-  // Check if the application is ready to serve traffic
   const checks = {
     database: false,
     cache: false,
   };
 
-  // Quick database check
   try {
     if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       const supabase = createClient(
@@ -237,7 +222,6 @@ router.get('/ready', async (req: Request, res: Response): Promise<void> => {
     checks.database = false;
   }
 
-  // Quick cache check
   try {
     if (process.env.REDIS_URL) {
       const redis = new Redis(process.env.REDIS_URL);
@@ -261,9 +245,7 @@ router.get('/ready', async (req: Request, res: Response): Promise<void> => {
   });
 });
 
-// Liveness probe (for Kubernetes)
 router.get('/live', (req: Request, res: Response): void => {
-  // Check if the application is alive (basic functionality)
   const response: ApiResponse = {
     success: true,
     data: {

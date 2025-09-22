@@ -2,67 +2,49 @@ import { config } from 'dotenv';
 import { z } from 'zod';
 import { Environment } from '@/types';
 
-// Load environment variables
 config();
 
-// Environment validation schema
 const environmentSchema = z.object({
-  // Application settings
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(65535)).default('3001'),
 
-  // Database configuration
   SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
 
-  // Cache configuration
   REDIS_URL: z.string().url('REDIS_URL must be a valid URL'),
 
-  // AI Services
   COHERE_API_KEY: z.string().min(1, 'COHERE_API_KEY is required'),
 
-  // Optional database URL (for local development)
   DATABASE_URL: z.string().url().optional(),
 
-  // Security
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters').optional(),
 
-  // File upload settings
   UPLOAD_DIR: z.string().default('./uploads'),
   MAX_FILE_SIZE: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('10485760'),
   ALLOWED_FILE_TYPES: z.string().transform(val => val.split(',')).pipe(z.array(z.string())).default(['pdf', 'docx', 'txt', 'jpg', 'jpeg', 'png']),
 
-  // CORS settings
   CORS_ORIGIN: z.string().transform(val => val.split(',')).pipe(z.array(z.string())).default(['http://localhost:5173', 'http://localhost:3000']),
 
-  // Rate limiting
   RATE_LIMIT_WINDOW_MS: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('100'),
 
-  // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
 
-  // Monitoring
   SENTRY_DSN: z.string().url().optional(),
 
-  // Email configuration (optional for development)
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(65535)).optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   FROM_EMAIL: z.string().email().optional(),
 
-  // SSL configuration (for production)
   SSL_CERT_PATH: z.string().optional(),
   SSL_KEY_PATH: z.string().optional(),
 
-  // CDN configuration (for production)
   CDN_URL: z.string().url().optional(),
 
-  // Analytics
   GOOGLE_ANALYTICS_ID: z.string().optional(),
 
-  // Feature flags
   ENABLE_REGISTRATION: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
   ENABLE_FILE_UPLOAD: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
   ENABLE_AI_GENERATION: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
@@ -70,24 +52,21 @@ const environmentSchema = z.object({
   ENABLE_ANALYTICS: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
 });
 
-// Validate and parse environment variables
 export const validateEnvironment = (): Environment => {
   try {
     const parsed = environmentSchema.parse(process.env);
 
-    // Additional validation logic
     if (parsed.NODE_ENV === 'production') {
-      // Ensure critical production settings
       if (!parsed.JWT_SECRET) {
         throw new Error('JWT_SECRET is required in production');
       }
 
       if (!parsed.SENTRY_DSN) {
-        console.warn('⚠️  SENTRY_DSN not configured for production monitoring');
+        console.warn(' SENTRY_DSN not configured for production monitoring');
       }
 
       if (parsed.CORS_ORIGIN.includes('localhost')) {
-        console.warn('⚠️  Localhost URLs in CORS_ORIGIN for production environment');
+        console.warn(' Localhost URLs in CORS_ORIGIN for production environment');
       }
     }
 
@@ -105,7 +84,6 @@ export const validateEnvironment = (): Environment => {
   }
 };
 
-// Environment configuration singleton
 class EnvironmentConfig {
   private static instance: Environment;
 
@@ -118,7 +96,6 @@ class EnvironmentConfig {
   }
 
   public static reload(): Environment {
-    // Reload environment variables
     config();
     EnvironmentConfig.instance = validateEnvironment();
     return EnvironmentConfig.instance;
@@ -211,11 +188,9 @@ class EnvironmentConfig {
   }
 }
 
-// Export the environment configuration
 export const env = EnvironmentConfig.getInstance();
 export { EnvironmentConfig };
 
-// Export typed environment for type safety
 export const environmentConfig = {
   app: {
     nodeEnv: env.NODE_ENV,
@@ -229,11 +204,10 @@ export const environmentConfig = {
   features: EnvironmentConfig.getFeatureFlags(),
 };
 
-// Environment validation on module load
 try {
   validateEnvironment();
-  console.log('✅ Environment configuration validated successfully');
+  console.log('Environment configuration validated successfully');
 } catch (error) {
-  console.error('❌ Environment configuration validation failed:', error);
+  console.error('Environment configuration validation failed:', error);
   process.exit(1);
 }

@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
-    // Language and environment
     "target": "ES2022",
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
 
-    // Module resolution
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
@@ -25,7 +23,6 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
 
-    // Type checking
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -38,13 +35,11 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Additional checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
 
-    // Emit
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -52,15 +47,12 @@
     "removeComments": false,
     "importHelpers": true,
 
-    // JavaScript support
     "allowJs": false,
     "checkJs": false,
 
-    // Interop constraints
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
 
-    // Completeness
     "skipDefaultLibCheck": true
   },
   "include": [

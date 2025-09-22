@@ -5,15 +5,12 @@ import { generateFlashcardsFromText } from '../services/aiService';
 import { processFile } from '../services/fileProcessingService';
 import multer from 'multer';
 
-// Interface para requisições que passaram pelo authMiddleware
 interface AuthenticatedRequest extends Request {
   user?: { id: string; [key: string]: any };
 }
 
-// Configuração do Multer para upload de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Esquema de validação para a criação de um deck
 const createDeckSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
@@ -21,10 +18,8 @@ const createDeckSchema = z.object({
   category: z.string().optional(),
 });
 
-// Esquema de validação para a atualização de um deck
-const updateDeckSchema = createDeckSchema.partial(); // Permite que todos os campos sejam opcionais
+const updateDeckSchema = createDeckSchema.partial(); 
 
-// Criar novo Deck
 export const createDeck = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -48,7 +43,6 @@ export const createDeck = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-// Obter todos os decks do usuário
 export const getUserDecks = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -67,7 +61,6 @@ export const getUserDecks = async (req: AuthenticatedRequest, res: Response) => 
   }
 };
 
-// Obter um deck específico pelo ID
 export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
@@ -90,7 +83,6 @@ export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-// Atualizar um deck
 export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
@@ -119,7 +111,6 @@ export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-// Deletar um deck
 export const deleteDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
@@ -133,14 +124,13 @@ export const deleteDeck = async (req: AuthenticatedRequest, res: Response) => {
 
         if (error) throw error;
         
-        res.status(204).send(); // 204 No Content
+        res.status(204).send(); 
     } catch (error: any) {
         console.error('Error deleting deck:', error.message);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-// Gerar cards com IA
 export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id: deckId } = req.params;
@@ -151,7 +141,6 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
     }
 
     try {
-        // Primeiro, verifica se o deck pertence ao usuário
         const { data: deck, error: deckError } = await supabase
             .from('decks')
             .select('id')
@@ -165,7 +154,6 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
 
         const cards = await generateFlashcards(topic, numCards, language);
         
-        // Adiciona o deck_id a cada card gerado
         const cardsToInsert = cards.map(card => ({ ...card, deck_id: deckId }));
 
         const { data: insertedCards, error: insertError } = await supabase
@@ -182,10 +170,7 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
     }
 };
 
-// Upload de arquivo para o Deck
 export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response) => {
-    // A função `upload.single('file')` é um middleware, então a lógica é um pouco diferente
-    // Nós o executamos aqui para poder tratar os erros de forma mais limpa
     upload.single('file')(req, res, async (err: any) => {
         if (err) {
             return res.status(400).json({ message: 'File upload error', error: err.message });
@@ -200,9 +185,6 @@ export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response)
 
         try {
             const content = await processFile(req.file);
-            // Lógica para usar o 'content' para gerar cards ou o que for necessário
-            
-            // Exemplo: Gerar cards a partir do conteúdo do arquivo
             const cards = await generateFlashcards(content, 10, 'default');
             const cardsToInsert = cards.map(card => ({ ...card, deck_id: deckId }));
             const { data, error } = await supabase.from('cards').insert(cardsToInsert).select();

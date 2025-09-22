@@ -3,14 +3,10 @@ import { logger, socketLogger } from '@/config/logger';
 import { CustomError, ValidationError } from '@/middleware/errorHandler';
 import { SocketUser, QuizRoom } from '@/types';
 
-// Will be imported when quizService is migrated
-// import { quizService } from '@/services/quizService';
 const quizService = require('../services/quizService');
 
-// Constants
 const NEXT_QUESTION_DELAY = 4000;
 
-// Types for socket events
 interface CreateQuizData {
   deckId: string;
   user: SocketUser;
@@ -34,7 +30,6 @@ interface SocketCallback<T = any> {
   (response: { success: boolean; message?: string; quiz?: any; roomId?: string } & T): void;
 }
 
-// Validation helpers
 const validateUser = (user: any): user is SocketUser => {
   return user &&
          typeof user.id === 'string' &&
@@ -71,7 +66,6 @@ const validateSubmitAnswerData = (data: any): data is SubmitAnswerData => {
          data.answer.length > 0;
 };
 
-// Socket handler class
 class QuizSocketHandler {
   private io: SocketIOServer;
   private socket: Socket;
@@ -93,7 +87,6 @@ class QuizSocketHandler {
     const userId = this.getUserId();
 
     try {
-      // Validate input data
       if (!validateCreateQuizData(data)) {
         throw new ValidationError('Invalid user information for creating quiz');
       }
@@ -106,10 +99,8 @@ class QuizSocketHandler {
 
       socketLogger.event(this.socket.id, 'quiz:create', { deckId, userId: user.id }, userId);
 
-      // Create quiz through service
       const { quiz, roomId } = await quizService.createQuiz(deckId, hostUser);
 
-      // Join socket room
       await this.socket.join(roomId);
 
       logger.info('User created and joined quiz room', {
@@ -148,7 +139,6 @@ class QuizSocketHandler {
     const userId = this.getUserId();
 
     try {
-      // Validate input data
       if (!validateJoinQuizData(data)) {
         throw new ValidationError('Invalid user information for joining quiz');
       }
@@ -161,10 +151,8 @@ class QuizSocketHandler {
 
       socketLogger.event(this.socket.id, 'quiz:join', { roomId, userId: user.id }, userId);
 
-      // Join quiz through service
       const updatedQuiz = quizService.joinQuiz(roomId, playerWithSocketId);
 
-      // Join socket room
       this.socket.join(roomId);
 
       logger.info('User joined quiz room', {
@@ -174,7 +162,6 @@ class QuizSocketHandler {
         roomId,
       });
 
-      // Notify all participants
       this.io.to(roomId).emit('quiz:updated', updatedQuiz);
 
       callback({
@@ -204,7 +191,6 @@ class QuizSocketHandler {
     const userId = this.getUserId();
 
     try {
-      // Validate input data
       if (!validateStartQuizData(data)) {
         throw new ValidationError('Invalid room ID for starting quiz');
       }
@@ -214,7 +200,6 @@ class QuizSocketHandler {
 
       socketLogger.event(this.socket.id, 'quiz:start', { roomId }, userId);
 
-      // Start quiz through service
       const { quiz, currentQuestion } = quizService.startQuiz(roomId, hostId);
 
       logger.info('Quiz started', {
@@ -224,7 +209,6 @@ class QuizSocketHandler {
         totalQuestions: quiz.questions.length,
       });
 
-      // Notify all participants
       this.io.to(roomId).emit('quiz:started', { quiz });
       this.io.to(roomId).emit('quiz:question', {
         question: currentQuestion,
@@ -253,7 +237,6 @@ class QuizSocketHandler {
     const userId = this.getUserId();
 
     try {
-      // Validate input data
       if (!validateSubmitAnswerData(data)) {
         throw new ValidationError('Invalid answer submission data');
       }
@@ -262,7 +245,6 @@ class QuizSocketHandler {
 
       socketLogger.event(this.socket.id, 'quiz:submit_answer', { roomId, answer }, userId);
 
-      // Submit answer through service
       const updatedQuiz = quizService.submitAnswer(roomId, this.socket.id, answer);
       const currentQuestion = updatedQuiz.questions[updatedQuiz.currentQuestionIndex];
 
@@ -274,13 +256,11 @@ class QuizSocketHandler {
         correct: answer === currentQuestion.answer,
       });
 
-      // Send answer result to all participants
       this.io.to(roomId).emit('quiz:answer_result', {
         correctAnswer: currentQuestion.answer,
         players: updatedQuiz.players,
       });
 
-      // Schedule next question or finish quiz
       setTimeout(() => {
         try {
           const { quiz, nextQuestion: newQuestion, finished } = quizService.nextQuestion(roomId);
@@ -333,13 +313,10 @@ class QuizSocketHandler {
   }
 
   private getUserId(): string | undefined {
-    // Extract user ID from socket if available
-    // This would typically come from authentication middleware
     return (this.socket as any).user?.id;
   }
 }
 
-// Factory function for creating quiz socket handler
 export const quizSocketHandler = (io: SocketIOServer, socket: Socket): void => {
   new QuizSocketHandler(io, socket);
 };

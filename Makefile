@@ -1,11 +1,8 @@
-# Project Recall - Docker Management
 .PHONY: help dev prod stop clean build logs test lint health
 
-# Default environment
 ENV ?= dev
 COMPOSE_FILES = -f docker-compose.yml
 
-# Set compose files based on environment
 ifeq ($(ENV),dev)
 	COMPOSE_FILES += -f docker-compose.dev.yml
 endif
@@ -14,111 +11,109 @@ ifeq ($(ENV),prod)
 	COMPOSE_FILES += -f docker-compose.prod.yml
 endif
 
-# Default target
-help: ## Show this help message
+help: 
 	@echo "🧠 Project Recall - Docker Management"
 	@echo ""
 	@echo "Available commands:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-dev: ## Start development environment
+dev: 
 	@echo "🚀 Starting development environment..."
 	@docker-compose $(COMPOSE_FILES) up --build
 
-dev-d: ## Start development environment in detached mode
+dev-d: 
 	@echo "🚀 Starting development environment (detached)..."
 	@docker-compose $(COMPOSE_FILES) up --build -d
 
-prod: ## Start production environment
+prod:
 	@echo "🚀 Starting production environment..."
 	@ENV=prod $(MAKE) build
 	@docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
-stop: ## Stop all services
+stop: 
 	@echo "🛑 Stopping all services..."
 	@docker-compose $(COMPOSE_FILES) down
 
-clean: ## Stop and remove all containers, networks, and volumes
+clean: 
 	@echo "🧹 Cleaning up..."
 	@docker-compose $(COMPOSE_FILES) down -v --remove-orphans
 	@docker system prune -f
 
-build: ## Build all services
+build: 
 	@echo "🔨 Building services..."
 	@docker-compose $(COMPOSE_FILES) build --no-cache
 
-rebuild: ## Rebuild services from scratch
+rebuild: 
 	@echo "🔨 Rebuilding services from scratch..."
 	@docker-compose $(COMPOSE_FILES) build --no-cache --pull
 
-logs: ## Show logs for all services
+logs:
 	@docker-compose $(COMPOSE_FILES) logs -f
 
-logs-backend: ## Show backend logs
+logs-backend: 
 	@docker-compose $(COMPOSE_FILES) logs -f backend
 
-logs-frontend: ## Show frontend logs
+logs-frontend: 
 	@docker-compose $(COMPOSE_FILES) logs -f frontend
 
-logs-worker: ## Show worker logs
+logs-worker: 
 	@docker-compose $(COMPOSE_FILES) logs -f worker
 
-shell-backend: ## Access backend container shell
+shell-backend: 
 	@docker-compose $(COMPOSE_FILES) exec backend sh
 
-shell-frontend: ## Access frontend container shell
+shell-frontend: 
 	@docker-compose $(COMPOSE_FILES) exec frontend sh
 
-shell-db: ## Access database shell
+shell-db: 
 	@docker-compose $(COMPOSE_FILES) exec postgres psql -U postgres -d recall_db
 
-test: ## Run tests in containers
+test: 
 	@echo "🧪 Running tests..."
 	@docker-compose $(COMPOSE_FILES) exec backend npm test
 	@docker-compose $(COMPOSE_FILES) exec frontend npm test
 
-lint: ## Run linting in containers
+lint: 
 	@echo "🔍 Running linting..."
 	@docker-compose $(COMPOSE_FILES) exec backend npm run lint
 	@docker-compose $(COMPOSE_FILES) exec frontend npm run lint
 
-health: ## Check health of all services
+health: 
 	@echo "❤️ Checking service health..."
 	@docker-compose $(COMPOSE_FILES) ps
 
-stats: ## Show container resource usage
+stats: 
 	@echo "📊 Container resource usage:"
 	@docker stats --no-stream
 
-backup-db: ## Backup database
+backup-db: 
 	@echo "💾 Backing up database..."
 	@mkdir -p ./backups
 	@docker-compose $(COMPOSE_FILES) exec postgres pg_dump -U postgres recall_db > ./backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sql
 
-restore-db: ## Restore database (specify BACKUP_FILE)
+restore-db:
 	@echo "📥 Restoring database from $(BACKUP_FILE)..."
 	@docker-compose $(COMPOSE_FILES) exec -T postgres psql -U postgres recall_db < $(BACKUP_FILE)
 
-update: ## Update all dependencies and rebuild
+update: 
 	@echo "🔄 Updating dependencies and rebuilding..."
 	@docker-compose $(COMPOSE_FILES) down
 	@docker-compose $(COMPOSE_FILES) build --no-cache --pull
 	@docker-compose $(COMPOSE_FILES) up -d
 
-monitoring: ## Start monitoring stack (Prometheus + Grafana)
+monitoring:
 	@echo "📊 Starting monitoring stack..."
 	@docker-compose -f docker-compose.yml -f docker-compose.prod.yml --profile monitoring up -d
 
-monitoring-stop: ## Stop monitoring stack
+monitoring-stop:
 	@echo "⏹️ Stopping monitoring stack..."
 	@docker-compose -f docker-compose.yml -f docker-compose.prod.yml --profile monitoring down
 
-# Development shortcuts
-install: ## Install dependencies in containers
+install: 
 	@echo "📦 Installing dependencies..."
 	@docker-compose $(COMPOSE_FILES) exec backend npm install
 	@docker-compose $(COMPOSE_FILES) exec frontend npm install
 
-fresh-start: clean build dev-d ## Complete fresh start (clean + build + dev)
+fresh-start: clean build dev-d 
 
-quick-restart: stop dev-d ## Quick restart without rebuilding
+quick-restart: stop dev-d 

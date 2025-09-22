@@ -3,7 +3,6 @@ import { logger, performanceLogger } from '@/config/logger';
 import { Achievement, UserAchievement, User } from '@/types';
 import { ValidationError } from '@/middleware/errorHandler';
 
-// Types for achievement metrics
 type AchievementMetric =
   | 'reviews_total'
   | 'streak_days'
@@ -31,15 +30,11 @@ interface AchievementUpdateResult {
   unlocked: boolean;
 }
 
-/**
- * Updates achievement progress for a specific user and metric
- */
 export const updateAchievementProgress = async (
   userId: string,
   metric: AchievementMetric,
   value: number
 ): Promise<AchievementUpdateResult[]> => {
-  // Input validation
   if (!userId || typeof userId !== 'string') {
     logger.warn('updateAchievementProgress called without valid userId');
     return [];
@@ -63,7 +58,6 @@ export const updateAchievementProgress = async (
   });
 
   try {
-    // Fetch achievements for the specific metric
     const { data: achievements, error: achievementsError } = await supabase
       .from('achievements')
       .select(`
@@ -98,14 +92,12 @@ export const updateAchievementProgress = async (
 
     const results: AchievementUpdateResult[] = [];
 
-    // Process each achievement
     for (const achievement of achievements) {
       const userAchievement = achievement.user_achievements.find(
         ua => ua.user_id === userId
       );
       const currentProgress = userAchievement?.progress || 0;
 
-      // Skip if already unlocked
       if (userAchievement?.unlocked_at) {
         logger.debug('Skipping unlocked achievement', {
           achievementId: achievement.id,
@@ -115,7 +107,6 @@ export const updateAchievementProgress = async (
         continue;
       }
 
-      // Skip if progress hasn't improved (except for initialization)
       if (value < currentProgress) {
         logger.debug('Skipping achievement with lower progress', {
           achievementId: achievement.id,
@@ -125,7 +116,6 @@ export const updateAchievementProgress = async (
         continue;
       }
 
-      // Allow updates even for same value to ensure initialization
       const shouldUpdate = value > currentProgress ||
                           (value === currentProgress && currentProgress === 0);
 
@@ -133,7 +123,6 @@ export const updateAchievementProgress = async (
         continue;
       }
 
-      // Determine if achievement should be unlocked
       const shouldUnlock = value >= achievement.goal;
       const unlocked_at = shouldUnlock ? new Date().toISOString() : null;
 
@@ -146,7 +135,6 @@ export const updateAchievementProgress = async (
         willUnlock: shouldUnlock,
       });
 
-      // Upsert user achievement progress
       const { error: upsertError } = await supabase
         .from('user_achievements')
         .upsert({
@@ -175,9 +163,8 @@ export const updateAchievementProgress = async (
         unlocked: shouldUnlock,
       });
 
-      // Log achievement unlock
       if (shouldUnlock && !userAchievement?.unlocked_at) {
-        logger.info('🎉 Achievement unlocked!', {
+        logger.info('Achievement unlocked!', {
           achievementId: achievement.id,
           userId,
           metric,
@@ -217,9 +204,6 @@ export const updateAchievementProgress = async (
   }
 };
 
-/**
- * Recalculates all achievements for a specific user
- */
 export const recalculateAllAchievements = async (userId: string): Promise<void> => {
   if (!userId || typeof userId !== 'string') {
     throw new ValidationError('Valid user ID is required');
@@ -230,7 +214,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
   logger.info('Starting achievement recalculation', { userId });
 
   try {
-    // Total reviews count
     logger.debug('Calculating total reviews', { userId });
     const { count: totalReviews, error: reviewsError } = await supabase
       .from('review_history')
@@ -246,7 +229,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
       await updateAchievementProgress(userId, 'reviews_total', totalReviews);
     }
 
-    // Current study streak
     logger.debug('Fetching user profile for streak', { userId });
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -263,7 +245,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
       await updateAchievementProgress(userId, 'streak_days', profile.current_streak);
     }
 
-    // Cards mastered (cards with interval > 21 days)
     logger.debug('Calculating mastered cards', { userId });
     const { count: masteredCards, error: masteredError } = await supabase
       .from('flashcards')
@@ -280,7 +261,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
       await updateAchievementProgress(userId, 'cards_mastered', masteredCards);
     }
 
-    // Decks created
     logger.debug('Calculating created decks', { userId });
     const { count: totalDecks, error: decksCountError } = await supabase
       .from('decks')
@@ -293,7 +273,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
         error: decksCountError.message,
       });
     } else if (totalDecks !== null) {
-      // Update both binary (created at least 1) and total count
       if (totalDecks >= 1) {
         await updateAchievementProgress(userId, 'decks_created', 1);
       }
@@ -324,9 +303,6 @@ export const recalculateAllAchievements = async (userId: string): Promise<void> 
   }
 };
 
-/**
- * Gets all achievements with progress for a specific user
- */
 export const getUserAchievements = async (userId: string): Promise<(Achievement & {
   progress: number;
   unlocked_at: string | null;
@@ -403,9 +379,6 @@ export const getUserAchievements = async (userId: string): Promise<(Achievement 
   }
 };
 
-/**
- * Gets achievement statistics for a user
- */
 export const getAchievementStats = async (userId: string): Promise<{
   total_achievements: number;
   unlocked_achievements: number;
@@ -429,7 +402,6 @@ export const getAchievementStats = async (userId: string): Promise<{
       ? Math.round((unlocked_achievements / total_achievements) * 100)
       : 0;
 
-    // Get recent unlocks (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 

@@ -7,7 +7,6 @@ interface AuthenticatedRequest extends Request {
   user: AuthUser;
 }
 
-// TODO: Implement community controller
 export const getCommunityDecks = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   logger.info('Community endpoint called', { userId: req.user.id });
 

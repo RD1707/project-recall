@@ -1,4 +1,3 @@
-// Core application types
 export interface User {
   id: string;
   email: string;
@@ -99,7 +98,6 @@ export interface ReviewHistory {
   created_at: string;
 }
 
-// Enums
 export enum CardType {
   QUESTION_ANSWER = 'question_answer',
   MULTIPLE_CHOICE = 'multiple_choice',
@@ -122,7 +120,6 @@ export enum StudySessionResult {
   AGAIN = 1,
 }
 
-// API Request/Response types
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -149,7 +146,6 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Authentication types
 export interface AuthUser {
   id: string;
   email: string;
@@ -176,7 +172,6 @@ export interface AuthResponse {
   refresh_token?: string;
 }
 
-// File processing types
 export interface FileProcessingJob {
   id: string;
   user_id: string;
@@ -204,7 +199,6 @@ export interface GenerationRequest {
   };
 }
 
-// Socket types
 export interface SocketUser {
   id: string;
   username: string;
@@ -230,7 +224,6 @@ export interface QuizAnswer {
   is_correct: boolean;
 }
 
-// Analytics types
 export interface StudyAnalytics {
   total_cards_studied: number;
   total_study_time: number;
@@ -261,7 +254,6 @@ export interface DeckAnalytics {
   };
 }
 
-// Error types
 export interface AppError extends Error {
   statusCode: number;
   isOperational: boolean;
@@ -274,7 +266,6 @@ export interface ValidationError {
   value?: unknown;
 }
 
-// Environment types
 export interface Environment {
   NODE_ENV: 'development' | 'production' | 'test';
   PORT: number;
@@ -294,7 +285,6 @@ export interface Environment {
   SENTRY_DSN?: string;
 }
 
-// Utility types
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
@@ -307,7 +297,6 @@ export type CreateRequest<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
 
 export type UpdateRequest<T> = Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>;
 
-// Express types augmentation
 declare global {
   namespace Express {
     interface Request {

@@ -3,7 +3,6 @@ import { ZodError } from 'zod';
 import { logger } from '@/config/logger';
 import { AppError, ApiResponse } from '@/types';
 
-// Custom error class
 export class CustomError extends Error implements AppError {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
@@ -19,7 +18,6 @@ export class CustomError extends Error implements AppError {
   }
 }
 
-// Predefined error classes
 export class ValidationError extends CustomError {
   constructor(message: string, code?: string) {
     super(message, 400, true, code);
@@ -62,7 +60,6 @@ export class InternalServerError extends CustomError {
   }
 }
 
-// Error type guards
 const isCustomError = (error: any): error is CustomError => {
   return error instanceof CustomError;
 };
@@ -71,7 +68,6 @@ const isZodError = (error: any): error is ZodError => {
   return error instanceof ZodError;
 };
 
-// Error response formatter
 const formatErrorResponse = (error: CustomError | Error, isDevelopment: boolean): ApiResponse => {
   if (isCustomError(error)) {
     return {
@@ -82,7 +78,6 @@ const formatErrorResponse = (error: CustomError | Error, isDevelopment: boolean)
     };
   }
 
-  // Don't expose internal error details in production
   return {
     success: false,
     error: isDevelopment ? error.message : 'Internal server error',
@@ -90,7 +85,6 @@ const formatErrorResponse = (error: CustomError | Error, isDevelopment: boolean)
   };
 };
 
-// Zod error formatter
 const formatZodError = (error: ZodError): ApiResponse => {
   const validationErrors = error.errors.map(err => ({
     field: err.path.join('.'),
@@ -106,7 +100,6 @@ const formatZodError = (error: ZodError): ApiResponse => {
   };
 };
 
-// Main error handler middleware
 export const errorHandler = (
   error: Error | CustomError | ZodError,
   req: Request,
@@ -115,7 +108,6 @@ export const errorHandler = (
 ): void => {
   const isDevelopment = process.env.NODE_ENV === 'development';
 
-  // Log error details
   const errorContext = {
     method: req.method,
     url: req.originalUrl,
@@ -128,7 +120,6 @@ export const errorHandler = (
   };
 
   if (isCustomError(error) && error.isOperational) {
-    // Log operational errors as warnings
     logger.warn(`Operational Error: ${error.message}`, {
       ...errorContext,
       statusCode: error.statusCode,
@@ -136,7 +127,6 @@ export const errorHandler = (
       stack: isDevelopment ? error.stack : undefined,
     });
   } else {
-    // Log programming errors as errors
     logger.error(`System Error: ${error.message}`, {
       ...errorContext,
       error: error.message,
@@ -144,7 +134,6 @@ export const errorHandler = (
     });
   }
 
-  // Handle different error types
   if (isZodError(error)) {
     const response = formatZodError(error);
     res.status(400).json(response);
@@ -157,7 +146,6 @@ export const errorHandler = (
     return;
   }
 
-  // Handle specific known errors
   if (error.name === 'CastError') {
     const response: ApiResponse = {
       success: false,
@@ -188,12 +176,10 @@ export const errorHandler = (
     return;
   }
 
-  // Default error response
   const response = formatErrorResponse(error, isDevelopment);
   res.status(500).json(response);
 };
 
-// 404 handler
 export const notFoundHandler = (req: Request, res: Response): void => {
   const response: ApiResponse = {
     success: false,
@@ -211,7 +197,6 @@ export const notFoundHandler = (req: Request, res: Response): void => {
   res.status(404).json(response);
 };
 
-// Async error wrapper
 export const asyncHandler = <T extends Request, U extends Response>(
   fn: (req: T, res: U, next: NextFunction) => Promise<void | U>,
 ) => {
@@ -220,7 +205,6 @@ export const asyncHandler = <T extends Request, U extends Response>(
   };
 };
 
-// Validation middleware wrapper
 export const validateRequest = <T>(schema: any, property: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
@@ -233,7 +217,6 @@ export const validateRequest = <T>(schema: any, property: 'body' | 'query' | 'pa
   };
 };
 
-// Rate limit error handler
 export const rateLimitHandler = (req: Request, res: Response): void => {
   const response: ApiResponse = {
     success: false,

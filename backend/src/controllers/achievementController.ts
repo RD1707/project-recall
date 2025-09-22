@@ -8,14 +8,10 @@ import {
   recalculateAllAchievements,
 } from '@/services/achievementService';
 
-// Extend Request type to include user
 interface AuthenticatedRequest extends Request {
   user: AuthUser;
 }
 
-/**
- * Get all achievements with user progress
- */
 export const getAchievements = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user.id;
 
@@ -46,9 +42,6 @@ export const getAchievements = asyncHandler(async (req: AuthenticatedRequest, re
   }
 });
 
-/**
- * Get achievement statistics for user
- */
 export const getAchievementStats = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user.id;
 
@@ -79,9 +72,6 @@ export const getAchievementStats = asyncHandler(async (req: AuthenticatedRequest
   }
 });
 
-/**
- * Recalculate all achievements for the current user
- */
 export const recalculateAchievements = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user.id;
 
@@ -112,10 +102,6 @@ export const recalculateAchievements = asyncHandler(async (req: AuthenticatedReq
   }
 });
 
-/**
- * Force recalculate achievements for all users (admin only)
- * This is a maintenance endpoint and should be protected by admin auth
- */
 export const forceRecalculate = asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user.id;
   const targetUserId = req.body.userId || userId;

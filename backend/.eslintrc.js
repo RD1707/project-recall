@@ -21,7 +21,6 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js', 'dist/**/*'],
   rules: {
-    // TypeScript specific rules
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'error',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
@@ -40,7 +39,6 @@ module.exports = {
     '@typescript-eslint/strict-boolean-expressions': 'error',
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
 
-    // General rules
     'no-console': 'warn',
     'prefer-const': 'error',
     'no-var': 'error',
@@ -51,13 +49,11 @@ module.exports = {
     'no-useless-rename': 'error',
     'prefer-arrow-callback': 'error',
 
-    // Security rules
     'no-eval': 'error',
     'no-implied-eval': 'error',
     'no-new-func': 'error',
     'no-script-url': 'error',
 
-    // Best practices
     'eqeqeq': ['error', 'always'],
     'curly': ['error', 'all'],
     'no-throw-literal': 'error',

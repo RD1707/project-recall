@@ -4,18 +4,14 @@ const cohere = new CohereClient({
     token: process.env.COHERE_API_KEY,
 });
 
-// Função auxiliar para extrair JSON da resposta da IA
 const extractJsonFromResponse = (responseText) => {
     console.log('Resposta original da API Cohere:', responseText);
 
-    // Remove espaços em branco no início e fim
     let cleaned = responseText.trim();
 
-    // Remove blocos de código markdown
     cleaned = cleaned.replace(/^```(?:json)?\s*/gm, '');
     cleaned = cleaned.replace(/```\s*$/gm, '');
 
-    // Remove texto antes do primeiro [ ou {
     const jsonStart = Math.min(
         cleaned.indexOf('[') >= 0 ? cleaned.indexOf('[') : Infinity,
         cleaned.indexOf('{') >= 0 ? cleaned.indexOf('{') : Infinity
@@ -25,7 +21,6 @@ const extractJsonFromResponse = (responseText) => {
         cleaned = cleaned.substring(jsonStart);
     }
 
-    // Tenta encontrar o final do JSON (último ] ou })
     let jsonEnd = -1;
     let bracketCount = 0;
     let inString = false;

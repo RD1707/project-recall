@@ -5,14 +5,10 @@ import { connection, isRedisConnected } from '@/config/queue';
 import { supabase } from '@/config/supabaseClient';
 import { FileProcessingJob, Flashcard, CardType } from '@/types';
 
-// Will be imported when cohereService is migrated
-// import { generateFlashcardsFromText } from '@/services/cohereService';
 const { generateFlashcardsFromText } = require('./services/cohereService');
 
-// Load environment variables
 config();
 
-// Types for worker job data
 interface FlashcardGenerationJobData {
   deckId: string;
   userId: string;
@@ -36,12 +32,10 @@ interface GeneratedFlashcard {
   options?: any[];
 }
 
-// Constants
 const QUEUE_NAME = 'flashcardGeneration';
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; // 2 seconds
+const RETRY_DELAY = 2000; 
 
-// Worker class for better organization
 class FlashcardWorker {
   private worker: Worker | null = null;
 
@@ -51,28 +45,28 @@ class FlashcardWorker {
 
   private initialize(): void {
     if (!connection) {
-      logger.warn('⚠️  Redis is not available. Worker will not start.');
+      logger.warn(' Redis is not available. Worker will not start.');
       process.exit(0);
     }
 
     if (!isRedisConnected()) {
-      logger.warn('⚠️  Redis connection is not ready. Waiting for connection...');
+      logger.warn(' Redis connection is not ready. Waiting for connection...');
       setTimeout(() => this.initialize(), 5000);
       return;
     }
 
-    logger.info(`🚀 Starting worker for queue "${QUEUE_NAME}"...`);
+    logger.info(`Starting worker for queue "${QUEUE_NAME}"...`);
 
     this.worker = new Worker<FlashcardGenerationJobData, FlashcardGenerationResult>(
       QUEUE_NAME,
       this.processJob.bind(this),
       {
         connection,
-        concurrency: 3, // Process up to 3 jobs concurrently
-        removeOnComplete: 100, // Keep 100 completed jobs
-        removeOnFail: 50, // Keep 50 failed jobs
+        concurrency: 3, 
+        removeOnComplete: 100, 
+        removeOnFail: 50, 
         settings: {
-          stalledInterval: 30000, // 30 seconds
+          stalledInterval: 30000, 
           maxStalledCount: 3,
         },
       }
@@ -128,7 +122,6 @@ class FlashcardWorker {
       });
     });
 
-    // Graceful shutdown handlers
     process.on('SIGTERM', () => this.gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => this.gracefulShutdown('SIGINT'));
   }
@@ -147,13 +140,10 @@ class FlashcardWorker {
     });
 
     try {
-      // Validate input data
       this.validateJobData(job.data);
 
-      // Update job progress
       await job.updateProgress(10);
 
-      // Generate flashcards using AI service
       logger.debug('Generating flashcards with AI service', {
         jobId: job.id,
         deckId,
@@ -171,14 +161,12 @@ class FlashcardWorker {
 
       await job.updateProgress(50);
 
-      // Prepare flashcards for database insertion
       const flashcardsToSave = generatedFlashcards.map((card: GeneratedFlashcard) => ({
         deck_id: deckId,
         question: card.question,
         answer: card.answer,
         options: card.options || null,
         card_type: type,
-        // SRS algorithm initial values
         repetition: 0,
         ease_factor: 2.5,
         interval: 1,
@@ -187,7 +175,6 @@ class FlashcardWorker {
 
       await job.updateProgress(70);
 
-      // Save flashcards to database
       logger.debug('Saving flashcards to database', {
         jobId: job.id,
         deckId,
@@ -249,7 +236,6 @@ class FlashcardWorker {
         stack: error instanceof Error ? error.stack : undefined,
       });
 
-      // Re-throw error to mark job as failed
       throw error;
     }
   }
@@ -275,7 +261,6 @@ class FlashcardWorker {
       throw new Error('Invalid card type');
     }
 
-    // Additional validation for text length
     if (data.textContent.length > 50000) {
       throw new Error('Text content too long (maximum 50,000 characters)');
     }
@@ -315,9 +300,7 @@ class FlashcardWorker {
   }
 }
 
-// Initialize worker
 const flashcardWorker = new FlashcardWorker();
 
-// Export for potential health checks
 export { flashcardWorker };
 export default flashcardWorker;

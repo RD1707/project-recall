@@ -8,12 +8,10 @@ import { config } from 'dotenv';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
-// Import configuration
 import { Environment } from '@/types';
 import { logger } from '@/config/logger';
 import { errorHandler, notFoundHandler } from '@/middleware/errorHandler';
 
-// Import routes
 import authRoutes from '@/routes/authRoutes';
 import deckRoutes from '@/routes/deckRoutes';
 import flashcardRoutes from '@/routes/flashcardRoutes';
@@ -24,13 +22,10 @@ import achievementRoutes from '@/routes/achievementRoutes';
 import communityRoutes from '@/routes/communityRoutes';
 import healthRoutes from '@/routes/healthRoutes';
 
-// Import socket handlers
 import { quizSocketHandler } from '@/socket/quizSocketHandler';
 
-// Load environment variables
 config();
 
-// Validate environment variables
 const validateEnvironment = (): Environment => {
   const requiredVars = [
     'SUPABASE_URL',
@@ -65,16 +60,12 @@ const validateEnvironment = (): Environment => {
   };
 };
 
-// Initialize environment
 const env = validateEnvironment();
 
-// Create Express application
 const app: Application = express();
 
-// Create HTTP server
 const server = createServer(app);
 
-// Initialize Socket.IO
 const io = new SocketIOServer(server, {
   cors: {
     origin: env.CORS_ORIGIN,
@@ -84,7 +75,6 @@ const io = new SocketIOServer(server, {
   transports: ['websocket', 'polling'],
 });
 
-// Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -102,7 +92,6 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
   max: env.RATE_LIMIT_MAX_REQUESTS,
@@ -115,7 +104,6 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// CORS configuration
 app.use(cors({
   origin: env.CORS_ORIGIN,
   credentials: true,
@@ -123,12 +111,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
-// Body parsing middleware
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
 
@@ -147,10 +133,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Health check routes (before other routes)
 app.use('/api/health', healthRoutes);
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
 app.use('/api/flashcards', flashcardRoutes);
@@ -160,7 +144,6 @@ app.use('/api/share', shareRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/community', communityRoutes);
 
-// Socket.IO connection handling
 io.on('connection', (socket) => {
   logger.info(`User connected: ${socket.id}`, {
     socketId: socket.id,
@@ -168,7 +151,6 @@ io.on('connection', (socket) => {
     ip: socket.handshake.address,
   });
 
-  // Initialize quiz socket handler
   quizSocketHandler(io, socket);
 
   socket.on('disconnect', (reason) => {
@@ -187,7 +169,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Serve static files (frontend) in production
 if (env.NODE_ENV === 'production') {
   const frontendDistPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
   app.use(express.static(frontendDistPath, {
@@ -196,9 +177,7 @@ if (env.NODE_ENV === 'production') {
     lastModified: true,
   }));
 
-  // Catch-all handler for SPA routing
   app.get('*', (req: Request, res: Response) => {
-    // Don't serve index.html for API routes
     if (req.originalUrl.startsWith('/api/')) {
       return res.status(404).json({ error: 'API endpoint not found' });
     }
@@ -207,11 +186,9 @@ if (env.NODE_ENV === 'production') {
   });
 }
 
-// Error handling middleware (must be last)
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Graceful shutdown handling
 const gracefulShutdown = (signal: string): void => {
   logger.info(`Received ${signal}. Starting graceful shutdown...`);
 
@@ -225,18 +202,15 @@ const gracefulShutdown = (signal: string): void => {
     process.exit(0);
   });
 
-  // Force close after 30 seconds
   setTimeout(() => {
     logger.error('Could not close connections in time, forcefully shutting down');
     process.exit(1);
   }, 30000);
 };
 
-// Handle graceful shutdown
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (error: Error) => {
   logger.error('Uncaught Exception:', {
     error: error.message,
@@ -245,7 +219,6 @@ process.on('uncaughtException', (error: Error) => {
   process.exit(1);
 });
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
   logger.error('Unhandled Rejection at:', {
     promise,
@@ -254,7 +227,6 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
   process.exit(1);
 });
 
-// Start server
 server.listen(env.PORT, () => {
   logger.info(`🚀 Server and WebSocket running on port ${env.PORT}`, {
     port: env.PORT,

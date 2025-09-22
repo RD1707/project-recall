@@ -1,7 +1,6 @@
 import winston from 'winston';
 import path from 'path';
 
-// Custom log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({
     format: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -11,7 +10,6 @@ const logFormat = winston.format.combine(
   winston.format.prettyPrint(),
 );
 
-// Console format for development
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({
@@ -28,13 +26,11 @@ const consoleFormat = winston.format.combine(
   }),
 );
 
-// Determine log level based on environment
 const getLogLevel = (): string => {
   const level = process.env.LOG_LEVEL || 'info';
   return ['error', 'warn', 'info', 'debug'].includes(level) ? level : 'info';
 };
 
-// Create logger instance
 export const logger = winston.createLogger({
   level: getLogLevel(),
   format: logFormat,
@@ -46,25 +42,22 @@ export const logger = winston.createLogger({
     pid: process.pid,
   },
   transports: [
-    // Console transport for development
     new winston.transports.Console({
       format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat,
       silent: process.env.NODE_ENV === 'test',
     }),
 
-    // File transport for errors
     new winston.transports.File({
       filename: path.join('logs', 'error.log'),
       level: 'error',
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880, 
       maxFiles: 5,
       tailable: true,
     }),
 
-    // File transport for all logs
     new winston.transports.File({
       filename: path.join('logs', 'combined.log'),
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880, 
       maxFiles: 10,
       tailable: true,
     }),
@@ -72,7 +65,6 @@ export const logger = winston.createLogger({
   exitOnError: false,
 });
 
-// Add request logging helper
 export const createRequestLogger = () => {
   return (req: any, res: any, next: any) => {
     const start = Date.now();
@@ -96,7 +88,6 @@ export const createRequestLogger = () => {
   };
 };
 
-// Database query logger
 export const dbLogger = {
   query: (sql: string, params?: any[]) => {
     logger.debug('Database Query', {
@@ -116,7 +107,6 @@ export const dbLogger = {
   },
 };
 
-// Socket.IO logger
 export const socketLogger = {
   connection: (socketId: string, userId?: string) => {
     logger.info('Socket Connection', {
@@ -154,7 +144,6 @@ export const socketLogger = {
   },
 };
 
-// Performance monitoring logger
 export const performanceLogger = {
   startTimer: (operation: string) => {
     const start = Date.now();
@@ -184,7 +173,6 @@ export const performanceLogger = {
   },
 };
 
-// Security event logger
 export const securityLogger = {
   authFailure: (email: string, ip: string, reason: string) => {
     logger.warn('Authentication Failure', {
@@ -214,7 +202,6 @@ export const securityLogger = {
   },
 };
 
-// Application lifecycle logger
 export const lifecycleLogger = {
   startup: (port: number, environment: string) => {
     logger.info('Application Started', {
@@ -242,12 +229,10 @@ export const lifecycleLogger = {
   },
 };
 
-// Create logs directory if it doesn't exist
 import { mkdirSync } from 'fs';
 try {
   mkdirSync('logs', { recursive: true });
 } catch (error) {
-  // Directory might already exist
 }
 
 export default logger;

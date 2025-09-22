@@ -3,24 +3,20 @@ import { z } from 'zod';
 import supabase from '../config/supabaseClient';
 import { calculateSrsParameters } from '../services/srsService';
 
-// Interface para requisições autenticadas
 interface AuthenticatedRequest extends Request {
   user?: { id: string; [key: string]: any };
 }
 
-// Esquema de validação para criar um flashcard
 const flashcardSchema = z.object({
   question: z.string().min(1, 'Question is required'),
   answer: z.string().min(1, 'Answer is required'),
 });
 
-// Esquema de validação para a resposta de uma revisão
 const reviewSchema = z.object({
-    quality: z.number().min(0).max(5), // Qualidade da resposta (0-5)
+    quality: z.number().min(0).max(5), 
 });
 
 
-// Função para verificar se o usuário é dono do deck
 const isUserDeckOwner = async (userId: string, deckId: string): Promise<boolean> => {
     const { data, error } = await supabase
         .from('decks')
@@ -32,7 +28,6 @@ const isUserDeckOwner = async (userId: string, deckId: string): Promise<boolean>
 };
 
 
-// Criar um novo flashcard
 export const createFlashcard = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { deckId } = req.params;
@@ -61,7 +56,6 @@ export const createFlashcard = async (req: AuthenticatedRequest, res: Response) 
     }
 };
 
-// Obter todos os flashcards de um deck
 export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { deckId } = req.params;
@@ -85,14 +79,12 @@ export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Respon
     }
 };
 
-// Obter um flashcard específico
 export const getFlashcardById = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
 
     try {
-        // Query para buscar o card e verificar se ele pertence a um deck do usuário
         const { data, error } = await supabase
             .from('cards')
             .select('*, decks(user_id)')
@@ -111,7 +103,6 @@ export const getFlashcardById = async (req: AuthenticatedRequest, res: Response)
 };
 
 
-// Atualizar um flashcard
 export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
@@ -119,7 +110,7 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
     
     try {
         const { data: existingCard } = await getFlashcardById(req, res);
-        if (!existingCard) return; // A resposta de erro já foi enviada por getFlashcardById
+        if (!existingCard) return; 
 
         const { question, answer } = flashcardSchema.parse(req.body);
 
@@ -141,7 +132,6 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
     }
 };
 
-// Deletar um flashcard
 export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
@@ -164,7 +154,6 @@ export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) 
     }
 };
 
-// Revisar um flashcard (lógica do SRS)
 export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id: cardId } = req.params;

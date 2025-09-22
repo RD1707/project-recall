@@ -1,11 +1,9 @@
-#!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Conventional commit format validation
 commit_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{1,50}'
 
 if ! grep -qE "$commit_regex" "$1"; then
-    echo "❌ Invalid commit message format!"
+    echo "Invalid commit message format!"
     echo ""
     echo "Commit message must follow conventional commits format:"
     echo "  <type>[optional scope]: <description>"
@@ -19,4 +17,4 @@ if ! grep -qE "$commit_regex" "$1"; then
     exit 1
 fi
 
-echo "✅ Commit message format is valid!"
+echo "Commit message format is valid!"

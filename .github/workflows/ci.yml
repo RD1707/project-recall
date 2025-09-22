@@ -1,4 +1,4 @@
-name: 🔄 Continuous Integration
+name: Continuous Integration
 
 on:
   push:
@@ -13,23 +13,20 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  # ======================
-  # CODE QUALITY & SECURITY
-  # ======================
   quality:
-    name: 🔍 Code Quality & Security
+    name: Code Quality & Security
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -38,38 +35,35 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: |
           npm run install:all
 
-      - name: 🔍 Run ESLint
+      - name: Run ESLint
         run: |
           cd frontend && npm run lint
           cd ../backend && npm run lint || echo "Backend linting setup needed"
 
-      - name: 🔒 Run security audit
+      - name: Run security audit
         run: |
           cd backend && npm audit --audit-level=high
           cd ../frontend && npm audit --audit-level=high
 
-      - name: 🔐 CodeQL Analysis
+      - name: CodeQL Analysis
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - name: 🔐 Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-      - name: 📊 SonarCloud Scan
+      - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         continue-on-error: true
 
-  # ======================
-  # TESTING
-  # ======================
   test:
     name: 🧪 Run Tests
     runs-on: ubuntu-latest
@@ -100,10 +94,10 @@ jobs:
           - 6379:6379
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -112,10 +106,10 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm run install:all
 
-      - name: 🧪 Run Backend Tests
+      - name: Run Backend Tests
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/recall_test
@@ -123,30 +117,27 @@ jobs:
         run: |
           cd backend && npm test || echo "Backend tests setup needed"
 
-      - name: 🧪 Run Frontend Tests
+      - name: Run Frontend Tests
         run: |
           cd frontend && npm test || echo "Frontend tests setup needed"
 
-      - name: 📊 Upload test coverage to Codecov
+      - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./coverage
           fail_ci_if_error: false
 
-  # ======================
-  # BUILD & VALIDATE
-  # ======================
   build:
-    name: 🔨 Build & Validate
+    name: Build & Validate
     runs-on: ubuntu-latest
     needs: [quality, test]
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -155,14 +146,14 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm run install:all
 
-      - name: 🔨 Build Frontend
+      - name: Build Frontend
         run: |
           cd frontend && npm run build
 
-      - name: 📦 Upload build artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
@@ -176,9 +167,6 @@ jobs:
           echo "Build size: $BUILD_SIZE"
           # Add size validation logic here if needed
 
-  # ======================
-  # DOCKER BUILD & SECURITY
-  # ======================
   docker:
     name: 🐳 Docker Build & Security
     runs-on: ubuntu-latest
@@ -193,13 +181,13 @@ jobs:
         service: [backend, frontend]
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐳 Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔐 Log in to Container Registry
+      - name: Log in to Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
@@ -207,7 +195,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📊 Extract metadata
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -218,7 +206,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: 🔨 Build Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.service }}
@@ -230,7 +218,7 @@ jobs:
           cache-to: type=gha,mode=max
           target: prod
 
-      - name: 🔒 Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
@@ -238,36 +226,33 @@ jobs:
           output: 'trivy-results-${{ matrix.service }}.sarif'
         continue-on-error: true
 
-      - name: 📊 Upload Trivy scan results
+      - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results-${{ matrix.service }}.sarif'
         continue-on-error: true
 
-  # ======================
-  # E2E TESTING
-  # ======================
   e2e:
-    name: 🎭 E2E Tests
+    name: E2E Tests
     runs-on: ubuntu-latest
     needs: docker
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐳 Start services with Docker Compose
+      - name: Start services with Docker Compose
         run: |
           cp .env.example .env
           make dev-d
           sleep 30 # Wait for services to be ready
 
-      - name: 🎭 Run Playwright tests
+      - name: Run Playwright tests
         run: |
           # E2E tests setup needed
           echo "E2E tests would run here"
 
-      - name: 📊 Upload E2E test results
+      - name: Upload E2E test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -277,27 +262,24 @@ jobs:
             playwright-report/
           retention-days: 7
 
-      - name: 🧹 Cleanup
+      - name: Cleanup
         if: always()
         run: |
           make clean
 
-  # ======================
-  # DEPLOYMENT VALIDATION
-  # ======================
   deploy-validation:
-    name: ✅ Deployment Validation
+    name: Deployment Validation
     runs-on: ubuntu-latest
     needs: [build, docker]
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: ✅ Validate deployment readiness
+      - name: Validate deployment readiness
         run: |
-          echo "🔍 Validating deployment readiness..."
+          echo "Validating deployment readiness..."
 
           # Check if all required files exist
           files=(
@@ -310,34 +292,31 @@ jobs:
 
           for file in "${files[@]}"; do
             if [[ ! -f "$file" ]]; then
-              echo "❌ Missing required file: $file"
+              echo "Missing required file: $file"
               exit 1
             else
-              echo "✅ Found: $file"
+              echo "Found: $file"
             fi
           done
 
-          echo "🎉 All deployment files validated!"
+          echo "All deployment files validated!"
 
-      - name: 📊 Deployment summary
+      - name: Deployment summary
         run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Code quality checks passed" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Tests completed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Docker images built and scanned" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Ready for deployment" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Code quality checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker images built and scanned" >> $GITHUB_STEP_SUMMARY
+          echo "- Ready for deployment" >> $GITHUB_STEP_SUMMARY
 
-  # ======================
-  # CLEANUP
-  # ======================
   cleanup:
-    name: 🧹 Cleanup
+    name: Cleanup
     runs-on: ubuntu-latest
     needs: [quality, test, build, docker, e2e]
     if: always()
 
     steps:
-      - name: 🧹 Clean up artifacts
+      - name: Clean up artifacts
         run: |
-          echo "🧹 Cleaning up temporary artifacts..."
+          echo "Cleaning up temporary artifacts..."
           # Add cleanup logic if needed
