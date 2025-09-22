@@ -1,0 +1,78 @@
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
+    ecmaVersion: 2022,
+  },
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+    '@typescript-eslint/recommended',
+    '@typescript-eslint/recommended-requiring-type-checking',
+    'prettier',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+    es2022: true,
+  },
+  ignorePatterns: ['.eslintrc.js', 'dist/**/*'],
+  rules: {
+    // TypeScript specific rules
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/prefer-nullish-coalescing': 'error',
+    '@typescript-eslint/prefer-optional-chain': 'error',
+    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/await-thenable': 'error',
+    '@typescript-eslint/no-misused-promises': 'error',
+    '@typescript-eslint/require-await': 'error',
+    '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+    '@typescript-eslint/prefer-as-const': 'error',
+    '@typescript-eslint/prefer-readonly': 'error',
+    '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'error',
+    '@typescript-eslint/switch-exhaustiveness-check': 'error',
+
+    // General rules
+    'no-console': 'warn',
+    'prefer-const': 'error',
+    'no-var': 'error',
+    'object-shorthand': 'error',
+    'prefer-template': 'error',
+    'prefer-destructuring': 'error',
+    'no-duplicate-imports': 'error',
+    'no-useless-rename': 'error',
+    'prefer-arrow-callback': 'error',
+
+    // Security rules
+    'no-eval': 'error',
+    'no-implied-eval': 'error',
+    'no-new-func': 'error',
+    'no-script-url': 'error',
+
+    // Best practices
+    'eqeqeq': ['error', 'always'],
+    'curly': ['error', 'all'],
+    'no-throw-literal': 'error',
+    'prefer-promise-reject-errors': 'error',
+  },
+  overrides: [
+    {
+      files: ['**/*.test.ts', '**/*.spec.ts'],
+      env: {
+        jest: true,
+      },
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/explicit-function-return-type': 'off',
+      },
+    },
+  ],
+};
