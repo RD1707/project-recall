@@ -16,22 +16,22 @@ if (process.env.REDIS_URL && process.env.REDIS_URL !== 'DISABLED') {
 
     connection.on('connect', () => {
         if (!hasLoggedConnection) {
-            logger.info('✅ Conectado ao Redis com sucesso.');
+            logger.info('Conectado ao Redis com sucesso.');
             hasLoggedConnection = true;
         }
         isRedisConnected = true;
     });
 
     connection.on('error', (err) => {
-        logger.error(`❌ Erro de conexão com o Redis: ${err.message}`);
+        logger.error(`Erro de conexão com o Redis: ${err.message}`);
         isRedisConnected = false;
-        hasLoggedConnection = false; // Reset para logar a próxima reconexão
+        hasLoggedConnection = false; 
     });
 
     flashcardGenerationQueue = new Queue('flashcardGeneration', { connection });
 
   } catch (error) {
-    logger.error(`❌ Falha ao inicializar a conexão com o Redis: ${error.message}`);
+    logger.error(`Falha ao inicializar a conexão com o Redis: ${error.message}`);
   }
 }
 
