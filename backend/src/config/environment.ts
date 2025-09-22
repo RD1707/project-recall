@@ -4,6 +4,8 @@ import { Environment } from '@/types';
 
 config();
 
+const truthyString = z.string().transform(val => val === 'true').pipe(z.boolean());
+
 const environmentSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1).max(65535)).default('3001'),
@@ -21,9 +23,9 @@ const environmentSchema = z.object({
 
   UPLOAD_DIR: z.string().default('./uploads'),
   MAX_FILE_SIZE: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('10485760'),
-  ALLOWED_FILE_TYPES: z.string().transform(val => val.split(',')).pipe(z.array(z.string())).default(['pdf', 'docx', 'txt', 'jpg', 'jpeg', 'png']),
+  ALLOWED_FILE_TYPES: z.string().default('pdf,docx,txt,jpg,jpeg,png').transform(val => val.split(',')).pipe(z.array(z.string())),
 
-  CORS_ORIGIN: z.string().transform(val => val.split(',')).pipe(z.array(z.string())).default(['http://localhost:5173', 'http://localhost:3000']),
+  CORS_ORIGIN: z.string().default('http://localhost:5173,http://localhost:3000').transform(val => val.split(',')).pipe(z.array(z.string())),
 
   RATE_LIMIT_WINDOW_MS: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive()).default('100'),
@@ -45,11 +47,11 @@ const environmentSchema = z.object({
 
   GOOGLE_ANALYTICS_ID: z.string().optional(),
 
-  ENABLE_REGISTRATION: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
-  ENABLE_FILE_UPLOAD: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
-  ENABLE_AI_GENERATION: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
-  ENABLE_COMMUNITY_FEATURES: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
-  ENABLE_ANALYTICS: z.string().transform(val => val === 'true').pipe(z.boolean()).default(true),
+  ENABLE_REGISTRATION: truthyString.default('true'),
+  ENABLE_FILE_UPLOAD: truthyString.default('true'),
+  ENABLE_AI_GENERATION: truthyString.default('true'),
+  ENABLE_COMMUNITY_FEATURES: truthyString.default('true'),
+  ENABLE_ANALYTICS: truthyString.default('true'),
 });
 
 export const validateEnvironment = (): Environment => {
@@ -65,7 +67,7 @@ export const validateEnvironment = (): Environment => {
         console.warn(' SENTRY_DSN not configured for production monitoring');
       }
 
-      if (parsed.CORS_ORIGIN.includes('localhost')) {
+      if (parsed.CORS_ORIGIN.includes('http://localhost:5173')) {
         console.warn(' Localhost URLs in CORS_ORIGIN for production environment');
       }
     }
@@ -124,12 +126,7 @@ class EnvironmentConfig {
     };
   }
 
-  public static getSecurityConfig(): {
-    jwtSecret?: string;
-    corsOrigin: string[];
-    rateLimitWindowMs: number;
-    rateLimitMaxRequests: number;
-  } {
+  public static getSecurityConfig() {
     const env = this.getInstance();
     return {
       jwtSecret: env.JWT_SECRET,
@@ -139,12 +136,7 @@ class EnvironmentConfig {
     };
   }
 
-  public static getDatabaseConfig(): {
-    supabaseUrl: string;
-    supabaseServiceRoleKey: string;
-    databaseUrl?: string;
-    redisUrl: string;
-  } {
+  public static getDatabaseConfig() {
     const env = this.getInstance();
     return {
       supabaseUrl: env.SUPABASE_URL,
@@ -176,10 +168,7 @@ class EnvironmentConfig {
     };
   }
 
-  public static getMonitoringConfig(): {
-    logLevel: string;
-    sentryDsn?: string;
-  } {
+  public static getMonitoringConfig() {
     const env = this.getInstance();
     return {
       logLevel: env.LOG_LEVEL,
