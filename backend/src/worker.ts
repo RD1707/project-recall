@@ -1,9 +1,9 @@
 import { config } from 'dotenv';
-import { Worker, Job } from 'bullmq';
+import { Worker, Job, KeepJobs } from 'bullmq';
 import { logger, performanceLogger } from '@/config/logger';
 import { connection, isRedisConnected } from '@/config/queue';
-import { supabase } from '@/config/supabaseClient';
-import { FileProcessingJob, Flashcard, CardType } from '@/types';
+import supabase from '@/config/supabaseClient';
+import { Flashcard, CardType } from '@/types';
 
 const { generateFlashcardsFromText } = require('./services/cohereService');
 
@@ -33,8 +33,6 @@ interface GeneratedFlashcard {
 }
 
 const QUEUE_NAME = 'flashcardGeneration';
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; 
 
 class FlashcardWorker {
   private worker: Worker | null = null;
@@ -57,18 +55,18 @@ class FlashcardWorker {
 
     logger.info(`Starting worker for queue "${QUEUE_NAME}"...`);
 
+    const removeOptions: KeepJobs = {
+        count: 100,
+    };
+
     this.worker = new Worker<FlashcardGenerationJobData, FlashcardGenerationResult>(
       QUEUE_NAME,
       this.processJob.bind(this),
       {
         connection,
-        concurrency: 3, 
-        removeOnComplete: 100, 
-        removeOnFail: 50, 
-        settings: {
-          stalledInterval: 30000, 
-          maxStalledCount: 3,
-        },
+        concurrency: 3,
+        removeOnComplete: removeOptions,
+        removeOnFail: { count: 50 },
       }
     );
 
@@ -84,7 +82,7 @@ class FlashcardWorker {
         deckId: job.data.deckId,
         userId: job.data.userId,
         flashcardsCount: result.count,
-        duration: Date.now() - job.processedOn!,
+        duration: Date.now() - (job.processedOn || Date.now()),
       });
     });
 
@@ -107,7 +105,7 @@ class FlashcardWorker {
       });
     });
 
-    this.worker.on('progress', (job: Job, progress: number) => {
+    this.worker.on('progress', (job: Job, progress: number | object) => {
       logger.debug('Job progress', {
         jobId: job.id,
         progress: `${progress}%`,
@@ -194,6 +192,10 @@ class FlashcardWorker {
           details: saveError.details,
         });
         throw new Error(`Database error: ${saveError.message}`);
+      }
+      
+      if (!savedFlashcards) {
+        throw new Error('Failed to save flashcards, returned data is null');
       }
 
       await job.updateProgress(100);

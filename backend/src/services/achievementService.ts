@@ -1,6 +1,6 @@
-import { supabase } from '@/config/supabaseClient';
+import supabase from '@/config/supabaseClient';
 import { logger, performanceLogger } from '@/config/logger';
-import { Achievement, UserAchievement, User } from '@/types';
+import { Achievement } from '@/types';
 import { ValidationError } from '@/middleware/errorHandler';
 
 type AchievementMetric =

@@ -1,4 +1,4 @@
-import { supabase } from '@/config/supabaseClient';
+import supabase from '@/config/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import { QuizRoom, SocketUser, Flashcard } from '@/types';
 import { ValidationError } from '@/middleware/errorHandler';
@@ -12,7 +12,7 @@ const getSafeQuestion = (question: Flashcard): Omit<Flashcard, 'answer'> | null 
   return safeQuestion;
 };
 
-export const createQuiz = async (deckId: string, hostUser: SocketUser & { socketId: string }): Promise<{
+export const createQuiz = async (deckId: string, hostUser: SocketUser): Promise<{
   quiz: QuizRoom;
   roomId: string;
 }> => {
@@ -38,7 +38,7 @@ export const createQuiz = async (deckId: string, hostUser: SocketUser & { socket
       deck_id: deckId,
       host_id: hostUser.socketId,
       participants: [{ ...hostUser, score: 0 }],
-      current_question: undefined,
+      current_question: flashcards[0],
       question_number: 0,
       total_questions: flashcards.length,
       status: 'waiting',
@@ -72,7 +72,7 @@ export const createQuiz = async (deckId: string, hostUser: SocketUser & { socket
   }
 };
 
-export const joinQuiz = (roomId: string, player: SocketUser & { socketId: string }): QuizRoom => {
+export const joinQuiz = (roomId: string, player: SocketUser): QuizRoom => {
   const quiz = quizzes[roomId];
 
   if (!quiz) {
@@ -156,6 +156,9 @@ export const submitAnswer = (roomId: string, socketId: string, answer: string): 
   }
 
   const currentQuestion = quiz.questions[quiz.currentQuestionIndex];
+  if (!currentQuestion) {
+    throw new Error('Current question not found');
+  }
   const isCorrect = answer.toLowerCase().trim() === currentQuestion.answer.toLowerCase().trim();
 
   if (isCorrect) {
