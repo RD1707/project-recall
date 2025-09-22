@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered flashcard application with spaced repetition",
   "private": true,
-  "scripts": {
+"scripts": {
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "build": "npm run build --prefix backend && npm run build --prefix frontend",
@@ -31,8 +31,7 @@
     "security:audit": "npm audit --prefix backend && npm audit --prefix frontend",
     "security:fix": "npm audit fix --prefix backend && npm audit fix --prefix frontend",
     "precommit": "npm run lint && npm run type-check && npm test",
-    "prepare": "husky install || true",
-    "postinstall": "npm run install:all"
+    "prepare": "husky install || true"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
