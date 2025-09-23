@@ -5,11 +5,12 @@ import {
   recalculateAchievements,
   forceRecalculate,
 } from '@/controllers/achievementController';
-import { authenticateToken } from '@/middleware/authMiddleware';
+import authMiddleware from '@/middleware/authMiddleware'; // Corrigido: Importação padrão
 
 const router = Router();
 
-router.use(authenticateToken);
+// Aplica o middleware de autenticação a todas as rotas neste ficheiro
+router.use(authMiddleware);
 
 router.get('/', getAchievements);
 
@@ -17,6 +18,7 @@ router.get('/stats', getAchievementStats);
 
 router.post('/recalculate', recalculateAchievements);
 
+// Rota de administrador/desenvolvimento para forçar o recálculo
 router.post('/force-recalculate', forceRecalculate);
 
 export default router;

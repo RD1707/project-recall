@@ -104,6 +104,7 @@ export const errorHandler = (
   error: Error | CustomError | ZodError,
   req: Request,
   res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ): void => {
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -113,7 +114,7 @@ export const errorHandler = (
     url: req.originalUrl,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    userId: req.user?.id,
+    userId: (req as any).user?.id,
     body: req.method !== 'GET' ? req.body : undefined,
     params: req.params,
     query: req.query,
@@ -166,7 +167,7 @@ export const errorHandler = (
     return;
   }
 
-  if (error.name === 'MongoNetworkError') {
+  if ((error as any).name === 'MongoNetworkError') { // Cast to any to check for property
     const response: ApiResponse = {
       success: false,
       error: 'Database connection error',
@@ -198,14 +199,14 @@ export const notFoundHandler = (req: Request, res: Response): void => {
 };
 
 export const asyncHandler = <T extends Request, U extends Response>(
-  fn: (req: T, res: U, next: NextFunction) => Promise<void | U>,
+  fn: (req: T, res: U, next: NextFunction) => Promise<any>,
 ) => {
   return (req: T, res: U, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
 
-export const validateRequest = <T>(schema: any, property: 'body' | 'query' | 'params' = 'body') => {
+export const validateRequest = <T>(schema: z.ZodSchema<T>, property: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validated = schema.parse(req[property]);

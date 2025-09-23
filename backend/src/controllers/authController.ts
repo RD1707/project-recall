@@ -23,15 +23,17 @@ export const register = async (req: Request, res: Response) => {
       password,
       options: {
         data: {
-          username: username,
+          username: username, // Corrigido: 'username' em vez de 'user_name' para consistência
         },
       },
     });
 
     if (error) throw error;
-    if (!data.user) return res.status(400).json({ message: "Registration failed, please try again." });
+    if (!data.user) {
+        return res.status(400).json({ message: "Registration failed, please try again." });
+    }
 
-    res.status(201).json({ message: 'User registered successfully! Please check your email to verify your account.', user: data.user });
+    return res.status(201).json({ message: 'User registered successfully! Please check your email to verify your account.', user: data.user });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
@@ -40,7 +42,7 @@ export const register = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'Username or email already exists.' });
     }
     console.error('Registration error:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -57,13 +59,13 @@ export const login = async (req: Request, res: Response) => {
         return res.status(401).json({ message: error.message });
     }
 
-    res.status(200).json({ message: 'Login successful', session: data.session, user: data.user });
+    return res.status(200).json({ message: 'Login successful', session: data.session, user: data.user });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
         return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
     }
     console.error('Login error:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -71,10 +73,10 @@ export const logout = async (req: Request, res: Response) => {
     try {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
-        res.status(200).json({ message: 'Successfully logged out' });
+        return res.status(200).json({ message: 'Successfully logged out' });
     } catch (error: any) {
         console.error('Logout error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -91,10 +93,10 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
 
     if (error) throw error;
 
-    res.status(200).json({ message: 'Password reset email sent. Please check your inbox.' });
+    return res.status(200).json({ message: 'Password reset email sent. Please check your inbox.' });
   } catch (error: any) {
     console.error('Password reset request error:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -106,13 +108,16 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 
   try {
+    // A API do Supabase para resetar a senha via link de email não usa o token diretamente aqui.
+    // O token é usado numa única vez para estabelecer a sessão do usuário.
+    // A atualização da senha é feita na sessão do usuário autenticado pelo link.
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) throw error;
 
-    res.status(200).json({ message: 'Password updated successfully.' });
+    return res.status(200).json({ message: 'Password updated successfully.' });
   } catch (error: any) {
     console.error('Password reset error:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };

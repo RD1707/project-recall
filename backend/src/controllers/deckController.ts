@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import supabase from '../config/supabaseClient';
-import { generateFlashcardsFromText } from '../services/aiService';
+import { generateFlashcardsFromText } from '../services/cohereService';
 import { processFile } from '../services/fileProcessingService';
 import multer from 'multer';
+import { AuthUser } from '@/types';
 
 interface AuthenticatedRequest extends Request {
-  user?: { id: string; [key: string]: any };
+  user?: AuthUser;
 }
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -33,13 +34,13 @@ export const createDeck = async (req: AuthenticatedRequest, res: Response) => {
       .single();
 
     if (error) throw error;
-    res.status(201).json(data);
+    return res.status(201).json(data);
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid data', errors: error.errors });
     }
     console.error('Error creating deck:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -54,16 +55,20 @@ export const getUserDecks = async (req: AuthenticatedRequest, res: Response) => 
       .eq('user_id', userId);
 
     if (error) throw error;
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error: any) {
     console.error('Error fetching user decks:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
 
     try {
         const { data, error } = await supabase
@@ -73,19 +78,27 @@ export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
             .eq('user_id', userId)
             .single();
 
-        if (error) throw error;
-        if (!data) return res.status(404).json({ message: 'Deck not found or access denied' });
+        if (error) {
+            if (error.code === 'PGRST116') { // Not found
+                return res.status(404).json({ message: 'Deck not found or access denied' });
+            }
+            throw error;
+        }
 
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error: any) {
         console.error('Error fetching deck by ID:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
 
     try {
         const validatedData = updateDeckSchema.parse(req.body);
@@ -98,16 +111,20 @@ export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
             .select()
             .single();
         
-        if (error) throw error;
-        if (!data) return res.status(404).json({ message: 'Deck not found or access denied' });
+        if (error) {
+            if (error.code === 'PGRST116') {
+                return res.status(404).json({ message: 'Deck not found or access denied' });
+            }
+            throw error;
+        }
         
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error: any) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
         console.error('Error updating deck:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -115,19 +132,35 @@ export const deleteDeck = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
     const { id } = req.params;
 
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+
     try {
-        const { error } = await supabase
+        // First, check if the deck exists and belongs to the user
+        const { error: selectError } = await supabase
+            .from('decks')
+            .select('id')
+            .eq('id', id)
+            .eq('user_id', userId)
+            .single();
+        
+        if (selectError) {
+             return res.status(404).json({ message: 'Deck not found or access denied' });
+        }
+        
+        const { error: deleteError } = await supabase
             .from('decks')
             .delete()
             .eq('id', id)
             .eq('user_id', userId);
 
-        if (error) throw error;
+        if (deleteError) throw deleteError;
         
-        res.status(204).send(); 
+        return res.status(204).send(); 
     } catch (error: any) {
         console.error('Error deleting deck:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -136,6 +169,10 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
     const { id: deckId } = req.params;
     const { topic, numCards, language } = req.body;
 
+    if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
     if (!topic || !numCards) {
         return res.status(400).json({ message: 'Topic and number of cards are required.' });
     }
@@ -152,9 +189,9 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
             return res.status(404).json({ message: 'Deck not found or access denied.' });
         }
 
-        const cards = await generateFlashcards(topic, numCards, language);
+        const cards = await generateFlashcardsFromText(topic, numCards, language);
         
-        const cardsToInsert = cards.map(card => ({ ...card, deck_id: deckId }));
+        const cardsToInsert = cards.map((card: { question: string, answer: string }) => ({ ...card, deck_id: deckId }));
 
         const { data: insertedCards, error: insertError } = await supabase
             .from('cards')
@@ -163,10 +200,10 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
 
         if (insertError) throw insertError;
 
-        res.status(201).json(insertedCards);
+        return res.status(201).json(insertedCards);
     } catch (error: any) {
         console.error('Error generating AI cards:', error.message);
-        res.status(500).json({ message: 'Failed to generate flashcards.' });
+        return res.status(500).json({ message: 'Failed to generate flashcards.' });
     }
 };
 
@@ -182,20 +219,24 @@ export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response)
         
         const userId = req.user?.id;
         const { id: deckId } = req.params;
+        
+        if (!userId) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
 
         try {
-            const content = await processFile(req.file);
-            const cards = await generateFlashcards(content, 10, 'default');
-            const cardsToInsert = cards.map(card => ({ ...card, deck_id: deckId }));
+            const content = await processFile(req.file.path, req.file.mimetype as any);
+            const cards = await generateFlashcardsFromText(content, 10, 'default');
+            const cardsToInsert = cards.map((card: { question: string, answer: string }) => ({ ...card, deck_id: deckId }));
             const { data, error } = await supabase.from('cards').insert(cardsToInsert).select();
             
             if (error) throw error;
             
-            res.status(201).json({ message: 'File processed and cards created successfully', cards: data });
+            return res.status(201).json({ message: 'File processed and cards created successfully', cards: data });
 
         } catch (error: any) {
             console.error('Error processing file:', error.message);
-            res.status(500).json({ message: 'Error processing file' });
+            return res.status(500).json({ message: 'Error processing file' });
         }
     });
 };

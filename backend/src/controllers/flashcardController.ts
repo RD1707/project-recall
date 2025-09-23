@@ -2,9 +2,10 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import supabase from '../config/supabaseClient';
 import { calculateSrsParameters } from '../services/srsService';
+import { AuthUser } from '@/types';
 
 interface AuthenticatedRequest extends Request {
-  user?: { id: string; [key: string]: any };
+  user?: AuthUser;
 }
 
 const flashcardSchema = z.object({
@@ -27,6 +28,22 @@ const isUserDeckOwner = async (userId: string, deckId: string): Promise<boolean>
     return !error && !!data;
 };
 
+// Helper para verificar se o usuário é dono do card (através do deck)
+const isUserCardOwner = async (userId: string, cardId: string): Promise<{owner: boolean, card: any}> => {
+    const { data, error } = await supabase
+        .from('cards')
+        .select('*, decks(user_id)')
+        .eq('id', cardId)
+        .single();
+
+    if (error || !data) {
+        return { owner: false, card: null };
+    }
+    
+    const cardData = data as any; // Cast para evitar erro de tipo
+    return { owner: cardData.decks.user_id === userId, card: cardData };
+}
+
 
 export const createFlashcard = async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.id;
@@ -46,13 +63,13 @@ export const createFlashcard = async (req: AuthenticatedRequest, res: Response) 
             .single();
 
         if (error) throw error;
-        res.status(201).json(data);
+        return res.status(201).json(data);
     } catch (error: any) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
         console.error('Error creating flashcard:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -72,10 +89,10 @@ export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Respon
             .eq('deck_id', deckId);
 
         if (error) throw error;
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error: any) {
         console.error('Error fetching flashcards:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -85,20 +102,14 @@ export const getFlashcardById = async (req: AuthenticatedRequest, res: Response)
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
 
     try {
-        const { data, error } = await supabase
-            .from('cards')
-            .select('*, decks(user_id)')
-            .eq('id', id)
-            .single();
-
-        if (error || !data || (data as any).decks.user_id !== userId) {
+        const { owner, card } = await isUserCardOwner(userId, id);
+        if (!owner) {
             return res.status(404).json({ message: 'Card not found or access denied' });
         }
-
-        res.status(200).json(data);
+        return res.status(200).json(card);
     } catch (error: any) {
         console.error('Error fetching flashcard by ID:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -109,8 +120,10 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
     
     try {
-        const { data: existingCard } = await getFlashcardById(req, res);
-        if (!existingCard) return; 
+        const { owner } = await isUserCardOwner(userId, id);
+        if (!owner) {
+            return res.status(404).json({ message: 'Card not found or access denied' });
+        }
 
         const { question, answer } = flashcardSchema.parse(req.body);
 
@@ -122,13 +135,13 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
             .single();
         
         if (error) throw error;
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error: any) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
         console.error('Error updating flashcard:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -138,8 +151,10 @@ export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) 
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
     
     try {
-        const { data: existingCard } = await getFlashcardById(req, res);
-        if (!existingCard) return;
+        const { owner } = await isUserCardOwner(userId, id);
+        if (!owner) {
+            return res.status(404).json({ message: 'Card not found or access denied' });
+        }
 
         const { error } = await supabase
             .from('cards')
@@ -147,10 +162,10 @@ export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) 
             .eq('id', id);
 
         if (error) throw error;
-        res.status(204).send();
+        return res.status(204).send();
     } catch (error: any) {
         console.error('Error deleting flashcard:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -162,17 +177,12 @@ export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) 
     try {
         const { quality } = reviewSchema.parse(req.body);
 
-        const { data: card, error: cardError } = await supabase
-            .from('cards')
-            .select('*, decks(user_id)')
-            .eq('id', cardId)
-            .single();
-        
-        if (cardError || !card || (card as any).decks.user_id !== userId) {
+        const { owner, card } = await isUserCardOwner(userId, cardId);
+        if (!owner || !card) {
             return res.status(404).json({ message: 'Card not found or access denied' });
         }
         
-        const { repetitions, ease_factor, interval, next_review } = calculateSrsParameters({
+        const srsParams = calculateSrsParameters({
             quality,
             repetitions: card.repetitions,
             easeFactor: card.ease_factor,
@@ -181,19 +191,24 @@ export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) 
 
         const { data: updatedCard, error: updateError } = await supabase
             .from('cards')
-            .update({ repetitions, ease_factor, interval, next_review: new Date(next_review).toISOString() })
+            .update({ 
+                repetitions: srsParams.repetitions, 
+                ease_factor: srsParams.ease_factor, 
+                interval: srsParams.interval, 
+                next_review: srsParams.next_review.toISOString() 
+            })
             .eq('id', cardId)
             .select()
             .single();
         
         if (updateError) throw updateError;
 
-        res.status(200).json(updatedCard);
+        return res.status(200).json(updatedCard);
     } catch (error: any) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
         console.error('Error reviewing flashcard:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };

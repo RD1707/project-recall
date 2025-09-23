@@ -4,7 +4,7 @@ import { asyncHandler } from '@/middleware/errorHandler';
 import { ApiResponse, AuthUser } from '@/types';
 import {
   getUserAchievements,
-  getAchievementStats,
+  getAchievementStats as getAchievementStatsService, // Corrigido: Apelido para a função importada
   recalculateAllAchievements,
 } from '@/services/achievementService';
 
@@ -48,7 +48,7 @@ export const getAchievementStats = asyncHandler(async (req: AuthenticatedRequest
   logger.info('Fetching achievement stats for user', { userId });
 
   try {
-    const stats = await getAchievementStats(userId);
+    const stats = await getAchievementStatsService(userId); // Corrigido: Usar a função com apelido
 
     const response: ApiResponse = {
       success: true,

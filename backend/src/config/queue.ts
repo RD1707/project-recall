@@ -38,7 +38,6 @@ class QueueManager {
         commandTimeout: 5000,
         family: 4,
         enableReadyCheck: false,
-        maxLoadingTimeout: 5000,
       };
 
       this.connection = new IORedis(redisUrl, redisOptions);

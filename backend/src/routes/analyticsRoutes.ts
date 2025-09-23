@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { getAnalytics } from '@/controllers/analyticsController';
-import { authenticateToken } from '@/middleware/authMiddleware';
+import authMiddleware from '@/middleware/authMiddleware'; // Corrigido: Importação padrão
 
 const router = Router();
 
-router.use(authenticateToken);
+router.use(authMiddleware);
+
 router.get('/', getAnalytics);
 
 export default router;

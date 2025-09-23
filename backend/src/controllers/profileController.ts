@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import supabase from '../config/supabaseClient';
+import { AuthUser } from '@/types';
 
 interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    [key: string]: any;
-  };
+  user?: AuthUser;
 }
 
 const profileUpdateSchema = z.object({
@@ -30,13 +28,17 @@ export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Resp
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ message: 'Profile not found' });
+    if (error) {
+        if (error.code === 'PGRST116') { // Not found
+             return res.status(404).json({ message: 'Profile not found' });
+        }
+        throw error;
+    }
 
-    res.json(data);
+    return res.json(data);
   } catch (error: any) {
     console.error('Error fetching current user profile:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -58,13 +60,13 @@ export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: R
 
     if (error) throw error;
 
-    res.json({ message: 'Profile updated successfully', data });
+    return res.json({ message: 'Profile updated successfully', data });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
     }
     console.error('Error updating profile:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -75,14 +77,15 @@ export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: R
   }
 
   try {
+    // Nota: 'delete_user' deve ser uma função RPC no seu Supabase para deletar o usuário do `auth.users`
     const { error } = await supabase.rpc('delete_user');
 
     if (error) throw error;
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    return res.status(200).json({ message: 'User deleted successfully' });
   } catch (error: any) {
     console.error('Error deleting user:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -99,16 +102,21 @@ export const getProfileStatus = async (req: AuthenticatedRequest, res: Response)
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ message: 'Profile not found' });
-
-    const requiredFields = ['username', 'full_name', 'bio'];
-    const isComplete = requiredFields.every(field => data[field] && data[field] !== '');
+    if (error) {
+        if (error.code === 'PGRST116') {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+        throw error;
+    }
     
-    res.json({ isComplete, profile: data });
+    type ProfileData = typeof data;
+    const requiredFields: (keyof ProfileData)[] = ['username', 'full_name', 'bio'];
+    const isComplete = requiredFields.every(field => data[field] && (data[field] as string).trim() !== '');
+    
+    return res.json({ isComplete, profile: data });
   } catch (error: any) {
     console.error('Error getting profile status:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -122,12 +130,16 @@ export const getUserProfileByUsername = async (req: Request, res: Response) => {
       .eq('username', username)
       .single();
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ message: 'Profile not found' });
-
-    res.json(data);
+    if (error) {
+        if (error.code === 'PGRST116') {
+            return res.status(404).json({ message: 'Profile not found' });
+        }
+        throw error;
+    }
+    
+    return res.json(data);
   } catch (error: any) {
     console.error('Error fetching public profile:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
