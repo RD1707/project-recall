@@ -14,7 +14,7 @@ const flashcardSchema = z.object({
 });
 
 const reviewSchema = z.object({
-    quality: z.number().min(0).max(5), 
+    quality: z.number().min(0).max(5),
 });
 
 
@@ -39,7 +39,7 @@ const isUserCardOwner = async (userId: string, cardId: string): Promise<{owner: 
     if (error || !data) {
         return { owner: false, card: null };
     }
-    
+
     const cardData = data as any; // Cast para evitar erro de tipo
     return { owner: cardData.decks.user_id === userId, card: cardData };
 }
@@ -77,7 +77,7 @@ export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Respon
     const userId = req.user?.id;
     const { deckId } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
-    
+
     try {
         if (!await isUserDeckOwner(userId, deckId)) {
             return res.status(403).json({ message: 'Access denied to this deck' });
@@ -118,7 +118,7 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
-    
+
     try {
         const { owner } = await isUserCardOwner(userId, id);
         if (!owner) {
@@ -133,7 +133,7 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
             .eq('id', id)
             .select()
             .single();
-        
+
         if (error) throw error;
         return res.status(200).json(data);
     } catch (error: any) {
@@ -149,7 +149,7 @@ export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) 
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
-    
+
     try {
         const { owner } = await isUserCardOwner(userId, id);
         if (!owner) {
@@ -181,7 +181,7 @@ export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) 
         if (!owner || !card) {
             return res.status(404).json({ message: 'Card not found or access denied' });
         }
-        
+
         const srsParams = calculateSrsParameters({
             quality,
             repetitions: card.repetitions,
@@ -191,16 +191,16 @@ export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) 
 
         const { data: updatedCard, error: updateError } = await supabase
             .from('cards')
-            .update({ 
-                repetitions: srsParams.repetitions, 
-                ease_factor: srsParams.ease_factor, 
-                interval: srsParams.interval, 
-                next_review: srsParams.next_review.toISOString() 
+            .update({
+                repetitions: srsParams.repetitions,
+                ease_factor: srsParams.ease_factor,
+                interval: srsParams.interval,
+                next_review: srsParams.next_review.toISOString()
             })
             .eq('id', cardId)
             .select()
             .single();
-        
+
         if (updateError) throw updateError;
 
         return res.status(200).json(updatedCard);
