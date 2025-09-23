@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import supabase from '../config/supabaseClient';
 import { calculateSrsParameters } from '../services/srsService';
 import { AuthUser } from '@/types';
+import logger from '../config/logger';
 
 interface AuthenticatedRequest extends Request {
   user?: AuthUser;
@@ -29,7 +30,21 @@ const isUserDeckOwner = async (userId: string, deckId: string): Promise<boolean>
 };
 
 // Helper para verificar se o usuário é dono do card (através do deck)
-const isUserCardOwner = async (userId: string, cardId: string): Promise<{owner: boolean, card: any}> => {
+interface CardWithDeck {
+  id: string;
+  question: string;
+  answer: string;
+  deck_id: string;
+  repetitions?: number;
+  ease_factor?: number;
+  interval?: number;
+  next_review?: string;
+  decks: {
+    user_id: string;
+  };
+}
+
+const isUserCardOwner = async (userId: string, cardId: string): Promise<{owner: boolean; card: CardWithDeck | null}> => {
     const { data, error } = await supabase
         .from('cards')
         .select('*, decks(user_id)')
@@ -40,12 +55,12 @@ const isUserCardOwner = async (userId: string, cardId: string): Promise<{owner: 
         return { owner: false, card: null };
     }
 
-    const cardData = data as any; // Cast para evitar erro de tipo
+    const cardData = data as CardWithDeck;
     return { owner: cardData.decks.user_id === userId, card: cardData };
 }
 
 
-export const createFlashcard = async (req: AuthenticatedRequest, res: Response) => {
+export const createFlashcard = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { deckId } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -64,16 +79,17 @@ export const createFlashcard = async (req: AuthenticatedRequest, res: Response) 
 
         if (error) throw error;
         return res.status(201).json(data);
-    } catch (error: any) {
-        if (error instanceof z.ZodError) {
+    } catch (error: unknown) {
+        if (error instanceof ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
-        console.error('Error creating flashcard:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error creating flashcard:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Response) => {
+export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { deckId } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -90,13 +106,14 @@ export const getFlashcardsByDeck = async (req: AuthenticatedRequest, res: Respon
 
         if (error) throw error;
         return res.status(200).json(data);
-    } catch (error: any) {
-        console.error('Error fetching flashcards:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error fetching flashcards:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const getFlashcardById = async (req: AuthenticatedRequest, res: Response) => {
+export const getFlashcardById = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -107,14 +124,15 @@ export const getFlashcardById = async (req: AuthenticatedRequest, res: Response)
             return res.status(404).json({ message: 'Card not found or access denied' });
         }
         return res.status(200).json(card);
-    } catch (error: any) {
-        console.error('Error fetching flashcard by ID:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error fetching flashcard by ID:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 
-export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) => {
+export const updateFlashcard = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -136,16 +154,17 @@ export const updateFlashcard = async (req: AuthenticatedRequest, res: Response) 
 
         if (error) throw error;
         return res.status(200).json(data);
-    } catch (error: any) {
-        if (error instanceof z.ZodError) {
+    } catch (error: unknown) {
+        if (error instanceof ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
-        console.error('Error updating flashcard:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error updating flashcard:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) => {
+export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -163,13 +182,14 @@ export const deleteFlashcard = async (req: AuthenticatedRequest, res: Response) 
 
         if (error) throw error;
         return res.status(204).send();
-    } catch (error: any) {
-        console.error('Error deleting flashcard:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error deleting flashcard:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) => {
+export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id: cardId } = req.params;
     if (!userId) return res.status(401).json({ message: 'User not authenticated' });
@@ -204,11 +224,12 @@ export const reviewFlashcard = async (req: AuthenticatedRequest, res: Response) 
         if (updateError) throw updateError;
 
         return res.status(200).json(updatedCard);
-    } catch (error: any) {
-        if (error instanceof z.ZodError) {
+    } catch (error: unknown) {
+        if (error instanceof ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
-        console.error('Error reviewing flashcard:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error reviewing flashcard:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };

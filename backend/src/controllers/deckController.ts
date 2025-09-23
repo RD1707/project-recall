@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import supabase from '../config/supabaseClient';
 import { generateFlashcardsFromText } from '../services/cohereService';
 import { processFile } from '../services/fileProcessingService';
 import multer from 'multer';
 import { AuthUser } from '@/types';
+import logger from '../config/logger';
 
 interface AuthenticatedRequest extends Request {
   user?: AuthUser;
@@ -21,7 +22,7 @@ const createDeckSchema = z.object({
 
 const updateDeckSchema = createDeckSchema.partial(); 
 
-export const createDeck = async (req: AuthenticatedRequest, res: Response) => {
+export const createDeck = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ message: 'User not authenticated' });
 
@@ -35,16 +36,17 @@ export const createDeck = async (req: AuthenticatedRequest, res: Response) => {
 
     if (error) throw error;
     return res.status(201).json(data);
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
       return res.status(400).json({ message: 'Invalid data', errors: error.errors });
     }
-    console.error('Error creating deck:', error.message);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error creating deck:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const getUserDecks = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserDecks = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ message: 'User not authenticated' });
 
@@ -56,13 +58,14 @@ export const getUserDecks = async (req: AuthenticatedRequest, res: Response) => 
 
     if (error) throw error;
     return res.status(200).json(data);
-  } catch (error: any) {
-    console.error('Error fetching user decks:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error fetching user decks:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
+export const getDeckById = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -86,13 +89,14 @@ export const getDeckById = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         return res.status(200).json(data);
-    } catch (error: any) {
-        console.error('Error fetching deck by ID:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error fetching deck by ID:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
+export const updateDeck = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -119,16 +123,17 @@ export const updateDeck = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         return res.status(200).json(data);
-    } catch (error: any) {
-        if (error instanceof z.ZodError) {
+    } catch (error: unknown) {
+        if (error instanceof ZodError) {
             return res.status(400).json({ message: 'Invalid data', errors: error.errors });
         }
-        console.error('Error updating deck:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error updating deck:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const deleteDeck = async (req: AuthenticatedRequest, res: Response) => {
+export const deleteDeck = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -158,13 +163,14 @@ export const deleteDeck = async (req: AuthenticatedRequest, res: Response) => {
         if (deleteError) throw deleteError;
         
         return res.status(204).send(); 
-    } catch (error: any) {
-        console.error('Error deleting deck:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error deleting deck:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Response) => {
+export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     const userId = req.user?.id;
     const { id: deckId } = req.params;
     const { topic, numCards, language } = req.body;
@@ -190,8 +196,8 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
         }
 
         const cards = await generateFlashcardsFromText(topic, numCards, language);
-        
-        const cardsToInsert = cards.map((card: { question: string, answer: string }) => ({ ...card, deck_id: deckId }));
+
+        const cardsToInsert = cards.map((card: { question: string; answer: string }) => ({ ...card, deck_id: deckId }));
 
         const { data: insertedCards, error: insertError } = await supabase
             .from('cards')
@@ -201,16 +207,18 @@ export const generateCardsForDeck = async (req: AuthenticatedRequest, res: Respo
         if (insertError) throw insertError;
 
         return res.status(201).json(insertedCards);
-    } catch (error: any) {
-        console.error('Error generating AI cards:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Error generating AI cards:', errorMessage);
         return res.status(500).json({ message: 'Failed to generate flashcards.' });
     }
 };
 
-export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response) => {
-    upload.single('file')(req, res, async (err: any) => {
+export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    upload.single('file')(req, res, async (err: unknown) => {
         if (err) {
-            return res.status(400).json({ message: 'File upload error', error: err.message });
+            const errorMessage = err instanceof Error ? err.message : 'Unknown upload error';
+            return res.status(400).json({ message: 'File upload error', error: errorMessage });
         }
 
         if (!req.file) {
@@ -225,17 +233,18 @@ export const uploadFileToDeck = async (req: AuthenticatedRequest, res: Response)
         }
 
         try {
-            const content = await processFile(req.file.path, req.file.mimetype as any);
+            const content = await processFile(req.file.path, req.file.mimetype);
             const cards = await generateFlashcardsFromText(content, 10, 'default');
-            const cardsToInsert = cards.map((card: { question: string, answer: string }) => ({ ...card, deck_id: deckId }));
+            const cardsToInsert = cards.map((card: { question: string; answer: string }) => ({ ...card, deck_id: deckId }));
             const { data, error } = await supabase.from('cards').insert(cardsToInsert).select();
             
             if (error) throw error;
             
             return res.status(201).json({ message: 'File processed and cards created successfully', cards: data });
 
-        } catch (error: any) {
-            console.error('Error processing file:', error.message);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            logger.error('Error processing file:', errorMessage);
             return res.status(500).json({ message: 'Error processing file' });
         }
     });

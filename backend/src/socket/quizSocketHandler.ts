@@ -2,8 +2,7 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import { logger, socketLogger } from '@/config/logger';
 import { CustomError, ValidationError } from '@/middleware/errorHandler';
 import { SocketUser, QuizRoom } from '@/types';
-
-const quizService = require('../services/quizService');
+import * as quizService from '../services/quizService';
 
 const NEXT_QUESTION_DELAY = 4000;
 
@@ -26,11 +25,11 @@ interface SubmitAnswerData {
   answer: string;
 }
 
-interface SocketCallback<T = any> {
-  (response: { success: boolean; message?: string; quiz?: any; roomId?: string } & T): void;
+interface SocketCallback<T = Record<string, unknown>> {
+  (response: { success: boolean; message?: string; quiz?: QuizRoom; roomId?: string } & T): void;
 }
 
-const validateUser = (user: any): user is SocketUser => {
+const validateUser = (user: unknown): user is SocketUser => {
   return user &&
          typeof user.id === 'string' &&
          typeof user.username === 'string' &&
@@ -38,27 +37,27 @@ const validateUser = (user: any): user is SocketUser => {
          user.username.length > 0;
 };
 
-const validateCreateQuizData = (data: any): data is CreateQuizData => {
+const validateCreateQuizData = (data: unknown): data is CreateQuizData => {
   return data &&
          typeof data.deckId === 'string' &&
          data.deckId.length > 0 &&
          validateUser(data.user);
 };
 
-const validateJoinQuizData = (data: any): data is JoinQuizData => {
+const validateJoinQuizData = (data: unknown): data is JoinQuizData => {
   return data &&
          typeof data.roomId === 'string' &&
          data.roomId.length > 0 &&
          validateUser(data.user);
 };
 
-const validateStartQuizData = (data: any): data is StartQuizData => {
+const validateStartQuizData = (data: unknown): data is StartQuizData => {
   return data &&
          typeof data.roomId === 'string' &&
          data.roomId.length > 0;
 };
 
-const validateSubmitAnswerData = (data: any): data is SubmitAnswerData => {
+const validateSubmitAnswerData = (data: unknown): data is SubmitAnswerData => {
   return data &&
          typeof data.roomId === 'string' &&
          typeof data.answer === 'string' &&
@@ -313,7 +312,7 @@ class QuizSocketHandler {
   }
 
   private getUserId(): string | undefined {
-    return (this.socket as any).user?.id;
+    return (this.socket as Socket & { user?: SocketUser }).user?.id;
   }
 }
 

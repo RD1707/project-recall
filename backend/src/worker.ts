@@ -4,8 +4,7 @@ import { logger, performanceLogger } from '@/config/logger';
 import { connection, isRedisConnected } from '@/config/queue';
 import supabase from '@/config/supabaseClient';
 import { Flashcard, CardType } from '@/types';
-
-const { generateFlashcardsFromText } = require('./services/cohereService');
+import { generateFlashcardsFromText } from './services/cohereService';
 
 config();
 
@@ -29,7 +28,7 @@ interface FlashcardGenerationResult {
 interface GeneratedFlashcard {
   question: string;
   answer: string;
-  options?: any[];
+  options?: string[];
 }
 
 const QUEUE_NAME = 'flashcardGeneration';

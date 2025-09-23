@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import supabase from '../config/supabaseClient';
+import logger from '../config/logger';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -14,7 +15,7 @@ const loginSchema = z.object({
 });
 
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, password, username } = registerSchema.parse(req.body);
 
@@ -34,19 +35,20 @@ export const register = async (req: Request, res: Response) => {
     }
 
     return res.status(201).json({ message: 'User registered successfully! Please check your email to verify your account.', user: data.user });
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
       return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
     }
-    if (error.code === '23505') { 
+    if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
       return res.status(409).json({ message: 'Username or email already exists.' });
     }
-    console.error('Registration error:', error.message);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Registration error:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
@@ -60,27 +62,29 @@ export const login = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ message: 'Login successful', session: data.session, user: data.user });
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
         return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
     }
-    console.error('Login error:', error.message);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Login error:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
         return res.status(200).json({ message: 'Successfully logged out' });
-    } catch (error: any) {
-        console.error('Logout error:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Logout error:', errorMessage);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const requestPasswordReset = async (req: Request, res: Response) => {
+export const requestPasswordReset = async (req: Request, res: Response): Promise<Response> => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ message: 'Email is required' });
@@ -94,14 +98,15 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     if (error) throw error;
 
     return res.status(200).json({ message: 'Password reset email sent. Please check your inbox.' });
-  } catch (error: any) {
-    console.error('Password reset request error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Password reset request error:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 
-export const resetPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
   const { token, password } = req.body;
   if (!token || !password) {
     return res.status(400).json({ message: 'Token and a new password are required' });
@@ -116,8 +121,9 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (error) throw error;
 
     return res.status(200).json({ message: 'Password updated successfully.' });
-  } catch (error: any) {
-    console.error('Password reset error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Password reset error:', errorMessage);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

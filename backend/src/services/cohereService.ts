@@ -1,12 +1,22 @@
 import { CohereClient } from 'cohere-ai';
 import { ChatMessage } from 'cohere-ai/api';
+import { EnvironmentConfig } from '../config/environment';
+import logger from '../config/logger';
+
+const getApiKey = (): string => {
+    const config = EnvironmentConfig.getAIConfig();
+    if (!config.cohereApiKey) {
+        throw new Error('Cohere API key is not configured');
+    }
+    return config.cohereApiKey;
+};
 
 const cohere = new CohereClient({
-    token: process.env.COHERE_API_KEY,
+    token: getApiKey(),
 });
 
 const extractJsonFromResponse = (responseText: string): string => {
-    console.log('Resposta original da API Cohere:', responseText);
+    logger.debug('Resposta original da API Cohere:', { responseText });
 
     let cleaned = responseText.trim();
 
@@ -62,11 +72,17 @@ const extractJsonFromResponse = (responseText: string): string => {
         cleaned = cleaned.substring(0, jsonEnd);
     }
 
-    console.log('Resposta após limpeza:', cleaned);
+    logger.debug('Resposta após limpeza:', { cleaned });
     return cleaned;
 };
 
-export const generateFlashcardsFromText = async (textContent: string, count = 5, type = 'Pergunta e Resposta'): Promise<any[]> => {
+interface FlashcardData {
+    question: string;
+    answer: string;
+    options?: string[];
+}
+
+export const generateFlashcardsFromText = async (textContent: string, count = 5, type = 'Pergunta e Resposta'): Promise<FlashcardData[]> => {
 
     let promptInstruction = '';
 
@@ -111,9 +127,10 @@ export const generateFlashcardsFromText = async (textContent: string, count = 5,
 
         return flashcards;
 
-    } catch (error: any) {
-        console.error("Erro detalhado da API Cohere ao gerar flashcards:", error);
-        throw new Error(`Falha ao gerar ou processar flashcards da IA: ${error.message}`);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Erro detalhado da API Cohere ao gerar flashcards:', { error: errorMessage });
+        throw new Error(`Falha ao gerar ou processar flashcards da IA: ${errorMessage}`);
     }
 };
 
@@ -137,8 +154,9 @@ export const getExplanationForFlashcard = async (question: string, answer: strin
 
         return response.text.trim();
 
-    } catch (error) {
-        console.error("Erro ao gerar explicação da Cohere:", error);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Erro ao gerar explicação da Cohere:', { error: errorMessage });
         return null;
     }
 };
@@ -168,9 +186,10 @@ export const generateStudyInsight = async (performanceData: { deck_title: string
             temperature: 0.6,
         });
         return response.text.trim();
-    } catch (error) {
-        console.error("Erro ao gerar insight da Cohere:", error);
-        return "Não foi possível gerar um insight neste momento. Continue com o bom trabalho!";
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Erro ao gerar insight da Cohere:', { error: errorMessage });
+        return 'Não foi possível gerar um insight neste momento. Continue com o bom trabalho!';
     }
 };
 
@@ -198,8 +217,9 @@ export const getChatResponse = async (question: string, answer: string, chatHist
 
         return response.text.trim();
 
-    } catch (error) {
-        console.error("Erro ao gerar resposta do chat da Cohere:", error);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        logger.error('Erro ao gerar resposta do chat da Cohere:', { error: errorMessage });
         return null;
     }
 };

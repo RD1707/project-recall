@@ -1,14 +1,24 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import 'dotenv/config';
+import { EnvironmentConfig } from './environment';
+import logger from './logger';
 
-const supabaseUrl: string = process.env.SUPABASE_URL || '';
-const supabaseKey: string = process.env.SUPABASE_KEY || '';
+const getDatabaseConfig = (): { supabaseUrl: string; supabaseServiceRoleKey: string } => {
+  const config = EnvironmentConfig.getDatabaseConfig();
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Supabase URL and Key must be defined in .env file');
-  throw new Error('Supabase URL and Key must be defined in .env file');
-}
+  if (!config.supabaseUrl || !config.supabaseServiceRoleKey) {
+    const errorMessage = 'Supabase URL and Service Role Key must be defined in environment variables';
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
+  return {
+    supabaseUrl: config.supabaseUrl,
+    supabaseServiceRoleKey: config.supabaseServiceRoleKey
+  };
+};
+
+const { supabaseUrl, supabaseServiceRoleKey } = getDatabaseConfig();
+
+const supabase: SupabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export default supabase;

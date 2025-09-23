@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 import supabase from '../config/supabaseClient';
 import { AuthUser } from '@/types';
+import logger from '../config/logger';
 
 interface AuthenticatedRequest extends Request {
   user?: AuthUser;
@@ -15,7 +16,7 @@ const profileUpdateSchema = z.object({
   interests: z.array(z.string()).optional(),
 });
 
-export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: 'User not authenticated' });
@@ -36,13 +37,14 @@ export const getCurrentUserProfile = async (req: AuthenticatedRequest, res: Resp
     }
 
     return res.json(data);
-  } catch (error: any) {
-    console.error('Error fetching current user profile:', error.message);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error fetching current user profile:', errorMessage);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: 'User not authenticated' });
@@ -61,16 +63,17 @@ export const updateCurrentUserProfile = async (req: AuthenticatedRequest, res: R
     if (error) throw error;
 
     return res.json({ message: 'Profile updated successfully', data });
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
       return res.status(400).json({ message: 'Invalid input data', errors: error.errors });
     }
-    console.error('Error updating profile:', error.message);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error updating profile:', errorMessage);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: Response) => {
+export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: 'User not authenticated' });
@@ -83,13 +86,14 @@ export const deleteCurrentUserProfile = async (req: AuthenticatedRequest, res: R
     if (error) throw error;
 
     return res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error: any) {
-    console.error('Error deleting user:', error.message);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error deleting user:', errorMessage);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const getProfileStatus = async (req: AuthenticatedRequest, res: Response) => {
+export const getProfileStatus = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: 'User not authenticated' });
@@ -114,13 +118,14 @@ export const getProfileStatus = async (req: AuthenticatedRequest, res: Response)
     const isComplete = requiredFields.every(field => data[field] && (data[field] as string).trim() !== '');
     
     return res.json({ isComplete, profile: data });
-  } catch (error: any) {
-    console.error('Error getting profile status:', error.message);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error getting profile status:', errorMessage);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const getUserProfileByUsername = async (req: Request, res: Response) => {
+export const getUserProfileByUsername = async (req: Request, res: Response): Promise<Response> => {
   const { username } = req.params;
 
   try {
@@ -138,8 +143,9 @@ export const getUserProfileByUsername = async (req: Request, res: Response) => {
     }
     
     return res.json(data);
-  } catch (error: any) {
-    console.error('Error fetching public profile:', error.message);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    logger.error('Error fetching public profile:', errorMessage);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
