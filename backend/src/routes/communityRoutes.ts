@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { getCommunityDecks } from '@/controllers/communityController';
-import { authenticateToken } from '@/middleware/authMiddleware';
+import authMiddleware from '@/middleware/authMiddleware';
 
 const router = Router();
 
-router.use(authenticateToken);
+router.use(authMiddleware);
 router.get('/', getCommunityDecks);
 
 export default router;

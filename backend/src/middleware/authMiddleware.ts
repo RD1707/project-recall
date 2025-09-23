@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import supabase from '../config/supabaseClient';
 import { AuthUser } from '@/types';
+import { User } from '@supabase/supabase-js';
 
-interface AuthenticatedRequest extends Request {
-  user?: AuthUser; 
+export interface AuthenticatedRequest extends Request {
+  user?: AuthUser;
 }
 
 const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -23,8 +24,17 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
 
-    req.user = data.user as AuthUser;
-    return next(); 
+    // Corrigindo a tipagem
+    const user: User = data.user;
+    req.user = {
+        id: user.id,
+        email: user.email!,
+        aud: user.aud,
+        exp: user.exp!,
+        iat: user.iat!,
+        role: user.role
+    };
+    return next();
   } catch (error) {
     console.error('An unexpected error occurred during authentication:', error);
     return res.status(500).json({ message: 'Internal server error' });
@@ -32,3 +42,5 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
 };
 
 export default authMiddleware;
+
+export const authenticateToken = authMiddleware;

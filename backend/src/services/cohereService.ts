@@ -1,10 +1,11 @@
-const { CohereClient } = require('cohere-ai');
+import { CohereClient } from 'cohere-ai';
+import { ChatMessage } from 'cohere-ai/api';
 
 const cohere = new CohereClient({
     token: process.env.COHERE_API_KEY,
 });
 
-const extractJsonFromResponse = (responseText) => {
+const extractJsonFromResponse = (responseText: string): string => {
     console.log('Resposta original da API Cohere:', responseText);
 
     let cleaned = responseText.trim();
@@ -65,16 +66,16 @@ const extractJsonFromResponse = (responseText) => {
     return cleaned;
 };
 
-const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergunta e Resposta') => {
-    
+export const generateFlashcardsFromText = async (textContent: string, count = 5, type = 'Pergunta e Resposta'): Promise<any[]> => {
+
     let promptInstruction = '';
-    
+
     if (type === 'Múltipla Escolha') {
         promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string), "options" (um array de 4 strings com as alternativas), e "answer" (uma string contendo a resposta correta, que deve ser uma das strings de "options").`;
-    } else { 
+    } else {
         promptInstruction = `Cada flashcard deve ser um objeto JSON com as chaves "question" (string) e "answer" (string).`;
     }
-    
+
     const message = `
         Baseado no texto a seguir, gere ${count} flashcards no formato de um array de objetos JSON.
         ${promptInstruction}
@@ -87,9 +88,9 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
 
     try {
         const response = await cohere.chat({
-            model: 'command-a-03-2025', 
+            model: 'command-r',
             message: message,
-            temperature: 0.3, 
+            temperature: 0.3,
         });
 
         const cleanedResponse = extractJsonFromResponse(response.text);
@@ -110,13 +111,13 @@ const generateFlashcardsFromText = async (textContent, count = 5, type = 'Pergun
 
         return flashcards;
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Erro detalhado da API Cohere ao gerar flashcards:", error);
         throw new Error(`Falha ao gerar ou processar flashcards da IA: ${error.message}`);
     }
 };
 
-const getExplanationForFlashcard = async (question, answer) => {
+export const getExplanationForFlashcard = async (question: string, answer: string): Promise<string | null> => {
     const message = `
         Com base na seguinte pergunta e resposta de um flashcard, explique o conceito principal de forma clara, concisa e didática, como se fosse para um estudante.
         A explicação deve ter no máximo 3 ou 4 frases. Não comece com "A resposta está correta porque..." ou algo semelhante. Vá direto ao ponto.
@@ -129,7 +130,7 @@ const getExplanationForFlashcard = async (question, answer) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-a-03-2025',
+            model: 'command-r',
             message: message,
             temperature: 0.5,
         });
@@ -142,7 +143,7 @@ const getExplanationForFlashcard = async (question, answer) => {
     }
 };
 
-const generateStudyInsight = async (performanceData) => {
+export const generateStudyInsight = async (performanceData: { deck_title: string; error_rate: number }[]): Promise<string> => {
     if (!performanceData || performanceData.length === 0) {
         return "Continue a estudar! Ainda não temos dados suficientes para analisar o seu desempenho em detalhe.";
     }
@@ -162,7 +163,7 @@ const generateStudyInsight = async (performanceData) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-a-03-2025',
+            model: 'command-r',
             message: message,
             temperature: 0.6,
         });
@@ -173,7 +174,7 @@ const generateStudyInsight = async (performanceData) => {
     }
 };
 
-const getChatResponse = async (question, answer, chatHistory) => {
+export const getChatResponse = async (question: string, answer: string, chatHistory: ChatMessage[]): Promise<string | null> => {
     const preamble = `
         Você é um tutor de IA amigável e prestativo chamado Recall. Sua função é ajudar um aluno a entender melhor um tópico específico de um flashcard.
         O contexto do estudo atual é:
@@ -188,7 +189,7 @@ const getChatResponse = async (question, answer, chatHistory) => {
 
     try {
         const response = await cohere.chat({
-            model: 'command-a-03-2025',
+            model: 'command-r',
             preamble: preamble,
             chatHistory: historyForApi,
             message: userMessage.message,
@@ -201,11 +202,4 @@ const getChatResponse = async (question, answer, chatHistory) => {
         console.error("Erro ao gerar resposta do chat da Cohere:", error);
         return null;
     }
-};
-
-module.exports = {
-    generateFlashcardsFromText,
-    getExplanationForFlashcard,
-    generateStudyInsight,
-    getChatResponse 
 };
