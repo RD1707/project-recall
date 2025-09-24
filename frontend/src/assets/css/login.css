@@ -354,9 +354,55 @@
     display: block;
 }
 
+/* Enhanced Responsive Login/Register Styles */
+
+/* Large screens optimization */
+@media (min-width: 1200px) {
+    .auth-layout {
+        min-height: 100vh;
+    }
+
+    .auth-promo-panel {
+        padding: 4rem;
+    }
+
+    .promo-content {
+        max-width: 500px;
+    }
+
+    .auth-form-panel {
+        padding: 4rem;
+    }
+
+    .form-container {
+        max-width: 450px;
+    }
+}
+
+/* Medium screens (tablets) */
+@media (max-width: 1200px) and (min-width: 993px) {
+    .auth-promo-panel {
+        padding: 3rem;
+    }
+
+    .promo-content {
+        max-width: 400px;
+    }
+
+    .auth-form-panel {
+        padding: 3rem;
+    }
+
+    .form-container {
+        max-width: 380px;
+    }
+}
+
+/* Tablet responsive adjustments */
 @media (max-width: 992px) {
     .auth-layout {
         grid-template-columns: 1fr;
+        min-height: 100vh;
     }
 
     .auth-promo-panel {
@@ -364,7 +410,266 @@
     }
 
     .auth-form-panel {
-        align-items: flex-start;
-        padding-top: 5vh;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-8) var(--space-6);
+        min-height: 100vh;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .form-header h1 {
+        font-size: var(--font-size-3xl);
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    .auth-layout {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .auth-form-panel {
+        padding: var(--space-6) var(--space-4);
+        width: 100%;
+    }
+
+    .form-container {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .form-header {
+        margin-bottom: var(--space-6);
+        text-align: center;
+    }
+
+    .form-header h1 {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--space-3);
+    }
+
+    .form-header p {
+        font-size: var(--font-size-sm);
+    }
+
+    /* Form improvements for mobile */
+    .form-group {
+        margin-bottom: var(--space-5);
+    }
+
+    .form-group label {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--space-3);
+    }
+
+    input, textarea, select {
+        padding: var(--space-4);
+        font-size: var(--font-size-base);
+        min-height: 48px; /* Touch-friendly */
+        border-radius: var(--border-radius-md);
+    }
+
+    .btn-social {
+        padding: var(--space-4);
+        min-height: 48px;
+        font-size: var(--font-size-base);
+    }
+
+    .btn-social .icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Password requirements mobile */
+    .password-requirements {
+        padding: var(--space-4);
+        margin-top: var(--space-4);
+    }
+
+    .password-requirements h4 {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--space-4);
+    }
+
+    .password-requirements li {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--space-3);
+        gap: var(--space-3);
+    }
+
+    /* Email verification mobile */
+    .email-address {
+        padding: var(--space-4);
+        font-size: var(--font-size-base);
+        margin: var(--space-4) 0;
+        word-break: break-all;
+    }
+
+    .info-box {
+        padding: var(--space-5);
+        margin: var(--space-5) 0;
+    }
+
+    .info-box h3 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--space-4);
+    }
+
+    .info-box li {
+        margin-bottom: var(--space-3);
+        font-size: var(--font-size-base);
+    }
+
+    /* Form actions mobile */
+    .form-actions {
+        gap: var(--space-4);
+        margin-top: var(--space-6);
+    }
+
+    .form-options {
+        margin-bottom: var(--space-4);
+        justify-content: center;
+    }
+
+    .forgot-password {
+        font-size: var(--font-size-base);
+    }
+
+    .checkbox-label {
+        gap: var(--space-3);
+        font-size: var(--font-size-base);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-full {
+        min-height: 48px;
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        margin-top: var(--space-4);
+    }
+
+    .toggle-panel {
+        margin-top: var(--space-6);
+        font-size: var(--font-size-base);
+    }
+
+    /* Error messages mobile */
+    .error-message {
+        padding: var(--space-4);
+        font-size: var(--font-size-base);
+        margin: var(--space-4) 0;
+        border-radius: var(--border-radius-md);
+    }
+
+    .field-error {
+        font-size: var(--font-size-sm);
+        margin-top: var(--space-2);
+    }
+}
+
+/* Small mobile optimization */
+@media (max-width: 576px) {
+    .auth-form-panel {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .form-header h1 {
+        font-size: var(--font-size-xl);
+    }
+
+    .form-header p {
+        font-size: var(--font-size-xs);
+    }
+
+    input, textarea, select {
+        padding: var(--space-3);
+        font-size: var(--font-size-sm);
+    }
+
+    .btn-social {
+        padding: var(--space-3);
+        font-size: var(--font-size-sm);
+    }
+
+    .password-requirements {
+        padding: var(--space-3);
+    }
+
+    .info-box {
+        padding: var(--space-4);
+    }
+
+    .info-box h3 {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+    .auth-form-panel {
+        padding: var(--space-4);
+    }
+
+    .form-container {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .form-header {
+        margin-bottom: var(--space-4);
+    }
+
+    .form-header h1 {
+        font-size: var(--font-size-xl);
+    }
+
+    .password-requirements {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .info-box {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+}
+
+/* Touch device optimizations */
+@media (pointer: coarse) {
+    input, textarea, select {
+        min-height: 44px;
+    }
+
+    .btn, .btn-social, .btn-full {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .password-toggle {
+        width: 48px;
+        min-height: 44px;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        min-width: 20px;
+        min-height: 20px;
+    }
+}
+
+/* High DPI optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .btn-social .icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
 }

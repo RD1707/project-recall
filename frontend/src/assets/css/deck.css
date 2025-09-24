@@ -652,3 +652,143 @@
         transform: rotate(360deg);
     }
 }
+
+/* Enhanced Deck Detail Mobile Responsive Styles */
+
+@media (max-width: 576px) {
+    .deck-main {
+        padding: var(--space-3);
+    }
+
+    .deck-hero {
+        padding: var(--space-4) var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+
+    .back-btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-3);
+    }
+
+    .deck-title {
+        font-size: var(--font-size-xl);
+        line-height: var(--line-height-tight);
+    }
+
+    .deck-description {
+        font-size: var(--font-size-sm);
+    }
+
+    .deck-actions {
+        gap: var(--space-2);
+    }
+
+    .deck-actions>a,
+    .deck-actions>button {
+        min-height: 44px;
+        font-size: var(--font-size-sm);
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .cards-grid {
+        gap: var(--space-2);
+    }
+
+    .card-item {
+        padding: var(--space-3);
+    }
+
+    .card-question {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-2);
+    }
+
+    .card-answer {
+        font-size: var(--font-size-xs);
+    }
+
+    .modal {
+        margin: var(--space-2);
+        width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: var(--space-3);
+    }
+
+    .deck-stats-container {
+        padding: var(--space-3);
+    }
+
+    .generation-options {
+        padding: var(--space-3);
+    }
+
+    .section-header h3 {
+        font-size: var(--font-size-lg);
+    }
+
+    .loading-container {
+        padding: var(--space-8) var(--space-4);
+        min-height: 40vh;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
+        margin-bottom: var(--space-4);
+    }
+
+    .loading-container h2 {
+        font-size: var(--font-size-lg);
+    }
+}
+
+/* Landscape mobile optimization for deck detail */
+@media (max-width: 768px) and (orientation: landscape) {
+    .deck-hero {
+        padding: var(--space-4);
+    }
+
+    .deck-actions {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .deck-actions>a:first-child {
+        grid-column: auto;
+    }
+
+    .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--space-3);
+    }
+
+    .loading-container {
+        min-height: 30vh;
+        padding: var(--space-6) var(--space-4);
+    }
+}
+
+/* Touch device optimizations for deck detail */
+@media (pointer: coarse) {
+    .back-btn,
+    .deck-actions button,
+    .deck-actions a {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .card-item {
+        min-height: 44px;
+    }
+
+    .card-item:hover {
+        transform: none;
+    }
+
+    .card-item:active {
+        transform: scale(0.98);
+    }
+}
