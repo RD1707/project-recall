@@ -1,47 +1,126 @@
-# Project Recall
+# 🧠 Flashcards Inteligentes
+<div align="center">
 
-Project Recall is an intelligent flashcard application designed to accelerate learning through artificial intelligence. It transforms study materials into optimized flashcards and uses a spaced repetition algorithm to enhance long-term memory retention.
+![Typing Animation](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=32&duration=2800&pause=2000&color=61DBFB&center=true&vCenter=true&width=600&lines=Estude+menos%2C+aprenda+mais!;Flashcards+com+Intelig%C3%AAncia+Artificial;Transforme+conte%C3%BAdo+em+conhecimento)
 
----
+**Transforme qualquer conteúdo em flashcards inteligentes com o poder da Inteligência Artificial.**
 
-## Features
-
--   **AI-Powered Flashcard Generation**: Automatically creates flashcards from various content sources using the Cohere AI.
--   **Multi-Format Support**: Imports and processes content from text, PDF documents, images, and videos.
--   **Spaced Repetition System**: Employs an adaptive learning algorithm to schedule reviews at optimal intervals for maximum retention.
--   **Advanced Analytics**: Provides detailed dashboards to track study progress, identify weak points, and monitor performance.
--   **Cross-Device Sync**: Offers a responsive design that works seamlessly across desktops, tablets, and mobile devices.
--   **High Performance**: Built with a modern tech stack including Vite and Redis for a fast and responsive user experience.
--   **Secure**: Implements JWT-based authentication to ensure user data is protected.
+</div>
 
 ---
 
-## Technology Stack
-
-The application is built on a modern, robust technology stack designed for scalability and performance.
+## 🛠️ Stack Tecnológica
 
 ### **Frontend**
--   **React**: A declarative JavaScript library for building user interfaces.
--   **Vite**: A next-generation frontend tooling that provides a faster and leaner development experience.
--   **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript, enhancing code quality and maintainability.
+<div align="center">
+
+![React](https://img.shields.io/badge/React-61DBFB?style=for-the-badge&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+
+</div>
 
 ### **Backend**
--   **Node.js**: A JavaScript runtime built on Chrome's V8 JavaScript engine.
--   **Express.js**: A minimal and flexible Node.js web application framework.
--   **JWT**: JSON Web Tokens are used for secure authentication.
+<div align="center">
 
-### **Database & Caching**
--   **Supabase (PostgreSQL)**: An open-source Firebase alternative, providing a scalable PostgreSQL database and backend services.
--   **Redis**: An in-memory data structure store, used for caching and message brokering.
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
-### **DevOps & Tooling**
--   **Docker**: A platform for developing, shipping, and running applications in containers.
--   **BullMQ**: A fast and robust queue system for Node.js built on top of Redis.
--   **GitHub Actions**: Automates the build, test, and deployment pipeline.
+</div>
+
+### **Banco de Dados & Cache**
+<div align="center">
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+
+</div>
+
+### **DevOps & Ferramentas**
+<div align="center">
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![BullMQ](https://img.shields.io/badge/BullMQ-FF0000?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+
+</div>
+
+---
+
+## 👥 Nossa Equipe
+
+<div align="center">
+
+| **🚀 Desenvolvedor Full-Stack** | **🎨 UI/UX Designer** | **🤖 Especialista em IA** | **📊 Data Scientist** |
+|:---:|:---:|:---:|:---:|
+| [![Seu Nome](https://github.com/SEU_USUARIO.png?size=100)](https://github.com/SEU_USUARIO) | [![Nome do Designer](https://github.com/USUARIO_DESIGNER.png?size=100)](https://github.com/USUARIO_DESIGNER) | [![Nome do IA Expert](https://github.com/USUARIO_IA.png?size=100)](https://github.com/USUARIO_IA) | [![Nome do Data Scientist](https://github.com/USUARIO_DATA.png?size=100)](https://github.com/USUARIO_DATA) |
+| **[Seu Nome](https://github.com/SEU_USUARIO)** | **[Nome do Designer](https://github.com/USUARIO_DESIGNER)** | **[Nome do IA Expert](https://github.com/USUARIO_IA)** | **[Nome do Data Scientist](https://github.com/USUARIO_DATA)** |
+| *Full-Stack Developer* | *UI/UX Designer* | *AI Engineer* | *Data Scientist* |
+
+</div>
+
+---
+
+## ✨ Funcionalidades
+
+<div align="center">
+
+| 🎯 **Características** | 📝 **Descrição** |
+|:---:|:---|
+| 🤖 **IA Integrada** | Geração automática de flashcards usando Cohere AI |
+| 📚 **Multi-formato** | Suporte para PDF, texto, imagens e vídeos |
+| 🧠 **Aprendizado Adaptativo** | Sistema que se adapta ao seu ritmo de estudo |
+| 📊 **Analytics Avançado** | Acompanhe seu progresso com gráficos detalhados |
+| 🌙 **Modo Escuro** | Interface moderna com suporte a temas |
+| 📱 **Responsivo** | Funciona perfeitamente em todos os dispositivos |
+| ⚡ **Performance** | Carregamento ultra-rápido com Vite e Redis |
+| 🔒 **Seguro** | Autenticação JWT e criptografia de dados |
+
+</div>
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são sempre bem-vindas! Veja nosso [Guia de Contribuição](CONTRIBUTING.md) para começar.
+
+<div align="center">
+
+[![Contributors](https://contrib.rocks/image?repo=SEU_USUARIO/SEU_REPOSITORIO)](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/graphs/contributors)
+
+</div>
+
+---
+
+## 📞 Contato & Suporte
+
+<div align="center">
+
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SEU_DISCORD)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contato@seuprojeto.com)
+[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/SEU_TWITTER)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/SEU_LINKEDIN)
+
+</div>
+
+---
+
+<div align="center">
+
+### 🌟 Se este projeto te ajudou, deixe uma estrela!
+
+[![Stargazers over time](https://starchart.cc/SEU_USUARIO/SEU_REPOSITORIO.svg)](https://starchart.cc/RD1707/project-recall)
 
 ---
 
 
-## Contact & Support
 
-For questions, support, or general inquiries, please contact us at `souplemonpie@gmail.com`.
+
+![Wave](https://raw.githubusercontent.com/mayhemantt/mayhemantt/Update/svg/Bottom.svg)
+
+</div>
