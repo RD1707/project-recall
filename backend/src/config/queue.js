@@ -36,7 +36,7 @@ if (process.env.REDIS_URL && process.env.REDIS_URL !== 'DISABLED') {
 }
 
 if (!flashcardGenerationQueue) {
-  logger.warn('⚠️  Redis está desabilitado ou a conexão falhou. A geração de IA será síncrona.');
+  logger.warn('  Redis está desabilitado ou a conexão falhou. A geração de IA será síncrona.');
 }
 
 module.exports = {

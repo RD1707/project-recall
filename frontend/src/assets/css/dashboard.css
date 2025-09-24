@@ -435,9 +435,6 @@
     border-color: #ef4444;
 }
 
-/* Enhanced Responsive Styles */
-
-/* Large screens optimization */
 @media (min-width: 1200px) {
     .dashboard-main {
         padding: 3rem 2rem;
@@ -457,7 +454,6 @@
     }
 }
 
-/* Tablet optimization */
 @media (max-width: 992px) {
     .dashboard-main {
         padding: 2rem 1.5rem;
@@ -482,11 +478,10 @@
     }
 }
 
-/* Mobile styles */
 @media (max-width: 768px) {
     .dashboard-main {
         padding: var(--space-4);
-        min-height: calc(100vh - 60px); /* Adjust for mobile header height */
+        min-height: calc(100vh - 60px); 
     }
 
     .content-header {
@@ -517,7 +512,7 @@
     .search-box input,
     .search-box input:focus {
         width: 100%;
-        height: 48px; /* Touch-friendly height */
+        height: 48px; 
         font-size: var(--font-size-base);
         padding: var(--space-3) var(--space-4);
         padding-left: 3rem;
@@ -584,7 +579,6 @@
     }
 }
 
-/* Small mobile optimization */
 @media (max-width: 576px) {
     .dashboard-main {
         padding: var(--space-3);
@@ -636,7 +630,6 @@
     }
 }
 
-/* Landscape mobile optimization */
 @media (max-width: 768px) and (orientation: landscape) {
     .dashboard-main {
         padding: var(--space-3) var(--space-4);
@@ -670,7 +663,6 @@
     }
 }
 
-/* Touch device optimizations */
 @media (pointer: coarse) {
     .deck-card__study-btn,
     .create-new-card {
@@ -681,7 +673,6 @@
         min-height: 44px;
     }
 
-    /* Increase touch targets */
     .deck-card__options-btn {
         padding: var(--space-3);
         min-width: 44px;
@@ -689,7 +680,6 @@
     }
 }
 
-/* High DPI display optimizations */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .deck-card__header::after {
         background-size: 40px 40px;

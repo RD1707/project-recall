@@ -2,31 +2,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 :root {
-    /* Primary Colors */
     --color-primary-50: #f0f4ff;
     --color-primary-100: #eef2ff;
     --color-primary-200: #d1d5db;
     --color-primary-500: #4f46e5;
     --color-primary-600: #4338ca;
 
-    /* Neutral Colors */
     --color-dark-900: #111827;
     --color-dark-800: #1f2937;
     --color-text-default: #374151;
     --color-text-muted: #6b7280;
 
-    /* Background Colors */
     --color-background: #f8fafc;
     --color-background-subtle: #f3f4f6;
     --color-surface: #ffffff;
 
-    /* Border & Status Colors */
     --color-border: #e5e7eb;
     --color-error: #ef4444;
     --color-success-500: #10b981;
     --color-success-600: #059669;
 
-    /* Typography */
     --font-family-body: 'Inter', sans-serif;
     --font-family-heading: 'Poppins', sans-serif;
     --font-size-xs: 0.75rem;
@@ -42,23 +37,19 @@
     --line-height-body: 1.7;
     --line-height-heading: 1.3;
 
-    /* Layout */
     --border-radius-sm: 6px;
     --border-radius-md: 10px;
     --border-radius-lg: 12px;
     --border-radius-xl: 16px;
 
-    /* Shadows */
     --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 
-    /* Motion */
     --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Responsive Breakpoints */
     --breakpoint-xs: 320px;
     --breakpoint-sm: 576px;
     --breakpoint-md: 768px;
@@ -66,7 +57,6 @@
     --breakpoint-xl: 1200px;
     --breakpoint-xxl: 1400px;
 
-    /* Layout Constraints */
     --container-width: 1120px;
     --container-width-sm: 540px;
     --container-width-md: 720px;
@@ -74,7 +64,6 @@
     --container-width-xl: 1140px;
     --header-height: 70px;
 
-    /* Spacing Scale */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -323,7 +312,6 @@ textarea {
     display: none !important;
 }
 
-/* Responsive Container */
 .container-fluid {
     width: 100%;
     padding: 0 var(--space-4);
@@ -336,7 +324,6 @@ textarea {
     padding: 0 var(--space-6);
 }
 
-/* Responsive Utilities */
 .flex-responsive {
     display: flex;
     flex-wrap: wrap;
@@ -355,7 +342,6 @@ textarea {
 .hidden-mobile { display: block; }
 .visible-mobile { display: none; }
 
-/* Fluid Typography */
 .text-fluid {
     font-size: clamp(var(--font-size-sm), 2.5vw, var(--font-size-base));
 }
@@ -368,12 +354,9 @@ textarea {
     font-size: clamp(var(--font-size-xl), 5vw, var(--font-size-4xl));
 }
 
-/* Media Queries - Mobile First Approach */
-
-/* Extra Small devices (portrait phones, less than 576px) */
 @media (max-width: 575px) {
     html {
-        font-size: 87.5%; /* 14px */
+        font-size: 87.5%; 
     }
 
     .container-responsive {
@@ -394,10 +377,9 @@ textarea {
     }
 }
 
-/* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767px) {
     html {
-        font-size: 90%; /* 14.4px */
+        font-size: 90%; 
     }
 
     .hidden-sm { display: none !important; }
@@ -406,10 +388,9 @@ textarea {
     .text-center-sm { text-align: center; }
 }
 
-/* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) and (max-width: 991px) {
     html {
-        font-size: 93.75%; /* 15px */
+        font-size: 93.75%; 
     }
 
     .container-responsive {
@@ -422,10 +403,9 @@ textarea {
     .text-center-md { text-align: center; }
 }
 
-/* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) and (max-width: 1199px) {
     html {
-        font-size: 100%; /* 16px */
+        font-size: 100%; 
     }
 
     .container-responsive {
@@ -436,7 +416,6 @@ textarea {
     .visible-lg { display: block !important; }
 }
 
-/* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
     .container-responsive {
         max-width: var(--container-width-xl);
@@ -446,7 +425,6 @@ textarea {
     .visible-xl { display: block !important; }
 }
 
-/* Mobile-specific optimizations */
 @media (max-width: 768px) {
     html {
         font-size: 93.75%;
@@ -457,19 +435,16 @@ textarea {
 
     .text-center-mobile { text-align: center; }
 
-    /* Touch-friendly sizing */
     .btn {
         min-height: 44px;
         min-width: 44px;
     }
 
-    /* Improved form controls for mobile */
     input, textarea, select {
         font-size: var(--font-size-base);
         min-height: 44px;
     }
 
-    /* Better spacing for mobile */
     .modal {
         width: 95%;
         margin: var(--space-4);
@@ -480,7 +455,6 @@ textarea {
     }
 }
 
-/* Landscape phone optimization */
 @media (max-width: 768px) and (orientation: landscape) {
     .modal {
         max-height: 90vh;
@@ -488,18 +462,13 @@ textarea {
     }
 }
 
-/* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    /* Optimize for retina displays */
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 }
 
-/* Advanced Modern CSS Features */
-
-/* Container Queries Support (where supported) */
 @container (max-width: 600px) {
     .container-responsive .card {
         padding: var(--space-3);
@@ -511,7 +480,6 @@ textarea {
     }
 }
 
-/* Aspect Ratio Utilities */
 .aspect-ratio-16-9 {
     aspect-ratio: 16 / 9;
 }
@@ -528,7 +496,6 @@ textarea {
     aspect-ratio: 3 / 2;
 }
 
-/* Scroll Snap */
 .scroll-snap-x {
     scroll-snap-type: x mandatory;
     overflow-x: auto;
@@ -547,7 +514,6 @@ textarea {
     scroll-snap-align: start;
 }
 
-/* Modern Layout Utilities */
 .subgrid {
     display: subgrid;
 }
@@ -560,7 +526,6 @@ textarea {
     grid-template-columns: repeat(auto-fill, minmax(var(--min-column-width, 200px), 1fr));
 }
 
-/* CSS Logical Properties */
 .margin-block {
     margin-block: var(--space-4);
 }
@@ -585,7 +550,6 @@ textarea {
     border-inline-start: 1px solid var(--color-border);
 }
 
-/* Advanced Typography */
 .text-balance {
     text-wrap: balance;
 }
@@ -598,7 +562,6 @@ textarea {
     text-wrap: nowrap;
 }
 
-/* Modern Color Schemes */
 @media (prefers-color-scheme: dark) {
     :root {
         --color-background: #0f0f0f;
@@ -610,7 +573,6 @@ textarea {
     }
 }
 
-/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -630,7 +592,6 @@ textarea {
     }
 }
 
-/* High Contrast Mode */
 @media (prefers-contrast: high) {
     :root {
         --color-border: #000000;
@@ -653,7 +614,6 @@ textarea {
     }
 }
 
-/* Focus Visibility Improvements */
 @media (prefers-reduced-motion: no-preference) {
     :focus-visible {
         outline: 3px solid var(--color-primary-500);
@@ -663,7 +623,6 @@ textarea {
     }
 }
 
-/* Print Styles */
 @media print {
     *,
     *::before,
@@ -731,7 +690,6 @@ textarea {
     }
 }
 
-/* Advanced Interaction Media Queries */
 @media (hover: hover) and (pointer: fine) {
     .btn:hover {
         transform: translateY(-1px);
@@ -760,7 +718,6 @@ textarea {
     }
 }
 
-/* Modern Feature Queries */
 @supports (backdrop-filter: blur(10px)) {
     .backdrop-blur {
         backdrop-filter: blur(10px);
@@ -790,7 +747,6 @@ textarea {
     }
 }
 
-/* Intersection Observer Animation Classes */
 .fade-in-up {
     opacity: 0;
     transform: translateY(30px);
@@ -824,14 +780,12 @@ textarea {
     transform: scale(1);
 }
 
-/* Stagger Animation Utilities */
 .stagger-1 { transition-delay: 0.1s; }
 .stagger-2 { transition-delay: 0.2s; }
 .stagger-3 { transition-delay: 0.3s; }
 .stagger-4 { transition-delay: 0.4s; }
 .stagger-5 { transition-delay: 0.5s; }
 
-/* CSS Grid Areas */
 .grid-layout {
     display: grid;
     grid-template-areas:

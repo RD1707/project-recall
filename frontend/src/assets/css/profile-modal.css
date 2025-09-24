@@ -429,7 +429,6 @@
   }
 }
 
-/* Danger Zone Styles */
 .danger-zone {
   margin-top: 2rem;
   padding: 1.5rem;
@@ -495,7 +494,6 @@
   box-shadow: none;
 }
 
-/* Delete Account Modal Styles */
 .delete-account-content {
   text-align: center;
   max-width: 500px;

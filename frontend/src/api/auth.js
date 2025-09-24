@@ -118,7 +118,6 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
             password: newPassword 
         };
         
-        // Só incluir refresh_token se não estiver vazio
         if (refreshToken && refreshToken.trim() !== '') {
             body.refresh_token = refreshToken;
         }

@@ -158,10 +158,8 @@ const forgotPassword = async (req, res) => {
 
         if (error) {
             logger.error(`Erro ao enviar email de recuperação para ${email}: ${error.message}`);
-            // Não revelar se o email existe ou não por questões de segurança
         }
 
-        // Sempre retornar sucesso, mesmo se o email não existir
         res.status(200).json({ 
             message: 'Se o e-mail estiver cadastrado, você receberá um link de recuperação.' 
         });
@@ -186,14 +184,12 @@ const resetPassword = async (req, res) => {
     try {
         logger.info(`Tentativa de reset de senha com token: ${access_token.substring(0, 10)}...`);
         
-        // Criar nova instância de cliente Supabase para esta operação
         const { createClient } = require('@supabase/supabase-js');
         const resetClient = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_ANON_KEY
         );
 
-        // Estabelecer sessão com os tokens
         const { data: sessionData, error: sessionError } = await resetClient.auth.setSession({
             access_token,
             refresh_token: refresh_token || null
@@ -211,7 +207,6 @@ const resetPassword = async (req, res) => {
 
         logger.info(`Usuário autenticado: ${sessionData.user.id}`);
 
-        // Atualizar a senha do usuário
         const { error: updateError } = await resetClient.auth.updateUser({
             password: password
         });

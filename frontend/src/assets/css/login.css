@@ -136,7 +136,6 @@
     color: var(--color-dark-800);
 }
 
-/* Password Strength Indicator */
 .password-strength {
     margin-top: 0.5rem;
 }
@@ -162,7 +161,6 @@
     font-weight: 500;
 }
 
-/* Password Requirements */
 .password-requirements {
     margin-top: 1rem;
     padding: 1rem;
@@ -213,7 +211,6 @@
     color: var(--color-success-600);
 }
 
-/* Success page styles */
 .success-icon {
     margin-bottom: 1.5rem;
 }
@@ -223,7 +220,6 @@
     color: var(--color-success-500);
 }
 
-/* Email verification specific styles */
 .email-address {
     font-weight: 600;
     color: var(--color-primary-600);
@@ -354,9 +350,6 @@
     display: block;
 }
 
-/* Enhanced Responsive Login/Register Styles */
-
-/* Large screens optimization */
 @media (min-width: 1200px) {
     .auth-layout {
         min-height: 100vh;
@@ -379,7 +372,6 @@
     }
 }
 
-/* Medium screens (tablets) */
 @media (max-width: 1200px) and (min-width: 993px) {
     .auth-promo-panel {
         padding: 3rem;
@@ -398,7 +390,6 @@
     }
 }
 
-/* Tablet responsive adjustments */
 @media (max-width: 992px) {
     .auth-layout {
         grid-template-columns: 1fr;
@@ -426,7 +417,6 @@
     }
 }
 
-/* Mobile styles */
 @media (max-width: 768px) {
     .auth-layout {
         min-height: 100vh;
@@ -458,7 +448,6 @@
         font-size: var(--font-size-sm);
     }
 
-    /* Form improvements for mobile */
     .form-group {
         margin-bottom: var(--space-5);
     }
@@ -471,7 +460,7 @@
     input, textarea, select {
         padding: var(--space-4);
         font-size: var(--font-size-base);
-        min-height: 48px; /* Touch-friendly */
+        min-height: 48px; 
         border-radius: var(--border-radius-md);
     }
 
@@ -486,7 +475,6 @@
         height: 24px;
     }
 
-    /* Password requirements mobile */
     .password-requirements {
         padding: var(--space-4);
         margin-top: var(--space-4);
@@ -503,7 +491,6 @@
         gap: var(--space-3);
     }
 
-    /* Email verification mobile */
     .email-address {
         padding: var(--space-4);
         font-size: var(--font-size-base);
@@ -526,7 +513,6 @@
         font-size: var(--font-size-base);
     }
 
-    /* Form actions mobile */
     .form-actions {
         gap: var(--space-4);
         margin-top: var(--space-6);
@@ -563,7 +549,6 @@
         font-size: var(--font-size-base);
     }
 
-    /* Error messages mobile */
     .error-message {
         padding: var(--space-4);
         font-size: var(--font-size-base);
@@ -577,7 +562,6 @@
     }
 }
 
-/* Small mobile optimization */
 @media (max-width: 576px) {
     .auth-form-panel {
         padding: var(--space-4) var(--space-3);
@@ -614,7 +598,6 @@
     }
 }
 
-/* Landscape mobile optimization */
 @media (max-width: 768px) and (orientation: landscape) {
     .auth-form-panel {
         padding: var(--space-4);
@@ -644,7 +627,6 @@
     }
 }
 
-/* Touch device optimizations */
 @media (pointer: coarse) {
     input, textarea, select {
         min-height: 44px;
@@ -666,7 +648,6 @@
     }
 }
 
-/* High DPI optimization */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .btn-social .icon {
         image-rendering: -webkit-optimize-contrast;

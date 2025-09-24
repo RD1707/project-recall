@@ -7,7 +7,7 @@ const updateAchievementProgress = async (userId, metric, value) => {
         return;
     }
 
-    logger.info(`[ACHIEVEMENTS] ⭐ Iniciando updateAchievementProgress - userId: ${userId}, metric: ${metric}, value: ${value}`);
+    logger.info(`[ACHIEVEMENTS] Iniciando updateAchievementProgress - userId: ${userId}, metric: ${metric}, value: ${value}`);
 
     try {
         const { data: achievements, error: achievementsError } = await supabase
@@ -36,17 +36,14 @@ const updateAchievementProgress = async (userId, metric, value) => {
         logger.info(`[ACHIEVEMENTS] Encontradas ${achievements.length} conquistas para a métrica ${metric}`);
 
         for (const achievement of achievements) {
-            // Filtrar apenas achievements para este usuário específico ou achievements não iniciados
             const userAchievement = achievement.user_achievements.find(ua => ua.user_id === userId);
             const currentProgress = userAchievement?.progress || 0;
             
-            // Pular se já está desbloqueado ou se o progresso não melhorou
             if (userAchievement?.unlocked_at || value < currentProgress) {
                 logger.info(`[ACHIEVEMENTS] Pulando achievement ${achievement.id} - unlocked: ${!!userAchievement?.unlocked_at}, progress: ${currentProgress} vs ${value}`);
                 continue;
             }
 
-            // Permitir atualização mesmo se for o mesmo valor para garantir que conquistas sejam inicializadas
             if (value === currentProgress && currentProgress === 0) {
                 logger.info(`[ACHIEVEMENTS] Inicializando achievement ${achievement.id} com progresso 0`);
             }
@@ -62,7 +59,7 @@ const updateAchievementProgress = async (userId, metric, value) => {
 
             if (value >= achievement.goal) {
                 dataToUpsert.unlocked_at = new Date().toISOString();
-                logger.info(`🎉 Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
+                logger.info(` Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
             }
 
             logger.info(`[ACHIEVEMENTS] Tentando upsert para achievement ${achievement.id}:`, dataToUpsert);
@@ -73,10 +70,10 @@ const updateAchievementProgress = async (userId, metric, value) => {
                 .select();
 
             if (upsertError) {
-                logger.error(`[ACHIEVEMENTS] ❌ Erro ao atualizar progresso da conquista ${achievement.id} para o usuário ${userId}:`, upsertError);
+                logger.error(`[ACHIEVEMENTS]  Erro ao atualizar progresso da conquista ${achievement.id} para o usuário ${userId}:`, upsertError);
             } else {
-                logger.info(`[ACHIEVEMENTS] ✅ Progresso da conquista ${achievement.id} atualizado para ${value} para o usuário ${userId}.`);
-                logger.info(`[ACHIEVEMENTS] 💾 Dados salvos no banco:`, upsertResult);
+                logger.info(`[ACHIEVEMENTS]  Progresso da conquista ${achievement.id} atualizado para ${value} para o usuário ${userId}.`);
+                logger.info(`[ACHIEVEMENTS]  Dados salvos no banco:`, upsertResult);
             }
         }
 
@@ -92,7 +89,6 @@ const recalculateAllAchievements = async (userId) => {
     }
 
     try {
-        // Reviews total
         const { count: totalReviews } = await supabase
             .from('review_history')
             .select('*', { count: 'exact', head: true })
@@ -102,7 +98,6 @@ const recalculateAllAchievements = async (userId) => {
             await updateAchievementProgress(userId, 'reviews_total', totalReviews);
         }
 
-        // Study streak
         const { data: profile } = await supabase
             .from('profiles')
             .select('current_streak')
@@ -113,7 +108,6 @@ const recalculateAllAchievements = async (userId) => {
             await updateAchievementProgress(userId, 'streak_days', profile.current_streak);
         }
 
-        // Cards mastered
         const { count: masteredCards } = await supabase
             .from('flashcards')
             .select('id, decks!inner(user_id)', { count: 'exact', head: true })
@@ -124,7 +118,6 @@ const recalculateAllAchievements = async (userId) => {
             await updateAchievementProgress(userId, 'cards_mastered', masteredCards);
         }
 
-        // Decks created
         logger.info(`[ACHIEVEMENTS] Contando decks para usuário ${userId}`);
         const { count: totalDecks, error: decksCountError } = await supabase
             .from('decks')

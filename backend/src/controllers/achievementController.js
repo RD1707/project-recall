@@ -26,7 +26,6 @@ const getAchievements = async (req, res) => {
 
 
         const formattedData = data.map(ach => {
-            // Filtrar apenas o progresso deste usuário específico
             const userProgress = ach.user_achievements.find(ua => ua.user_id === userId) 
                 || { progress: 0, unlocked_at: null };
             

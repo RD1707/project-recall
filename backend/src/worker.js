@@ -8,11 +8,11 @@ const { connection, isRedisConnected } = require('./config/queue');
 const queueName = 'flashcardGeneration';
 
 if (!connection) {
-  logger.warn('⚠️  Redis não está disponível. Worker não será iniciado.');
+  logger.warn('  Redis não está disponível. Worker não será iniciado.');
   process.exit(0);
 }
 
-logger.info(`🚀 Worker para a fila "${queueName}" a iniciar...`);
+logger.info(` Worker para a fila "${queueName}" a iniciar...`);
 
 const worker = new Worker(queueName, async (job) => {
     const { deckId, userId, textContent, count, type } = job.data;

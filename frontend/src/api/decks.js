@@ -143,7 +143,6 @@ export const publishDeck = async (deckId, is_shared) => {
     console.log(`[FRONTEND] Resposta recebida - status: ${response.status}, data:`, data);
 
     if (!response.ok) {
-      // Melhorar mensagens de erro baseadas no status
       let errorMessage = data.message || "Falha ao atualizar o status do baralho.";
 
       switch (response.status) {
@@ -243,7 +242,6 @@ export const rateDeck = async (deckId, rating) => {
     
     return await response.json();
   } catch (error) {
-    // A função handleApiError já mostra um toast de erro
     return handleApiError(error, 'rateDeck');
   }
 };

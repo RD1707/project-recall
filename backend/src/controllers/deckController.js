@@ -63,12 +63,12 @@ const getDecks = async (req, res) => {
 
 const createDeck = async (req, res) => {
   const userId = req.user.id;
-  console.log("🚀🚀🚀 CREATE DECK ENDPOINT CHAMADO - userId:", userId);
-  console.log("🚀🚀🚀 REQ BODY:", req.body);
+  console.log(" CREATE DECK ENDPOINT CHAMADO - userId:", userId);
+  console.log(" REQ BODY:", req.body);
   logger.info(`[CREATE DECK] Usuário ${userId} tentando criar deck`);
   try {
     const { title, description, color } = deckSchema.parse(req.body);
-    console.log("🟢 DADOS DO DECK PARSED:", { title, description, color });
+    console.log(" DADOS DO DECK PARSED:", { title, description, color });
 
     const { data, error } = await supabase
       .from('decks')
@@ -78,7 +78,6 @@ const createDeck = async (req, res) => {
 
     if (error) throw error;
     
-    // Atualizar conquistas de criação de baralhos
     try {
         logger.info(`[DECK CREATION] Atualizando conquistas para usuário ${userId}`);
         const { count, error: countError } = await supabase
@@ -90,7 +89,6 @@ const createDeck = async (req, res) => {
 
         logger.info(`[DECK CREATION] Usuário ${userId} agora tem ${count} decks`);
         
-        // Usar a métrica correta baseada na contagem
         if (count === 1) {
             logger.info(`[DECK CREATION] Primeiro deck! Atualizando decks_created para ${count}`);
             await updateAchievementProgress(userId, 'decks_created', count);
@@ -395,7 +393,6 @@ const publishDeck = async (req, res) => {
     }
 
     try {
-        // Primeiro, verificar se o deck existe sem filtrar por usuário
         const { data: deckExists, error: existsError } = await supabase
             .from('decks')
             .select('id, user_id, is_shared, title')
@@ -413,13 +410,11 @@ const publishDeck = async (req, res) => {
 
         logger.info(`[PUBLISH DECK] Deck encontrado - ID: ${deckExists.id}, Owner: ${deckExists.user_id}, Current is_shared: ${deckExists.is_shared}, Title: ${deckExists.title}`);
 
-        // Verificar se o usuário é o proprietário
         if (deckExists.user_id !== userId) {
             logger.warn(`[PUBLISH DECK] Tentativa de acesso negada - userId: ${userId} não é proprietário do deck ${deckId} (proprietário: ${deckExists.user_id})`);
             return res.status(403).json({ message: 'Você não tem permissão para modificar este baralho.', code: 'FORBIDDEN' });
         }
 
-        // Agora fazer a verificação original para compatibilidade
         const { data: deck, error: deckError } = await supabase
             .from('decks').select('id').eq('id', deckId).eq('user_id', userId).single();
 
@@ -428,14 +423,12 @@ const publishDeck = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // Prepare update data - if publishing, also update published_at
+    
         const updateData = { is_shared: is_shared };
         if (is_shared) {
             updateData.published_at = new Date().toISOString();
             logger.info(`[PUBLISH DECK] Definindo published_at para deck ${deckId}: ${updateData.published_at}`);
         } else {
-            // When unpublishing, we could set published_at to null or keep it for history
-            // Keeping it for now to maintain publication history
             logger.info(`[PUBLISH DECK] Despublicando deck ${deckId} - mantendo published_at para histórico`);
         }
 
@@ -472,5 +465,5 @@ module.exports = {
     generateCardsFromFile,
     generateCardsFromYouTube,
     getReviewCardsForDeck,
-    publishDeck // <--- Nome atualizado aqui
+    publishDeck 
 };

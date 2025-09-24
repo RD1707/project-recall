@@ -58,11 +58,6 @@
     width: 100%;
 }
 
-
-/* --------------------------------------------------------------------------
-   2. SEÇÃO DE PERGUNTAS FREQUENTES (FAQ SECTION)
-   -------------------------------------------------------------------------- */
-
 .faq {
     padding: 6rem 0;
     background-color: var(--color-surface);
@@ -132,13 +127,7 @@
 
 .faq-item.active .faq-answer {
     max-height: 200px;
-    /* Altura suficiente para a resposta */
 }
-
-
-/* --------------------------------------------------------------------------
-   3. RESPONSIVIDADE
-   -------------------------------------------------------------------------- */
 
 @media (max-width: 992px) {
     .contact-container {

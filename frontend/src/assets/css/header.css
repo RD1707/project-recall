@@ -212,7 +212,6 @@
 .dropdown-item:hover { background: var(--color-primary-100); color: var(--color-primary-600); }
 .dropdown-item i { width: 18px; text-align: center; margin-right: 0.25rem; }
 
-/* Mobile Navigation Styles */
 .mobile-menu-toggle {
     display: none;
     background: none;
@@ -368,7 +367,6 @@
     margin-top: var(--space-1);
 }
 
-/* Responsive Header Adjustments */
 @media (max-width: 992px) {
     .user-stats {
         gap: var(--space-2);
@@ -430,7 +428,6 @@
     }
 }
 
-/* Landscape mobile optimization */
 @media (max-width: 768px) and (orientation: landscape) {
     .mobile-menu {
         padding: var(--space-4);
@@ -446,7 +443,6 @@
     }
 }
 
-/* Touch improvements */
 @media (pointer: coarse) {
     .nav-link, .mobile-nav .nav-link {
         min-height: 44px;

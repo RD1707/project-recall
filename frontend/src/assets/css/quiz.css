@@ -196,8 +196,6 @@
     color: var(--color-text-muted);
 }
 
-/* --- ESTILOS PARA A TELA DE CONCLUSÃO DO QUIZ --- */
-
 .completion-container {
     width: 100%;
     max-width: 700px;

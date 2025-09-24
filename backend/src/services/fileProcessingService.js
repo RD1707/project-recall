@@ -33,7 +33,7 @@ class FileProcessingService {
         this.validateFile(file);
         const { buffer, mimetype, originalname } = file;
         
-        console.log(`🔄 Processando arquivo: ${originalname} (${mimetype})`);
+        console.log(` Processando arquivo: ${originalname} (${mimetype})`);
         
         let extractedText;
         
@@ -42,31 +42,31 @@ class FileProcessingService {
                 case 'application/pdf':
                     const pdfData = await pdf(buffer);
                     extractedText = pdfData.text;
-                    console.log(`✅ PDF processado: ${extractedText.length} caracteres`);
+                    console.log(` PDF processado: ${extractedText.length} caracteres`);
                     break;
                     
                 case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                     const docxResult = await mammoth.extractRawText({ buffer });
                     extractedText = docxResult.value;
-                    console.log(`✅ DOCX processado: ${extractedText.length} caracteres`);
+                    console.log(` DOCX processado: ${extractedText.length} caracteres`);
                     break;
                     
                 case 'text/plain':
                 case 'text/markdown':
                     extractedText = buffer.toString('utf-8');
-                    console.log(`✅ Texto processado: ${extractedText.length} caracteres`);
+                    console.log(` Texto processado: ${extractedText.length} caracteres`);
                     break;
                     
                 case 'image/jpeg':
                 case 'image/jpg':
                 case 'image/png':
                 case 'image/webp':
-                    console.log('🔍 Iniciando OCR...');
+                    console.log(' Iniciando OCR...');
                     const startTime = Date.now();
                     const { data: { text } } = await Tesseract.recognize(buffer, 'por');
                     const processingTime = Date.now() - startTime;
                     extractedText = text;
-                    console.log(`✅ OCR concluído em ${processingTime}ms: ${extractedText.length} caracteres`);
+                    console.log(` OCR concluído em ${processingTime}ms: ${extractedText.length} caracteres`);
                     break;
                     
                 default:
@@ -83,7 +83,7 @@ class FileProcessingService {
                 ? cleanedText.substring(0, this.limits.maxTextLength) + '...'
                 : cleanedText;
             
-            console.log(`📊 Processamento concluído: ${originalname}`);
+            console.log(` Processamento concluído: ${originalname}`);
             console.log(`   - Texto original: ${extractedText.length} chars`);
             console.log(`   - Texto final: ${finalText.length} chars`);
             console.log(`   - Foi otimizado: ${wasOptimized ? 'Sim' : 'Não'}`);
@@ -100,13 +100,13 @@ class FileProcessingService {
             };
             
         } catch (error) {
-            console.error(`❌ Erro ao processar ${originalname}:`, error.message);
+            console.error(` Erro ao processar ${originalname}:`, error.message);
             throw new Error(`Erro ao processar ${originalname}: ${error.message}`);
         }
     }
 
     async cleanup() {
-        console.log('🧹 FileProcessingService cleanup executado');
+        console.log(' FileProcessingService cleanup executado');
     }
 }
 

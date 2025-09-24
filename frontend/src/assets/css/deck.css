@@ -653,8 +653,6 @@
     }
 }
 
-/* Enhanced Deck Detail Mobile Responsive Styles */
-
 @media (max-width: 576px) {
     .deck-main {
         padding: var(--space-3);
@@ -746,7 +744,6 @@
     }
 }
 
-/* Landscape mobile optimization for deck detail */
 @media (max-width: 768px) and (orientation: landscape) {
     .deck-hero {
         padding: var(--space-4);
@@ -771,7 +768,6 @@
     }
 }
 
-/* Touch device optimizations for deck detail */
 @media (pointer: coarse) {
     .back-btn,
     .deck-actions button,

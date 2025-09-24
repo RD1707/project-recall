@@ -1,7 +1,7 @@
 const FileProcessingService = require('./src/services/fileProcessingService');
 
 async function testFileProcessing() {
-    console.log('🧪 Testando FileProcessingService...\n');
+    console.log(' Testando FileProcessingService...\n');
 
     try {
         const testText = 'Este é um texto de teste para a plataforma Recall com processamento de arquivos DOCX e OCR.';
@@ -13,8 +13,8 @@ async function testFileProcessing() {
         };
 
         const result = await FileProcessingService.extractText(testFile);
-        console.log('✅ Sucesso! Texto extraído:', result.text.substring(0, 100) + '...');
-        console.log('📊 Estatísticas:');
+        console.log(' Sucesso! Texto extraído:', result.text.substring(0, 100) + '...');
+        console.log(' Estatísticas:');
         console.log('   - Caracteres originais:', result.originalLength);
         console.log('   - Caracteres finais:', result.text.length);
         console.log('   - Foi otimizado:', result.wasOptimized);
@@ -24,7 +24,7 @@ async function testFileProcessing() {
     }
 
     await FileProcessingService.cleanup();
-    console.log('\n✅ Teste concluído!');
+    console.log('\n Teste concluído!');
 }
 
 if (require.main === module) {

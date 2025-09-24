@@ -239,8 +239,6 @@ const getPublicProfile = async (req, res) => {
     const { username } = req.params;
     
     try {
-        // Passo 1: Encontrar o perfil do utilizador pelo nome de utilizador
-        // A coluna 'created_at' foi removida da linha seguinte
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('id, username, full_name, bio, avatar_url')
@@ -251,7 +249,6 @@ const getPublicProfile = async (req, res) => {
             return res.status(404).json({ message: 'Utilizador não encontrado.', code: 'USER_NOT_FOUND' });
         }
         
-        // Passo 2: Buscar todos os baralhos públicos desse utilizador
         const { data: publicDecks, error: decksError } = await supabase
             .from('decks')
             .select(`
@@ -268,22 +265,19 @@ const getPublicProfile = async (req, res) => {
 
         if (decksError) throw decksError;
 
-        // Formatar os dados dos decks
         const formattedDecks = publicDecks.map(deck => ({
             ...deck,
             card_count: deck.flashcards[0]?.count || 0,
-            average_rating: 0, // Placeholder - pode ser implementado depois
-            rating_count: 0    // Placeholder - pode ser implementado depois
+            average_rating: 0, 
+            rating_count: 0    
         }));
 
-        // Passo 3: Combinar os dados e enviar a resposta
         const responsePayload = {
             profile: {
                 username: profile.username,
                 fullName: profile.full_name,
                 bio: profile.bio,
                 avatarUrl: profile.avatar_url
-                // A propriedade memberSince foi removida daqui
             },
             decks: formattedDecks
         };
@@ -303,7 +297,6 @@ const deleteAccount = async (req, res) => {
     try {
         const { password } = deleteAccountSchema.parse(req.body);
         
-        // Verificar se a senha está correta
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: userEmail,
             password: password
@@ -316,7 +309,6 @@ const deleteAccount = async (req, res) => {
             });
         }
 
-        // Excluir dados relacionados do usuário em ordem específica para evitar problemas de foreign key
         const tablesToClean = [
             'achievements',
             'study_sessions', 
@@ -339,7 +331,6 @@ const deleteAccount = async (req, res) => {
             }
         }
 
-        // Excluir o usuário da autenticação do Supabase
         const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId);
         
         if (deleteAuthError) {

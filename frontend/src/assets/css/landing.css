@@ -1273,9 +1273,6 @@ section {
     transform: scale(1.2) rotate(90deg);
 }
 
-/* Enhanced Responsive Optimizations */
-
-/* Extra large screens */
 @media (min-width: 1400px) {
     .landing-container {
         max-width: 1320px;
@@ -1351,7 +1348,6 @@ section {
         right: 20%;
     }
 
-    /* Navigation improvements */
     .main-nav ul {
         gap: var(--space-6);
     }
@@ -1375,7 +1371,6 @@ section {
         padding: var(--space-10) 0;
     }
 
-    /* Mobile Navigation */
     .mobile-nav-toggle {
         display: block;
     }
@@ -1415,7 +1410,6 @@ section {
         display: none;
     }
 
-    /* Hero Section Mobile */
     .hero {
         padding-top: calc(var(--header-height) + var(--space-12));
         padding-bottom: var(--space-16);
@@ -1495,7 +1489,6 @@ section {
         max-width: 100%;
     }
 
-    /* Grid layouts mobile */
     .features-grid,
     .steps-container,
     .testimonials-grid,
@@ -1518,7 +1511,6 @@ section {
         font-size: var(--text-3xl);
     }
 
-    /* Feature cards mobile */
     .feature-card {
         padding: var(--space-6);
         text-align: center;
@@ -1528,7 +1520,6 @@ section {
         font-size: var(--text-lg);
     }
 
-    /* Steps mobile */
     .step {
         margin-bottom: var(--space-8);
     }
@@ -1548,12 +1539,10 @@ section {
         max-width: 100%;
     }
 
-    /* Testimonials mobile */
     .testimonial-card {
         padding: var(--space-6);
     }
 
-    /* Pricing mobile */
     .pricing-card {
         padding: var(--space-6);
         margin-bottom: var(--space-4);
@@ -1564,7 +1553,6 @@ section {
         order: -1;
     }
 
-    /* Footer mobile */
     .footer-content {
         grid-template-columns: 1fr;
         gap: var(--space-8);
@@ -1581,7 +1569,6 @@ section {
         text-align: center;
     }
 
-    /* CTA mobile */
     .final-cta {
         margin: var(--space-10) var(--space-3);
         padding: var(--space-10);
@@ -1595,7 +1582,6 @@ section {
         font-size: var(--text-base);
     }
 
-    /* Video modal mobile */
     .video-modal-content {
         width: 95%;
         max-width: none;
