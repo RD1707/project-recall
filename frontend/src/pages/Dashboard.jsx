@@ -10,7 +10,6 @@ import { supabase } from '../api/supabaseClient';
 import { markOnboardingAsComplete } from '../api/profile'; 
 import OnboardingTour from '../components/common/OnboardingTour';
 import { useAchievementActions } from '../hooks/useAchievementActions';
-import { Moon, Sun } from 'lucide-react';
 
 import '../assets/css/dashboard.css';
 
