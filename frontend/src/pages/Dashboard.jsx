@@ -71,90 +71,6 @@ const DeckForm = ({ onSubmit, initialData = { title: '', description: '', color:
     );
 };
 
-const DarkModeToggle = () => {
-    const [dark, setDark] = useState(false);
-
-    useEffect(() => {
-        if (dark) {
-            document.documentElement.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-        }
-    }, [dark]);
-
-    return (
-        <>
-            <style>{`
-                .dark-mode {
-                    background-color: #1a1a1a !important;
-                    color: #e0e0e0 !important;
-                }
-                
-                .dark-mode * {
-                    background-color: #1a1a1a !important;
-                    color: #e0e0e0 !important;
-                    border-color: #404040 !important;
-                }
-                
-                .dark-mode a {
-                    color: #60a5fa !important;
-                }
-                
-                .dark-mode input,
-                .dark-mode textarea,
-                .dark-mode select,
-                .dark-mode button {
-                    background-color: #2d2d2d !important;
-                    color: #e0e0e0 !important;
-                    border: 1px solid #404040 !important;
-                }
-                
-                .dark-mode img,
-                .dark-mode video {
-                    opacity: 0.9;
-                }
-                
-                .dark-mode-toggle {
-                    position: fixed !important;
-                    bottom: 20px !important;
-                    right: 20px !important;
-                    z-index: 9999 !important;
-                    padding: 12px !important;
-                    border-radius: 50% !important;
-                    cursor: pointer !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-                    transition: all 0.3s ease !important;
-                    border: none !important;
-                }
-                
-                .dark-mode-toggle:hover {
-                    transform: scale(1.1) !important;
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;
-                }
-                
-                .dark-mode .dark-mode-toggle {
-                    background-color: #fbbf24 !important;
-                }
-                
-                .dark-mode-toggle:not(.dark-mode *) {
-                    background-color: #1f2937 !important;
-                }
-            `}</style>
-            
-            <button
-                onClick={() => setDark(!dark)}
-                className="dark-mode-toggle"
-                aria-label="Toggle dark mode"
-            >
-                {dark ? (
-                    <Sun size={24} color="#1a1a1a" />
-                ) : (
-                    <Moon size={24} color="#fbbf24" />
-                )}
-            </button>
-        </>
-    );
-};
 
 function Dashboard() {
     const { triggerAchievementUpdate } = useAchievementActions();
@@ -249,6 +165,7 @@ function Dashboard() {
             
             if (isCreating) {
                 setDecks(prevDecks => [resultDeck, ...prevDecks]);
+                // Trigger achievement update after creating deck
                 triggerAchievementUpdate('create_deck');
             } else {
                 setDecks(decks.map(d => (d.id === resultDeck.id ? resultDeck : d)));
@@ -327,7 +244,6 @@ function Dashboard() {
 
     return (
         <>
-            <DarkModeToggle />
             {showTour && <OnboardingTour onComplete={handleTourComplete} />}
             <Header />
             <main className="dashboard-main">
@@ -379,5 +295,6 @@ function Dashboard() {
         </>
     );
 }
+
 
 export default Dashboard;
