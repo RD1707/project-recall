@@ -816,3 +816,66 @@ textarea {
         display: none;
     }
 }
+/* :root define as variáveis para o tema padrão (claro) */
+:root {
+    --color-primary-100: #e0e7ff;
+    --color-primary-500: #6366f1;
+    --color-primary-600: #4f46e5;
+
+    --color-dark-900: #111827;
+    --color-dark-800: #1f2937;
+
+    --color-text-default: #374151;
+    --color-text-muted: #6b7280;
+    --color-text-hero: var(--color-dark-900);
+
+    --color-background: #ffffff;
+    --color-surface: #f9fafb;
+    --color-border: #e5e7eb;
+
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+    /* Transição suave para a troca de tema */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Redefine as variáveis quando o body tiver o atributo data-theme='dark' */
+[data-theme='dark'] {
+    --color-primary-100: #3730a3;
+    --color-primary-500: #6366f1;
+    --color-primary-600: #818cf8;
+    
+    --color-dark-900: #f9fafb;
+    --color-dark-800: #f3f4f6;
+    
+    --color-text-default: #d1d5db;
+    --color-text-muted: #9ca3af;
+    --color-text-hero: #ffffff;
+
+    --color-background: #111827;
+    --color-surface: #1f2937;
+    --color-border: #374151;
+    
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
+    --color-error: #f87171;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+}
+
+/* Ajuste específico para o header no modo escuro para manter o efeito blur */
+[data-theme='dark'] .main-header {
+    background-color: rgba(17, 24, 39, 0.8); /* --color-background com transparência */
+    border-bottom: 1px solid var(--color-border);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text-default);
+}
