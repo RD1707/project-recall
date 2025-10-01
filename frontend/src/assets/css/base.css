@@ -879,3 +879,63 @@ body {
     background-color: var(--color-background);
     color: var(--color-text-default);
 }
+/* LIGHT MODE (Padrão) */
+:root {
+    /* Cores de Fundo */
+    --color-background-primary: #f8f9fa; /* Branco muito claro/quase off-white */
+    --color-background-secondary: #ffffff; /* Branco puro para cartões/modais */
+    --color-background-tertiary: #e9ecef; /* Cinza claro para áreas menos importantes */
+
+    /* Cores de Texto */
+    --color-text-primary: #212529; /* Preto/Cinza muito escuro */
+    --color-text-secondary: #495057; /* Cinza médio para subtítulos/descrições */
+    --color-text-link: #007bff; /* Azul para links */
+    --color-text-placeholder: #adb5bd; /* Cinza para placeholders */
+
+    /* Cores de Ação e Destaque (Accent Colors - Azul Recall) */
+    --color-accent-primary: #007bff; /* Azul principal */
+    --color-accent-hover: #0056b3; /* Azul mais escuro no hover */
+    --color-accent-secondary: #6c757d; /* Cinza secundário */
+    --color-success: #28a745; /* Verde */
+    --color-danger: #dc3545; /* Vermelho */
+
+    /* Cores de Borda e Sombra */
+    --color-border: #dee2e6;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Transição para a Mudança de Tema */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* DARK MODE (Sobrescrever as variáveis quando a classe .dark-mode estiver presente) */
+.dark-mode {
+    /* Cores de Fundo */
+    --color-background-primary: #121212; /* Fundo muito escuro (quase preto) */
+    --color-background-secondary: #1e1e1e; /* Fundo de cartões/modais (um pouco mais claro) */
+    --color-background-tertiary: #2a2a2a; /* Cinza escuro para áreas menos importantes */
+
+    /* Cores de Texto */
+    --color-text-primary: #ffffff; /* Texto principal branco */
+    --color-text-secondary: #b0b0b0; /* Texto secundário cinza claro */
+    --color-text-link: #58a6ff; /* Azul claro para links */
+    --color-text-placeholder: #495057; /* Cinza escuro para placeholders */
+
+    /* Cores de Ação e Destaque */
+    --color-accent-primary: #58a6ff; /* Azul principal mais vibrante/claro */
+    --color-accent-hover: #007bff; /* Azul mais escuro no hover (se for um botão) */
+    --color-accent-secondary: #8d959c; /* Cinza secundário mais claro */
+    --color-success: #4cd964; /* Verde claro */
+    --color-danger: #ff453a; /* Vermelho claro */
+
+    /* Cores de Borda e Sombra */
+    --color-border: #333333;
+    --color-shadow: rgba(255, 255, 255, 0.05);
+}
+
+/* Aplicação Global das Variáveis */
+body {
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    /* Garante que o body também tenha transição */
+    transition: background-color 0.3s ease, color 0.3s ease; 
+}
