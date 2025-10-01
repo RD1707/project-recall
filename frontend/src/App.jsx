@@ -34,6 +34,10 @@ import PublicProfile from './pages/PublicProfile';
 
 
 function App() {
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('app-theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+  }, []);
   return (
     <SocketProvider>
       <AchievementsProvider>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import VideoModal from '../components/common/VideoModal';
+import ThemeToggle from '../components/common/ThemeToggle'; // 1. Importe o componente
 
 import '../assets/css/landing.css';
+import '../assets/css/ThemeToggle.css'; // 2. Importe o CSS
 
 const FeatureCard = ({ icon, title, description, badge }) => (
     <div className="feature-card">
@@ -119,6 +121,8 @@ function Landing() {
                         </ul>
                     </nav>
                     <div className="header-actions">
+                        {/* 3. Adicione o ThemeToggle aqui */}
+                        <ThemeToggle /> 
                         <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
                         <Link to="/register" className="btn btn-primary">Começar Grátis</Link>
                     </div>

@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
+/* Tema Claro (Padrão) */
 :root {
     --color-primary-50: #f0f4ff;
     --color-primary-100: #eef2ff;
@@ -76,6 +77,35 @@
     --space-16: 4rem;
     --space-20: 5rem;
 }
+
+/* Tema Escuro */
+[data-theme='dark'] {
+    --color-primary-50: #1f2937;
+    --color-primary-100: #374151;
+    --color-primary-200: #4b5563;
+    --color-primary-500: #818cf8;
+    --color-primary-600: #a78bfa;
+
+    --color-dark-900: #f9fafb;
+    --color-dark-800: #f3f4f6;
+    --color-text-default: #d1d5db;
+    --color-text-muted: #9ca3af;
+
+    --color-background: #111827;
+    --color-background-subtle: #1f2937;
+    --color-surface: #1f2937;
+
+    --color-border: #374151;
+    --color-error: #f87171;
+    --color-success-500: #34d399;
+    --color-success-600: #10b981;
+
+    --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
 
 *,
 *::before,
@@ -339,8 +369,13 @@ textarea {
     text-align: center;
 }
 
-.hidden-mobile { display: block; }
-.visible-mobile { display: none; }
+.hidden-mobile {
+    display: block;
+}
+
+.visible-mobile {
+    display: none;
+}
 
 .text-fluid {
     font-size: clamp(var(--font-size-sm), 2.5vw, var(--font-size-base));
@@ -356,17 +391,24 @@ textarea {
 
 @media (max-width: 575px) {
     html {
-        font-size: 87.5%; 
+        font-size: 87.5%;
     }
 
     .container-responsive {
         padding: 0 var(--space-4);
     }
 
-    .hidden-xs { display: none !important; }
-    .visible-xs { display: block !important; }
+    .hidden-xs {
+        display: none !important;
+    }
 
-    .text-center-xs { text-align: center; }
+    .visible-xs {
+        display: block !important;
+    }
+
+    .text-center-xs {
+        text-align: center;
+    }
 
     .grid-responsive {
         grid-template-columns: 1fr;
@@ -379,41 +421,60 @@ textarea {
 
 @media (min-width: 576px) and (max-width: 767px) {
     html {
-        font-size: 90%; 
+        font-size: 90%;
     }
 
-    .hidden-sm { display: none !important; }
-    .visible-sm { display: block !important; }
+    .hidden-sm {
+        display: none !important;
+    }
 
-    .text-center-sm { text-align: center; }
+    .visible-sm {
+        display: block !important;
+    }
+
+    .text-center-sm {
+        text-align: center;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 991px) {
     html {
-        font-size: 93.75%; 
+        font-size: 93.75%;
     }
 
     .container-responsive {
         max-width: var(--container-width-md);
     }
 
-    .hidden-md { display: none !important; }
-    .visible-md { display: block !important; }
+    .hidden-md {
+        display: none !important;
+    }
 
-    .text-center-md { text-align: center; }
+    .visible-md {
+        display: block !important;
+    }
+
+    .text-center-md {
+        text-align: center;
+    }
 }
 
 @media (min-width: 992px) and (max-width: 1199px) {
     html {
-        font-size: 100%; 
+        font-size: 100%;
     }
 
     .container-responsive {
         max-width: var(--container-width-lg);
     }
 
-    .hidden-lg { display: none !important; }
-    .visible-lg { display: block !important; }
+    .hidden-lg {
+        display: none !important;
+    }
+
+    .visible-lg {
+        display: block !important;
+    }
 }
 
 @media (min-width: 1200px) {
@@ -421,8 +482,13 @@ textarea {
         max-width: var(--container-width-xl);
     }
 
-    .hidden-xl { display: none !important; }
-    .visible-xl { display: block !important; }
+    .hidden-xl {
+        display: none !important;
+    }
+
+    .visible-xl {
+        display: block !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -430,17 +496,26 @@ textarea {
         font-size: 93.75%;
     }
 
-    .hidden-mobile { display: none !important; }
-    .visible-mobile { display: block !important; }
+    .hidden-mobile {
+        display: none !important;
+    }
 
-    .text-center-mobile { text-align: center; }
+    .visible-mobile {
+        display: block !important;
+    }
+
+    .text-center-mobile {
+        text-align: center;
+    }
 
     .btn {
         min-height: 44px;
         min-width: 44px;
     }
 
-    input, textarea, select {
+    input,
+    textarea,
+    select {
         font-size: var(--font-size-base);
         min-height: 44px;
     }
@@ -462,7 +537,8 @@ textarea {
     }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -574,6 +650,7 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -624,6 +701,7 @@ textarea {
 }
 
 @media print {
+
     *,
     *::before,
     *::after {
@@ -674,11 +752,20 @@ textarea {
         font-weight: normal;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         page-break-after: avoid;
     }
 
-    p, blockquote, pre, tr, img {
+    p,
+    blockquote,
+    pre,
+    tr,
+    img {
         page-break-inside: avoid;
     }
 
@@ -738,7 +825,12 @@ textarea {
         font-variation-settings: 'wght' 400;
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-variation-settings: 'wght' 600;
     }
 
@@ -780,11 +872,25 @@ textarea {
     transform: scale(1);
 }
 
-.stagger-1 { transition-delay: 0.1s; }
-.stagger-2 { transition-delay: 0.2s; }
-.stagger-3 { transition-delay: 0.3s; }
-.stagger-4 { transition-delay: 0.4s; }
-.stagger-5 { transition-delay: 0.5s; }
+.stagger-1 {
+    transition-delay: 0.1s;
+}
+
+.stagger-2 {
+    transition-delay: 0.2s;
+}
+
+.stagger-3 {
+    transition-delay: 0.3s;
+}
+
+.stagger-4 {
+    transition-delay: 0.4s;
+}
+
+.stagger-5 {
+    transition-delay: 0.5s;
+}
 
 .grid-layout {
     display: grid;
@@ -798,10 +904,21 @@ textarea {
     gap: var(--space-4);
 }
 
-.grid-header { grid-area: header; }
-.grid-sidebar { grid-area: sidebar; }
-.grid-main { grid-area: main; }
-.grid-footer { grid-area: footer; }
+.grid-header {
+    grid-area: header;
+}
+
+.grid-sidebar {
+    grid-area: sidebar;
+}
+
+.grid-main {
+    grid-area: main;
+}
+
+.grid-footer {
+    grid-area: footer;
+}
 
 @media (max-width: 768px) {
     .grid-layout {

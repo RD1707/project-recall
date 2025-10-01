@@ -3,12 +3,14 @@ import Modal from '../common/Modal';
 import './SettingsModal.css'; 
 
 function SettingsModal({ isOpen, onClose }) {
+  // 1. O estado agora lê o tema inicial do localStorage
   const [settings, setSettings] = useState({
     theme: localStorage.getItem('app-theme') || 'light',
     notifications: true,
     sessionGoal: 20,
   });
 
+  // 2. Este useEffect aplica a mudança de tema instantaneamente
   useEffect(() => {
     document.body.setAttribute('data-theme', settings.theme);
     localStorage.setItem('app-theme', settings.theme);
@@ -20,6 +22,11 @@ function SettingsModal({ isOpen, onClose }) {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  // 3. Função específica para trocar o tema
+  const handleThemeChange = (theme) => {
+    setSettings(s => ({ ...s, theme }));
   };
 
   return (
@@ -41,13 +48,13 @@ function SettingsModal({ isOpen, onClose }) {
             <div className="theme-selector">
               <button
                 className={`theme-option ${settings.theme === 'light' ? 'active' : ''}`}
-                onClick={() => setSettings(s => ({ ...s, theme: 'light' }))}
+                onClick={() => handleThemeChange('light')} // 4. Chama a função de troca
               >
                 <i className="fas fa-sun"></i> Claro
               </button>
               <button
                 className={`theme-option ${settings.theme === 'dark' ? 'active' : ''}`}
-                onClick={() => setSettings(s => ({ ...s, theme: 'dark' }))}
+                onClick={() => handleThemeChange('dark')} // 4. Chama a função de troca
               >
                 <i className="fas fa-moon"></i> Escuro
               </button>
