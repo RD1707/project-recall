@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // AQUI A CORREÇÃO
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+// ... (resto das suas importações)
+import PublicProfile from './pages/PublicProfile';
+import { SocketProvider } from './context/SocketContext';
+import { AchievementsProvider } from './context/AchievementsContext';
+import CookieBanner from './components/common/CookieBanner';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -22,22 +27,19 @@ import Progress from './pages/Progress';
 import CompleteProfile from './pages/CompleteProfile';
 import Ranking from './pages/Ranking';
 import QuizLobby from './pages/QuizLobby';
-import QuizGame from './pages/QuizGame'; 
-import Community from './pages/Community'; // NOVA IMPORTAÇÃO
-import Profile from './pages/Profile'; // Página de perfil do usuário
-
+import QuizGame from './pages/QuizGame';
+import Community from './pages/Community';
+import Profile from './pages/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import CookieBanner from './components/common/CookieBanner';
-import { SocketProvider } from './context/SocketContext';
-import { AchievementsProvider } from './context/AchievementsContext';
-import PublicProfile from './pages/PublicProfile';
 
 
 function App() {
+  // Este useEffect agora funcionará corretamente
   useEffect(() => {
     const savedTheme = localStorage.getItem('app-theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
   }, []);
+
   return (
     <SocketProvider>
       <AchievementsProvider>
