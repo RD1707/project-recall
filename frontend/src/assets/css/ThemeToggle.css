@@ -75,3 +75,32 @@ input:checked + .slider .sun-icon {
 input:checked + .slider .moon-icon {
   opacity: 1;
 }
+/* frontend/src/assets/css/ThemeToggle.css */
+
+.theme-toggle-button {
+  background-color: var(--secondary-color);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.theme-toggle-button:hover {
+  border-color: var(--primary-color);
+}
+
+.theme-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text-color);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}

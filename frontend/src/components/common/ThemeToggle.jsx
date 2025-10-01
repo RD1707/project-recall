@@ -1,25 +1,23 @@
-import React from 'react';
-import { useTheme } from 'frontend/src/context/ThemeContext';
-import 'frontend/src/assets\css/ThemeToggle';
+import React, { useContext } from 'react';
+import { ThemeContext } from '../../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react'; // Usando lucide-react para ícones
+import '../../assets/css/ThemeToggle.css';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
-    <div className="theme-toggle-container">
-      <label className="theme-switch" htmlFor="theme-switch-checkbox" title={`Mudar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}>
-        <input
-          type="checkbox"
-          id="theme-switch-checkbox"
-          onChange={toggleTheme}
-          checked={theme === 'dark'}
-        />
-        <div className="slider round">
-          <span className="sun-icon">☀️</span>
-          <span className="moon-icon">🌙</span>
-        </div>
-      </label>
-    </div>
+    <button
+      className="theme-toggle-button"
+      onClick={toggleTheme}
+      aria-label={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+    >
+      {theme === 'light' ? (
+        <Moon className="theme-icon" />
+      ) : (
+        <Sun className="theme-icon" />
+      )}
+    </button>
   );
 };
 

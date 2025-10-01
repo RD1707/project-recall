@@ -1,36 +1,45 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+// frontend/src/context/ThemeContext.jsx
 
-// Cria o Contexto
+import React, { createContext, useState, useEffect, useMemo, useContext } from 'react';
+
+// 1. Cria o Contexto
 const ThemeContext = createContext();
 
-// Hook customizado para facilitar o uso do contexto
+// 2. Hook customizado para facilitar o uso (boa prática da Versão 1)
 export const useTheme = () => useContext(ThemeContext);
 
-// Componente Provedor que irá envolver sua aplicação
+/**
+ * Provedor do Tema: A versão final e otimizada.
+ * Gerencia o tema da aplicação com detecção de preferência do sistema e otimização de performance.
+ */
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    // Verifica se já existe um tema salvo no localStorage do navegador
-    const savedTheme = localStorage.getItem('theme');
-    // Se existir, usa o tema salvo. Senão, o padrão é 'light' (claro).
-    return savedTheme || 'light';
-  });
+  const getInitialTheme = () => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      return storedTheme;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  };
 
-  // Este efeito é executado sempre que o estado 'theme' muda
+  const [theme, setTheme] = useState(getInitialTheme);
+
   useEffect(() => {
-    // 1. Aplica o atributo 'data-theme' ao body do HTML
     document.body.setAttribute('data-theme', theme);
-    // 2. Salva a escolha do usuário no localStorage para persistir a seleção
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Função para alternar entre 'light' e 'dark'
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
-  // Fornece o tema atual e a função de troca para os componentes filhos
+  // Memoiza o valor para otimizar a performance, evitando re-renderizações
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
