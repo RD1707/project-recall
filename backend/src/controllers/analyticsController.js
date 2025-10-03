@@ -31,7 +31,12 @@ const getAnalyticsSummary = async (req, res) => {
 
         if (error) throw error;
 
-        res.status(200).json(data[0] || {
+        // Adicionando um fallback para o novo campo
+        const summaryData = data[0] || {};
+        summaryData.best_streak = summaryData.max_streak || summaryData.best_streak || 0;
+
+
+        res.status(200).json(summaryData || {
             total_reviews: 0,
             average_accuracy: 0,
             mastered_cards: 0,

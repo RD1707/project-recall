@@ -1,8 +1,8 @@
 const supabase = require('../config/supabaseClient');
 const { calculateSm2 } = require('../services/srsService');
 const { z } = require('zod');
-const logger = require('../config/logger'); 
-const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService'); 
+const logger = require('../config/logger');
+const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService');
 const { updateAchievementProgress } = require('../services/achievementService');
 
 
@@ -196,9 +196,10 @@ const reviewFlashcard = async (req, res) => {
 
         if (quality >= 3) {
             try {
+                // MODIFICAÇÃO 1: Adicionar 'max_streak' ao select
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('points, weekly_points, current_streak, last_studied_at') 
+                    .select('points, weekly_points, current_streak, last_studied_at, max_streak') 
                     .eq('id', userId)
                     .single();
 
@@ -226,15 +227,23 @@ const reviewFlashcard = async (req, res) => {
                 } else {
                     newStreak = 1;
                 }
+                
+                // MODIFICAÇÃO 2: Preparar os dados para atualização
+                const dataToUpdate = {
+                    points: newPoints,
+                    weekly_points: newWeeklyPoints,
+                    current_streak: newStreak,
+                    last_studied_at: new Date().toISOString()
+                };
+
+                // MODIFICAÇÃO 3: Verificar e atualizar a maior sequência (max_streak)
+                if (newStreak > (profile.max_streak || 0)) {
+                    dataToUpdate.max_streak = newStreak;
+                }
 
                 await supabase
                     .from('profiles')
-                    .update({
-                        points: newPoints,
-                        weekly_points: newWeeklyPoints,
-                        current_streak: newStreak,
-                        last_studied_at: new Date().toISOString()
-                    })
+                    .update(dataToUpdate) // Usar o objeto com os dados preparados
                     .eq('id', userId);
                 
                 try {
