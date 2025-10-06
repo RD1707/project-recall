@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import ThemeToggle from '../components/common/ThemeToggle';
 
-import '../assets/css/landing.css'; 
+import '../assets/css/landing.css';
 import '../assets/css/contato.css';
+import '../assets/css/ThemeToggle.css';
 
 function Contato() {
     useEffect(() => {
@@ -40,6 +42,7 @@ function Contato() {
                         </Link>
                     </div>
                     <div className="header-actions">
+                         <ThemeToggle />
                          <Link to="/login" className="btn btn-primary">Começar Agora</Link>
                     </div>
                 </div>

@@ -3,8 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css';
 
 function EmailConfirmation() {
     const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
@@ -94,6 +96,9 @@ function EmailConfirmation() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header" style={{ textAlign: 'center' }}>
                         <div style={{ marginBottom: '2rem' }}>
                             {getStatusIcon()}

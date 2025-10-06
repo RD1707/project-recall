@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ThemeToggle from '../components/common/ThemeToggle';
 
-import '../assets/css/landing.css'; 
+import '../assets/css/landing.css';
 import '../assets/css/privacidade.css';
+import '../assets/css/ThemeToggle.css';
 
 function Privacidade() {
     useEffect(() => {
@@ -20,6 +22,7 @@ function Privacidade() {
                         </Link>
                     </div>
                     <div className="header-actions">
+                         <ThemeToggle />
                          <Link to="/login" className="btn btn-primary">Começar Agora</Link>
                     </div>
                 </div>

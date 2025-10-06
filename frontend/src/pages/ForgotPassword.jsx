@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { requestPasswordReset } from '../api/auth';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css';
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -58,6 +60,9 @@ function ForgotPassword() {
 
                 <div className="auth-form-panel">
                     <div className="form-container">
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                            <ThemeToggle />
+                        </div>
                         <div className="form-header">
                             <div className="success-icon">
                                 <i className="fas fa-envelope-circle-check"></i>
@@ -108,6 +113,9 @@ function ForgotPassword() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header">
                         <h1>Esqueceu a senha?</h1>
                         <p>Não se preocupe! Digite seu e-mail e enviaremos as instruções para recuperar sua conta.</p>

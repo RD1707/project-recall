@@ -2,9 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
-import { loginUser } from '../api/auth'; 
+import { loginUser } from '../api/auth';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css';
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -91,6 +93,9 @@ function Login() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header">
                         <h1>Acesse sua conta</h1>
                         <p>Bem-vindo de volta! Por favor, insira seus dados.</p>

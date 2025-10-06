@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
 import { registerUser } from '../api/auth';
+import ThemeToggle from '../components/common/ThemeToggle';
 
-import '../assets/css/login.css'; 
+import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css'; 
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -134,6 +136,9 @@ function Register() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header">
                         <h1>Crie sua conta</h1>
                         <p>É rápido e fácil. Comece a usar o Recall agora!</p>

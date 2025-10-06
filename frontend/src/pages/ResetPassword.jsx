@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { resetPassword } from '../api/auth';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css';
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -147,6 +149,9 @@ function ResetPassword() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header">
                         <h1>Redefinir senha</h1>
                         <p>Digite sua nova senha abaixo. Certifique-se de que seja forte e fácil de lembrar.</p>
