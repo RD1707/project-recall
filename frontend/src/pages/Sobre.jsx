@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import '../assets/css/landing.css'; 
+import ThemeToggle from '../components/common/ThemeToggle';
+import '../assets/css/landing.css';
 import '../assets/css/sobre.css';
+import '../assets/css/ThemeToggle.css';
 
 const TechPill = ({ name }) => <span className="tech-pill">{name}</span>;
 
@@ -21,6 +23,7 @@ function Sobre() {
                         </Link>
                     </div>
                     <div className="header-actions">
+                         <ThemeToggle />
                          <Link to="/login" className="btn btn-primary">Começar Agora</Link>
                     </div>
                 </div>

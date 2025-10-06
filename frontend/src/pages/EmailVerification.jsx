@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../api/supabaseClient';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 import '../assets/css/login.css';
+import '../assets/css/ThemeToggle.css';
 
 const AuthPromoPanel = ({ title, subtitle }) => (
     <div className="auth-promo-panel">
@@ -201,6 +203,9 @@ function EmailVerification() {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                        <ThemeToggle />
+                    </div>
                     <div className="form-header">
                         <div className="success-icon">
                             <i className="fas fa-envelope-open-text"></i>
