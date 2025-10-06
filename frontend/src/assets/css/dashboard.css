@@ -182,7 +182,7 @@
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    z-index: 2;
+    z-index: 4;
 }
 
 .deck-card:hover .deck-card__options-btn {
@@ -688,4 +688,5 @@
     .content-header::before {
         background-size: 30px 30px;
     }
+
 }
