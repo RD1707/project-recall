@@ -209,17 +209,17 @@ const StudyCard = ({ card, isFlipped, onFlip, onExplain, feedback, isMultipleCho
     );
 };
 
-const ResponseControls = ({ isFlipped, onFlip, onQualitySelect, card, onOptionSelect, answerStatus }) => {
+const ResponseControls = ({ isFlipped, onFlip, onQualitySelect, card, onOptionSelect, answerStatus, isSubmitting }) => {
     const isMultipleChoice = card.card_type === 'Múltipla Escolha' && Array.isArray(card.options);
 
     if (isFlipped) {
         return (
              <div className="quality-buttons">
                 <div className="quality-grid">
-                    <button onClick={() => onQualitySelect(1)} className="quality-btn" data-feedback="again"><div className="quality-icon"><i className="fas fa-redo"></i></div><div className="quality-info"><span className="quality-label">Errei</span><span className="quality-time">&lt; 1 min</span></div><kbd>1</kbd></button>
-                    <button onClick={() => onQualitySelect(2)} className="quality-btn" data-feedback="hard"><div className="quality-icon"><i className="fas fa-brain"></i></div><div className="quality-info"><span className="quality-label">Difícil</span><span className="quality-time">~6 min</span></div><kbd>2</kbd></button>
-                    <button onClick={() => onQualitySelect(3)} className="quality-btn" data-feedback="good"><div className="quality-icon"><i className="fas fa-check"></i></div><div className="quality-info"><span className="quality-label">Bom</span><span className="quality-time">~10 min</span></div><kbd>3</kbd></button>
-                    <button onClick={() => onQualitySelect(4)} className="quality-btn" data-feedback="easy"><div className="quality-icon"><i className="fas fa-star"></i></div><div className="quality-info"><span className="quality-label">Fácil</span><span className="quality-time">~4 dias</span></div><kbd>4</kbd></button>
+                    <button onClick={() => onQualitySelect(1)} className="quality-btn" data-feedback="again" disabled={isSubmitting}><div className="quality-icon"><i className="fas fa-redo"></i></div><div className="quality-info"><span className="quality-label">Errei</span><span className="quality-time">&lt; 1 min</span></div><kbd>1</kbd></button>
+                    <button onClick={() => onQualitySelect(2)} className="quality-btn" data-feedback="hard" disabled={isSubmitting}><div className="quality-icon"><i className="fas fa-brain"></i></div><div className="quality-info"><span className="quality-label">Difícil</span><span className="quality-time">~6 min</span></div><kbd>2</kbd></button>
+                    <button onClick={() => onQualitySelect(3)} className="quality-btn" data-feedback="good" disabled={isSubmitting}><div className="quality-icon"><i className="fas fa-check"></i></div><div className="quality-info"><span className="quality-label">Bom</span><span className="quality-time">~10 min</span></div><kbd>3</kbd></button>
+                    <button onClick={() => onQualitySelect(4)} className="quality-btn" data-feedback="easy" disabled={isSubmitting}><div className="quality-icon"><i className="fas fa-star"></i></div><div className="quality-info"><span className="quality-label">Fácil</span><span className="quality-time">~4 dias</span></div><kbd>4</kbd></button>
                 </div>
             </div>
         );
@@ -271,6 +271,7 @@ function StudySession() {
     const [timer, setTimer] = useState(0);
     const [feedback, setFeedback] = useState({ show: false, type: '', text: '' });
     const [answerStatus, setAnswerStatus] = useState(null); 
+    const [isSubmitting, setIsSubmitting] = useState(false); // <<-- 1. NOSSO GUARDIÃO
     
     const [sessionStats, setSessionStats] = useState({
         wrong: 0, hard: 0, good: 0, easy: 0,
@@ -353,6 +354,7 @@ function StudySession() {
         setIsFlipped(false);
         setTimer(0);
         setAnswerStatus(null);
+        setIsSubmitting(false); // <<-- RESETANDO O GUARDIÃO
         setSessionStats({
             wrong: 0, hard: 0, good: 0, easy: 0,
             totalTime: 0, totalCardsStudied: 0,
@@ -369,6 +371,7 @@ function StudySession() {
             setCurrentIndex(prev => prev + 1);
             setIsFlipped(false);
             setAnswerStatus(null);
+            setIsSubmitting(false); // <<-- 3. ABAIXANDO O ESCUDO
         } else {
             setSessionStats(prev => ({
                 ...prev,
@@ -380,7 +383,11 @@ function StudySession() {
     }, []);
 
     const handleQualitySelection = useCallback((quality) => {
-        if (!isFlipped) return;
+        // 👇 NOSSA NOVA VERIFICAÇÃO!
+        if (!isFlipped || isSubmitting) return;
+
+        // 👇 LEVANTANDO O ESCUDO!
+        setIsSubmitting(true);
 
         const feedbackMap = {
             1: { type: 'error', text: 'Vamos revisar em breve' },
@@ -407,14 +414,13 @@ function StudySession() {
 
         submitReview(currentCard.id, quality)
             .then(() => {
-                // Trigger achievement update after successful review
                 triggerAchievementUpdate('review');
             })
             .catch(() => toast.error("Não foi possível salvar sua resposta."))
             .finally(() => {
                 setTimeout(handleNextCard, 300);
             });
-    }, [isFlipped, currentCard, handleNextCard]);
+    }, [isFlipped, isSubmitting, currentCard, handleNextCard, triggerAchievementUpdate]); // <<-- Adicione isSubmitting aqui
 
     const handleOptionSelect = (selectedOption) => {
         if (answerStatus) return;
@@ -538,6 +544,7 @@ function StudySession() {
                             card={currentCard}
                             onOptionSelect={handleOptionSelect}
                             answerStatus={answerStatus}
+                            isSubmitting={isSubmitting} // <<-- 2. PASSANDO O GUARDIÃO
                         />
                     </div>
                 </div>
