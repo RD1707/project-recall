@@ -252,6 +252,7 @@ const ensureUserProfile = async (req, res) => {
                 .insert({
                     id: userId,
                     full_name: req.user.user_metadata?.full_name || null,
+                    avatar_url: req.user.user_metadata?.avatar_url || req.user.user_metadata?.picture || null,
                     points: 0,
                     current_streak: 0,
                     max_streak: 0,

@@ -39,7 +39,7 @@ function CompleteProfile() {
                 // Verificar se o usuário já tem um perfil completo
                 const { data: existingProfile } = await supabase
                     .from('profiles')
-                    .select('username, full_name')
+                    .select('username, full_name, avatar_url')
                     .eq('id', session.user.id)
                     .single();
 
@@ -128,6 +128,24 @@ function CompleteProfile() {
                     <div className="form-header">
                         <h1>Complete seu Perfil</h1>
                         <p>Conectado como: <strong>{user.email}</strong></p>
+                        {(user.user_metadata?.avatar_url || user.user_metadata?.picture) && (
+                            <div style={{ textAlign: 'center', margin: '20px 0' }}>
+                                <img
+                                    src={user.user_metadata.avatar_url || user.user_metadata.picture}
+                                    alt="Foto do Google"
+                                    style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        border: '3px solid var(--primary-color, #007bff)'
+                                    }}
+                                />
+                                <p style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>
+                                    Foto importada do Google
+                                </p>
+                            </div>
+                        )}
                     </div>
                     <form onSubmit={handleSubmit} noValidate>
                         <div className="form-group">
