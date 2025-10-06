@@ -101,9 +101,19 @@ function Register() {
     };
 
     const handleGoogleLogin = async () => {
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-        if (error) {
-            toast.error(error.message || "Não foi possível conectar com o Google.");
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/complete-profile'
+                }
+            });
+
+            if (error) {
+                toast.error(error.message || "Não foi possível conectar com o Google.");
+            }
+        } catch (err) {
+            toast.error("Erro ao conectar com o Google.");
         }
     };
     

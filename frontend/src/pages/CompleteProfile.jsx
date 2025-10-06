@@ -35,9 +35,23 @@ function CompleteProfile() {
                     navigate('/login');
                     return;
                 }
+
+                // Verificar se o usuário já tem um perfil completo
+                const { data: existingProfile } = await supabase
+                    .from('profiles')
+                    .select('username, full_name')
+                    .eq('id', session.user.id)
+                    .single();
+
+                // Se já tem username, redirecionar para dashboard
+                if (existingProfile?.username) {
+                    navigate('/dashboard');
+                    return;
+                }
+
                 setUser(session.user);
                 setFormData({
-                    fullName: session.user.user_metadata?.full_name || '',
+                    fullName: session.user.user_metadata?.full_name || existingProfile?.full_name || '',
                     username: ''
                 });
             } catch (error) {

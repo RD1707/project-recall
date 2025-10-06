@@ -183,7 +183,7 @@ const resetPassword = async (req, res) => {
 
     try {
         logger.info(`Tentativa de reset de senha com token: ${access_token.substring(0, 10)}...`);
-        
+
         const { createClient } = require('@supabase/supabase-js');
         const resetClient = createClient(
             process.env.SUPABASE_URL,
@@ -225,10 +225,64 @@ const resetPassword = async (req, res) => {
     }
 };
 
+// Função para criar perfil automaticamente para usuários OAuth
+const ensureUserProfile = async (req, res) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Usuário não autenticado.' });
+    }
+
+    try {
+        // Verificar se o perfil já existe
+        const { data: existingProfile, error: checkError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+            throw checkError;
+        }
+
+        // Se o perfil não existe, criar um
+        if (!existingProfile) {
+            const { data: newProfile, error: createError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    full_name: req.user.user_metadata?.full_name || null,
+                    points: 0,
+                    current_streak: 0,
+                    max_streak: 0,
+                    weekly_points: 0,
+                    has_completed_onboarding: false
+                })
+                .select()
+                .single();
+
+            if (createError) {
+                throw createError;
+            }
+
+            logger.info(`Perfil criado automaticamente para usuário OAuth: ${userId}`);
+            return res.status(201).json({ profile: newProfile, isNew: true });
+        }
+
+        // Perfil já existe
+        res.status(200).json({ profile: existingProfile, isNew: false });
+
+    } catch (err) {
+        logger.error(`Erro ao garantir perfil do usuário ${userId}: ${err.message}`);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+};
+
 module.exports = {
   signup,
   login,
   completeGoogleProfile,
   forgotPassword,
   resetPassword,
+  ensureUserProfile,
 };

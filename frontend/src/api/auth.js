@@ -81,14 +81,20 @@ export const completeUserProfile = async (profileData) => {
             },
             body: JSON.stringify(profileData),
         });
-        
+
         const data = await response.json();
         if (!response.ok) {
+            // Se é um erro de campo (username já em uso), lançar com field
+            if (data.field) {
+                const error = new Error(data.error);
+                error.field = data.field;
+                throw error;
+            }
             throw new Error(data.error || 'Falha ao completar o perfil.');
         }
         return data;
     } catch (error) {
-        toast.error(error.message);
+        // Não mostrar toast aqui, deixar o componente lidar com isso
         throw error;
     }
 };
@@ -113,11 +119,11 @@ export const requestPasswordReset = async (email) => {
 
 export const resetPassword = async ({ accessToken, refreshToken, newPassword }) => {
     try {
-        const body = { 
-            access_token: accessToken, 
-            password: newPassword 
+        const body = {
+            access_token: accessToken,
+            password: newPassword
         };
-        
+
         if (refreshToken && refreshToken.trim() !== '') {
             body.refresh_token = refreshToken;
         }
@@ -134,6 +140,30 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
 
         return await response.json();
     } catch (error) {
+        throw error;
+    }
+};
+
+// Função para garantir que o perfil do usuário existe (especialmente para OAuth)
+export const ensureUserProfile = async () => {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error("Usuário não autenticado");
+
+        const response = await fetch('/api/auth/ensure-profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${session.access_token}`,
+            },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Falha ao verificar perfil.');
+        }
+        return data;
+    } catch (error) {
+        console.error('Erro ao garantir perfil:', error);
         throw error;
     }
 };

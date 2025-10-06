@@ -9,5 +9,6 @@ router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 
 router.post('/complete-google-profile', authMiddleware.authenticateToken, authController.completeGoogleProfile);
+router.get('/ensure-profile', authMiddleware.authenticateToken, authController.ensureUserProfile);
 
 module.exports = router;
