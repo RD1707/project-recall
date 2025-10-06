@@ -11,7 +11,7 @@ function ProtectedRoute({ children }) {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (loading === false) setLoading(true);
+      setLoading(true);
 
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
@@ -29,7 +29,7 @@ function ProtectedRoute({ children }) {
           setProfile(userProfile);
         }
       }
-      
+
       setLoading(false);
     };
 
@@ -42,7 +42,7 @@ function ProtectedRoute({ children }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [location]);
+  }, []); // Removida dependência [location] para evitar loop infinito
 
   if (loading) {
     return <LoadingSpinner message="Carregando sua sessão..." />;
