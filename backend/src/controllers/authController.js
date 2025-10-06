@@ -99,8 +99,8 @@ const login = async (req, res) => {
 };
 
 const completeGoogleProfile = async (req, res) => {
-    const userId = req.user.id; 
-    const { fullName, username } = req.body; 
+    const userId = req.user.id;
+    const { fullName, username } = req.body;
 
     if (!userId || !fullName || !username) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -121,15 +121,27 @@ const completeGoogleProfile = async (req, res) => {
             return res.status(400).json({ error: 'Este nome de usuário já está em uso.', field: 'username', type: 'FIELD_ERROR' });
         }
 
+        // Buscar o perfil atual para preservar o avatar_url do Google
+        const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', userId)
+            .single();
+
         const { data, error } = await supabase
             .from('profiles')
-            .update({ full_name: fullName.trim(), username: username.trim() })
+            .update({
+                full_name: fullName.trim(),
+                username: username.trim(),
+                // Preservar o avatar_url existente (do Google)
+                avatar_url: currentProfile?.avatar_url || null
+            })
             .eq('id', userId)
             .select()
             .single();
 
         if (error) throw error;
-        
+
         res.status(200).json({ message: 'Perfil completado com sucesso!', profile: data });
 
     } catch (err) {
