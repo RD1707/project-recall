@@ -52,7 +52,7 @@ function AppContent() {
           // Verificar se o usuário tem um perfil completo
           const { data: profile } = await supabase
             .from('profiles')
-            .select('username, full_name')
+            .select('username, full_name, avatar_url')
             .eq('id', session.user.id)
             .single();
 
