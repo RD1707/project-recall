@@ -4,7 +4,8 @@ import { fetchProfile, logout } from '../../api/profile';
 import toast from 'react-hot-toast';
 
 import ProfileModal from '../profile/ProfileModal';
-import SettingsModal from '../profile/SettingsModal'; 
+import SettingsModal from '../profile/SettingsModal';
+import SinapseButton from '../sinapse/SinapseButton'; 
 
 function Header() {
   const [user, setUser] = useState({
@@ -106,6 +107,7 @@ function Header() {
             <NavLink to="/community" className="nav-link">
               <i className="fas fa-users"></i> Comunidade
             </NavLink>
+            <SinapseButton />
             <div className="user-stats">
               <div className="user-stat"><span className="stat-icon"><i className="fas fa-star"></i></span><span>{loading ? '...' : user.points}</span> Pontos</div>
               <div className="user-stat"><span className="stat-icon"><i className="fas fa-fire"></i></span><span>{loading ? '...' : user.current_streak}</span> Dias</div>

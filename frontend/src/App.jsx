@@ -5,7 +5,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PublicProfile from './pages/PublicProfile';
 import { SocketProvider } from './context/SocketContext';
 import { AchievementsProvider } from './context/AchievementsContext';
+import { SinapseProvider } from './context/SinapseContext';
 import CookieBanner from './components/common/CookieBanner';
+import SinapseChat from './components/sinapse/SinapseChat';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -48,8 +50,10 @@ function App() {
   return (
     <SocketProvider>
       <AchievementsProvider>
-        <BrowserRouter>
-          <CookieBanner />
+        <SinapseProvider>
+          <BrowserRouter>
+            <CookieBanner />
+            <SinapseChat />
 
           <Routes>
             {/* Rotas Públicas */}
@@ -81,7 +85,8 @@ function App() {
             <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
             <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
           </Routes>
-        </BrowserRouter>
+          </BrowserRouter>
+        </SinapseProvider>
       </AchievementsProvider>
     </SocketProvider>
   );
