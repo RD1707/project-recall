@@ -75,12 +75,28 @@ export const SinapseProvider = ({ children }) => {
     }, [currentConversationId]);
 
     const sendMessageToConversation = async (conversationId, content, attachments) => {
+        // Criar mensagem otimista do usuário
+        const optimisticUserMessage = {
+            id: `temp-${Date.now()}`,
+            conversation_id: conversationId,
+            role: 'USER',
+            content: content,
+            attachments: attachments.map(a => ({ name: a.name })),
+            created_at: new Date().toISOString(),
+        };
+
+        // Adicionar mensagem do usuário imediatamente
+        setMessages(prev => [...prev, optimisticUserMessage]);
         setIsSending(true);
+
         try {
             const data = await sinapseAPI.sendMessage(conversationId, content, attachments);
 
-            // Adicionar mensagens à lista
-            setMessages(prev => [...prev, data.userMessage, data.assistantMessage]);
+            // Substituir mensagem otimista pela real e adicionar resposta do assistente
+            setMessages(prev => {
+                const filtered = prev.filter(m => m.id !== optimisticUserMessage.id);
+                return [...filtered, data.userMessage, data.assistantMessage];
+            });
 
             // Atualizar título da conversa se foi alterado
             const updatedConvTitle = conversations.find(c => c.id === conversationId);
@@ -92,6 +108,8 @@ export const SinapseProvider = ({ children }) => {
             return data;
         } catch (error) {
             console.error('Erro ao enviar mensagem:', error);
+            // Remover mensagem otimista em caso de erro
+            setMessages(prev => prev.filter(m => m.id !== optimisticUserMessage.id));
             throw error;
         } finally {
             setIsSending(false);

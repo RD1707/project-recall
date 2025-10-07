@@ -18,6 +18,7 @@ function SinapseChat({ onBack }) {
 
     const [inputValue, setInputValue] = useState('');
     const [attachedFiles, setAttachedFiles] = useState([]);
+    const [userProfile, setUserProfile] = useState(null);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -32,6 +33,27 @@ function SinapseChat({ onBack }) {
             inputRef.current.focus();
         }
     }, [currentConversationId]);
+
+    // Buscar perfil do usuário
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserProfile(data);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar perfil:', error);
+            }
+        };
+        fetchUserProfile();
+    }, []);
 
     const handleSendMessage = async () => {
         const content = inputValue.trim();
@@ -149,8 +171,13 @@ function SinapseChat({ onBack }) {
                             </div>
                         ) : (
                             <>
-                                {messages.map((message) => (
-                                    <MessageBubble key={message.id} message={message} />
+                                {messages.map((message, index) => (
+                                    <MessageBubble
+                                        key={message.id}
+                                        message={message}
+                                        user={userProfile}
+                                        isTyping={message.role === 'ASSISTANT' && index === messages.length - 1 && isSending}
+                                    />
                                 ))}
                                 {isSending && (
                                     <div className="sinapse-typing">

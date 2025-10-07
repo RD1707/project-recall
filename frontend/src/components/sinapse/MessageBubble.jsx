@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import TypingEffect from './TypingEffect';
 
-function MessageBubble({ message }) {
+function MessageBubble({ message, user, isTyping = false }) {
     const isUser = message.role === 'USER';
     const timestamp = new Date(message.created_at).toLocaleTimeString('pt-BR', {
         hour: '2-digit',
@@ -12,9 +13,17 @@ function MessageBubble({ message }) {
         <div className={`sinapse-message ${isUser ? 'user-message' : 'assistant-message'}`}>
             <div className="message-avatar">
                 {isUser ? (
-                    <i className="fas fa-user"></i>
+                    user?.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.fullName || 'Usuário'} className="avatar-image" />
+                    ) : (
+                        <div className="avatar-placeholder">
+                            {user?.initial || user?.fullName?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    )
                 ) : (
-                    <i className="fas fa-brain"></i>
+                    <div className="sinapse-ai-avatar">
+                        <i className="fas fa-brain"></i>
+                    </div>
                 )}
             </div>
             <div className="message-content-wrapper">
@@ -26,11 +35,35 @@ function MessageBubble({ message }) {
                 </div>
                 <div className="message-content">
                     {isUser ? (
-                        <p>{message.content}</p>
+                        <ReactMarkdown
+                            components={{
+                                code: ({ node, inline, className, children, ...props }) => {
+                                    return inline ? (
+                                        <code className="inline-code" {...props}>
+                                            {children}
+                                        </code>
+                                    ) : (
+                                        <pre className="code-block">
+                                            <code className={className} {...props}>
+                                                {children}
+                                            </code>
+                                        </pre>
+                                    );
+                                },
+                                a: ({ node, children, ...props }) => (
+                                    <a {...props} target="_blank" rel="noopener noreferrer">
+                                        {children}
+                                    </a>
+                                ),
+                            }}
+                        >
+                            {message.content}
+                        </ReactMarkdown>
+                    ) : isTyping ? (
+                        <TypingEffect text={message.content} speed={15} />
                     ) : (
                         <ReactMarkdown
                             components={{
-                                // Customizar renderização de elementos markdown
                                 code: ({ node, inline, className, children, ...props }) => {
                                     return inline ? (
                                         <code className="inline-code" {...props}>
