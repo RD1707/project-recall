@@ -25,28 +25,25 @@ const handleApiError = async (response) => {
 
 export const loginUser = async (credentials) => {
     try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(credentials),
+        // Chamada direta para o Supabase no cliente
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password,
         });
 
-        if (!response.ok) {
-            await handleApiError(response);
+        if (error) {
+            // Se houver um erro, lança-o para ser pego na página de Login
+            throw error;
         }
 
-        const data = await response.json();
-        
-        if (data.session) {
-            await supabase.auth.setSession({
-                access_token: data.session.access_token,
-                refresh_token: data.session.refresh_token
-            });
-        }
-
+        // Se o login for bem-sucedido, a sessão já está gerenciada pelo Supabase.
+        // Apenas retornamos os dados.
         return data;
+
     } catch (error) {
-        throw error;
+        // Re-lança o erro para que a página de Login possa exibi-lo.
+        console.error("Erro no login direto com Supabase:", error);
+        throw new Error(error.message || 'E-mail ou senha inválidos.');
     }
 };
 

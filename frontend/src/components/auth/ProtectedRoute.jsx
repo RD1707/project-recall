@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../api/supabaseClient';
-import LoadingSpinner from '../common/LoadingSpinner'; 
+import LoadingSpinner from '../common/LoadingSpinner';
 
 function ProtectedRoute({ children }) {
   const [session, setSession] = useState(null);
@@ -10,53 +10,48 @@ function ProtectedRoute({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    const checkUser = async () => {
-      setLoading(true);
-
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      setSession(currentSession);
-
-      if (currentSession) {
-        const { data: userProfile, error: profileError } = await supabase
+    // Esta é a maneira robusta de verificar a autenticação.
+    // O onAuthStateChange lida com o carregamento inicial, login e logout.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      
+      if (session) {
+        // Se há uma sessão, buscamos o perfil.
+        const { data: userProfile } = await supabase
           .from('profiles')
-          .select('username, full_name')
-          .eq('id', currentSession.user.id)
+          .select('username')
+          .eq('id', session.user.id)
           .single();
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error('Erro ao buscar perfil:', profileError);
-        } else {
-          setProfile(userProfile);
-        }
+        setProfile(userProfile);
+      } else {
+        // Se não há sessão, não há perfil.
+        setProfile(null);
       }
-
+      
       setLoading(false);
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []); // Removida dependência [location] para evitar loop infinito
+  }, []); // O array vazio [] garante que isso só rode uma vez.
 
   if (loading) {
-    return <LoadingSpinner message="Carregando sua sessão..." />;
+    return <LoadingSpinner message="A carregar a sua sessão..." />;
   }
 
   if (!session) {
+    // Se não há sessão, redireciona para o login.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if ((!profile || !profile.username) && location.pathname !== '/complete-profile') {
+    // Se a sessão existe mas o perfil está incompleto, redireciona para completar o perfil.
     return <Navigate to="/complete-profile" replace />;
   }
 
   if (profile?.username && location.pathname === '/complete-profile') {
+    // Se o perfil já está completo, não deixa o usuário acessar a página /complete-profile.
     return <Navigate to="/dashboard" replace />;
   }
 

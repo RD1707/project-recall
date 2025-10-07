@@ -43,25 +43,37 @@ function Login() {
         setError('');
     };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-        try {
-            await loginUser({
-                email: formData.email,
-                password: formData.password,
-            });
-            toast.success('Login bem-sucedido!');
-            navigate('/dashboard');
+    try {
+        // Autentica o usuário diretamente com o Supabase
+        const { error } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+        });
 
-        } catch (err) {
-            setError(err.message || 'E-mail ou senha inválidos.');
-        } finally {
-            setLoading(false);
+        if (error) {
+            // Se o Supabase retornar um erro (ex: senha errada), nós o exibimos.
+            throw error;
         }
-    };
+
+        // Se NÃO houve erro, a autenticação foi um sucesso.
+        // O onAuthStateChange no ProtectedRoute já foi notificado.
+        // Agora, nós explicitamente mandamos o usuário para o dashboard.
+        toast.success('Login bem-sucedido!');
+        navigate('/dashboard');
+
+    } catch (err) {
+        // Captura o erro do Supabase e o exibe para o usuário.
+        setError(err.message || 'E-mail ou senha inválidos.');
+    } finally {
+        // Garante que o estado de loading seja desativado em qualquer cenário.
+        setLoading(false);
+    }
+};
 
     const handleGoogleLogin = async () => {
         try {
