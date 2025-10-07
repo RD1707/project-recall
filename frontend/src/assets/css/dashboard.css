@@ -94,7 +94,7 @@
 }
 
 .deck-card {
-    background: linear-gradient(135deg, var(--color-surface) 0%, rgba(255, 255, 255, 0.95) 100%);
+    background: var(--color-surface);
     border-radius: var(--border-radius-lg);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-soft);
@@ -198,7 +198,7 @@
 .deck-card__body {
     padding: 1.5rem;
     flex-grow: 1;
-    background: linear-gradient(135deg, var(--color-surface) 0%, rgba(255, 255, 255, 0.98) 100%);
+    background: var(--color-surface);
     position: relative;
 }
 
@@ -222,7 +222,7 @@
     align-items: center;
     padding: 1.25rem 1.5rem;
     border-top: 1px solid var(--color-border);
-    background: linear-gradient(135deg, var(--color-background) 0%, rgba(248, 250, 252, 0.95) 100%);
+    background: var(--color-surface);
     position: relative;
 }
 

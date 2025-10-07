@@ -243,8 +243,8 @@
 
 .generator-header {
     padding: 1.5rem;
-    background: var(--color-dark-800);
-    color: var(--color-surface);
+    background: var(--color-surface);
+    color: var(--color-dark-800);;
 }
 
 .generator-header .generator-title-container {
@@ -257,7 +257,7 @@
 .generator-header h2 {
     font-size: 1.25rem;
     margin: 0;
-    color: var(--color-surface);
+    color: var(--color-dark-800);
 }
 
 .generator-header .generator-subtitle {
@@ -787,4 +787,12 @@
     .card-item:active {
         transform: scale(0.98);
     }
+}
+
+[data-theme='dark'] .number-input input {
+    color: var(--color-dark-800);
+}
+
+[data-theme='dark'] .custom-select{
+    color: var(--color-dark-800);
 }

@@ -7,51 +7,49 @@ function ProtectedRoute({ children }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
+  const location = useLocation(); // Hook para detectar mudanças de rota
 
   useEffect(() => {
-    // Esta é a maneira robusta de verificar a autenticação.
-    // O onAuthStateChange lida com o carregamento inicial, login e logout.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      
-      if (session) {
-        // Se há uma sessão, buscamos o perfil.
+    // Esta função será executada toda vez que a URL mudar
+    const checkUserSessionAndProfile = async () => {
+      setLoading(true); // Inicia o carregamento a cada nova página
+
+      // 1. Pega a sessão atual. É rápido, pois lê do localStorage.
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+
+      if (currentSession) {
+        // 2. Se a sessão existe, busca o perfil do usuário.
         const { data: userProfile } = await supabase
           .from('profiles')
           .select('username')
-          .eq('id', session.user.id)
+          .eq('id', currentSession.user.id)
           .single();
         setProfile(userProfile);
-      } else {
-        // Se não há sessão, não há perfil.
-        setProfile(null);
       }
       
+      // 3. Termina o carregamento.
       setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
     };
-  }, []); // O array vazio [] garante que isso só rode uma vez.
+
+    checkUserSessionAndProfile();
+
+  }, [location]); // A MÁGICA ESTÁ AQUI: o array de dependências agora observa a 'location'.
 
   if (loading) {
-    return <LoadingSpinner message="A carregar a sua sessão..." />;
+    return <LoadingSpinner message="Verificando sua autenticação..." />;
   }
 
+  // A lógica de redirecionamento permanece a mesma
   if (!session) {
-    // Se não há sessão, redireciona para o login.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if ((!profile || !profile.username) && location.pathname !== '/complete-profile') {
-    // Se a sessão existe mas o perfil está incompleto, redireciona para completar o perfil.
     return <Navigate to="/complete-profile" replace />;
   }
-
+  
   if (profile?.username && location.pathname === '/complete-profile') {
-    // Se o perfil já está completo, não deixa o usuário acessar a página /complete-profile.
     return <Navigate to="/dashboard" replace />;
   }
 

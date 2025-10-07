@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import { supabase } from './api/supabaseClient';
-import { ensureUserProfile } from './api/auth';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// ... (resto das suas importações)
+// Importações dos componentes e páginas
 import PublicProfile from './pages/PublicProfile';
 import { SocketProvider } from './context/SocketContext';
 import { AchievementsProvider } from './context/AchievementsContext';
@@ -34,55 +32,28 @@ import Community from './pages/Community';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
-
-function AppContent() {
-  const navigate = useNavigate();
-
+function App() {
+  // Lógica de tema inteligente: detecta preferência do navegador na primeira visita
   useEffect(() => {
-    const savedTheme = localStorage.getItem('app-theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-
-    // Detectar mudanças na autenticação (OAuth callback)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        try {
-          // Garantir que o perfil existe (criar se necessário para usuários OAuth)
-          await ensureUserProfile();
-
-          // Verificar se o usuário tem um perfil completo
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username, full_name, avatar_url')
-            .eq('id', session.user.id)
-            .single();
-
-          // Se não tem username, é um novo usuário (OAuth) - redirecionar para completar perfil
-          if (!profile?.username) {
-            navigate('/complete-profile');
-          } else {
-            // Se está na página de login/register e já tem perfil completo, ir para dashboard
-            if (window.location.pathname === '/login' || window.location.pathname === '/register') {
-              navigate('/dashboard');
-            }
-          }
-        } catch (error) {
-          console.error('Erro ao processar login:', error);
-        }
-      }
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [navigate]);
+    const savedTheme = localStorage.getItem('app-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+    } else {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const defaultTheme = prefersDark ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', defaultTheme);
+    }
+  }, []);
 
   return (
     <SocketProvider>
       <AchievementsProvider>
-        <CookieBanner />
+        <BrowserRouter>
+          <CookieBanner />
 
-        <Routes>
-          <Route path="/" element={<Landing />} />
+          <Routes>
+            {/* Rotas Públicas */}
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/email-verification" element={<EmailVerification />} />
@@ -97,28 +68,22 @@ function AppContent() {
             <Route path="/termos" element={<Termos />} />
             <Route path="/shared-deck/:shareableId" element={<SharedDeck />} />
 
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
-          <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
-          <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-          <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
-          <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
-          <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} /> 
-          <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
-          <Route path="/my-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
-          <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
-        </Routes>
+            {/* Rotas Protegidas */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
+            <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
+            <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+            <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
+            <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
+            <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} />
+            <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+            <Route path="/my-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
+            <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
       </AchievementsProvider>
     </SocketProvider>
-  );
-}
-
-function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
   );
 }
 
