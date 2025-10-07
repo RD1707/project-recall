@@ -216,7 +216,6 @@ function SinapseChat({ onBack }) {
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     );
 }
