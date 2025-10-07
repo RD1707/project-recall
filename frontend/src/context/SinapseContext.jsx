@@ -12,18 +12,12 @@ export const useSinapse = () => {
 };
 
 export const SinapseProvider = ({ children }) => {
-    const [isOpen, setIsOpen] = useState(false);
     const [conversations, setConversations] = useState([]);
     const [currentConversationId, setCurrentConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [loadingConversations, setLoadingConversations] = useState(false);
-
-    // Abrir/Fechar chat
-    const openChat = useCallback(() => setIsOpen(true), []);
-    const closeChat = useCallback(() => setIsOpen(false), []);
-    const toggleChat = useCallback(() => setIsOpen(prev => !prev), []);
 
     // Carregar conversas
     const loadConversations = useCallback(async () => {
@@ -134,7 +128,6 @@ export const SinapseProvider = ({ children }) => {
 
     const value = {
         // Estado
-        isOpen,
         conversations,
         currentConversationId,
         messages,
@@ -143,9 +136,6 @@ export const SinapseProvider = ({ children }) => {
         loadingConversations,
 
         // Ações
-        openChat,
-        closeChat,
-        toggleChat,
         loadConversations,
         createNewConversation,
         selectConversation,

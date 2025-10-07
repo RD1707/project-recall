@@ -6,15 +6,12 @@ import FileAttachment from './FileAttachment';
 import toast from 'react-hot-toast';
 import '../../assets/css/sinapse.css';
 
-function SinapseChat() {
+function SinapseChat({ onBack }) {
     const {
-        isOpen,
-        closeChat,
         messages,
         isLoading,
         isSending,
         currentConversationId,
-        loadConversations,
         sendMessage,
         createNewConversation,
     } = useSinapse();
@@ -24,24 +21,17 @@ function SinapseChat() {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Carregar conversas ao abrir
-    useEffect(() => {
-        if (isOpen) {
-            loadConversations();
-        }
-    }, [isOpen, loadConversations]);
-
     // Auto-scroll para o final das mensagens
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Focar input quando abre
+    // Focar input quando seleciona conversa
     useEffect(() => {
-        if (isOpen && inputRef.current) {
+        if (inputRef.current) {
             inputRef.current.focus();
         }
-    }, [isOpen, currentConversationId]);
+    }, [currentConversationId]);
 
     const handleSendMessage = async () => {
         const content = inputValue.trim();
@@ -91,18 +81,20 @@ function SinapseChat() {
         setAttachedFiles(prev => prev.filter((_, i) => i !== index));
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="sinapse-container">
-            <div className="sinapse-overlay" onClick={closeChat}></div>
-
-            <div className="sinapse-chat">
+        <div className="sinapse-chat">
                 <ConversationSidebar />
 
                 <div className="sinapse-main">
                     {/* Header */}
                     <div className="sinapse-header">
+                        <button
+                            className="sinapse-back-btn"
+                            onClick={onBack}
+                            aria-label="Voltar"
+                        >
+                            <i className="fas fa-arrow-left"></i>
+                        </button>
                         <div className="sinapse-header-title">
                             <i className="fas fa-brain"></i>
                             <div>
@@ -110,13 +102,6 @@ function SinapseChat() {
                                 <p>Assistente inteligente do Recall</p>
                             </div>
                         </div>
-                        <button
-                            className="sinapse-close-btn"
-                            onClick={closeChat}
-                            aria-label="Fechar chat"
-                        >
-                            <i className="fas fa-times"></i>
-                        </button>
                     </div>
 
                     {/* Messages Area */}

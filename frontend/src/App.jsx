@@ -7,7 +7,7 @@ import { SocketProvider } from './context/SocketContext';
 import { AchievementsProvider } from './context/AchievementsContext';
 import { SinapseProvider } from './context/SinapseContext';
 import CookieBanner from './components/common/CookieBanner';
-import SinapseChat from './components/sinapse/SinapseChat';
+import Sinapse from './pages/Sinapse';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -53,9 +53,8 @@ function App() {
         <SinapseProvider>
           <BrowserRouter>
             <CookieBanner />
-            <SinapseChat />
 
-          <Routes>
+            <Routes>
             {/* Rotas Públicas */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -74,6 +73,7 @@ function App() {
 
             {/* Rotas Protegidas */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/sinapse" element={<ProtectedRoute><Sinapse /></ProtectedRoute>} />
             <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
             <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />

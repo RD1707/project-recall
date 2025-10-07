@@ -1,12 +1,10 @@
 const { CohereClient } = require('cohere-ai');
 const supabase = require('../config/supabaseClient');
-const FileProcessingService = require('./fileProcessingService');
+const fileProcessor = require('./fileProcessingService');
 
 const cohere = new CohereClient({
     token: process.env.COHERE_API_KEY,
 });
-
-const fileProcessor = new FileProcessingService();
 
 /**
  * Serviço da IA Sinapse - Assistente inteligente do Recall

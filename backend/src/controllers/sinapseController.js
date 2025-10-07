@@ -1,8 +1,6 @@
 const supabase = require('../config/supabaseClient');
 const sinapseService = require('../services/sinapseService');
-const FileProcessingService = require('../services/fileProcessingService');
-
-const fileProcessor = new FileProcessingService();
+const fileProcessor = require('../services/fileProcessingService');
 
 /**
  * Controller da IA Sinapse

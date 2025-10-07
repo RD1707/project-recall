@@ -1,19 +1,19 @@
 import React from 'react';
-import { useSinapse } from '../../context/SinapseContext';
+import { useNavigate } from 'react-router-dom';
 
 function SinapseButton() {
-    const { toggleChat, isOpen } = useSinapse();
+    const navigate = useNavigate();
 
     return (
         <button
             className="sinapse-header-button"
-            onClick={toggleChat}
+            onClick={() => navigate('/sinapse')}
             aria-label="Abrir Sinapse - Assistente IA"
             title="Falar com Sinapse"
         >
             <i className="fas fa-brain"></i>
             <span className="sinapse-button-text">Sinapse</span>
-            {!isOpen && <span className="sinapse-pulse"></span>}
+            <span className="sinapse-pulse"></span>
         </button>
     );
 }
