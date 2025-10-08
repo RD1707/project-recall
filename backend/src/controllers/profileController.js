@@ -28,22 +28,23 @@ const getProfile = async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('points, current_streak, full_name, username, bio, avatar_url, has_completed_onboarding, interests') 
+            .select('points, current_streak, full_name, username, bio, avatar_url, banner_url, has_completed_onboarding, interests')
             .eq('id', req.user.id)
             .single();
 
         if (error && error.code === 'PGRST116') {
             logger.warn(`Perfil não encontrado para o usuário ${req.user.id}. Retornando perfil padrão.`);
-            return res.status(200).json({ 
+            return res.status(200).json({
                 points: 0,
                 current_streak: 0,
                 full_name: '',
                 username: '',
                 bio: '',
                 avatar_url: null,
+                banner_url: null,
                 has_completed_onboarding: false,
                 interests: [],
-                email: req.user.email 
+                email: req.user.email
             });
         }
         
@@ -128,10 +129,10 @@ const uploadAvatar = async (req, res) => {
         const filePath = `${userId}/${Date.now()}-${file.originalname}`;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('avatars') 
+            .from('avatars')
             .upload(filePath, file.buffer, {
                 contentType: file.mimetype,
-                upsert: true, 
+                upsert: true,
             });
 
         if (uploadError) throw uploadError;
@@ -139,7 +140,7 @@ const uploadAvatar = async (req, res) => {
         const { data: urlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(uploadData.path);
-            
+
         const avatar_url = urlData.publicUrl;
 
         const { data: updatedProfile, error: profileError } = await supabase
@@ -151,14 +152,60 @@ const uploadAvatar = async (req, res) => {
 
         if (profileError) throw profileError;
 
-        res.status(200).json({ 
-            message: 'Avatar atualizado com sucesso!', 
-            avatarUrl: updatedProfile.avatar_url 
+        res.status(200).json({
+            message: 'Avatar atualizado com sucesso!',
+            avatarUrl: updatedProfile.avatar_url
         });
 
     } catch (error) {
         logger.error(`Erro no upload do avatar para o usuário ${userId}: ${error.message}`);
         res.status(500).json({ message: 'Erro ao fazer upload do avatar.', code: 'UPLOAD_ERROR' });
+    }
+};
+
+const uploadBanner = async (req, res) => {
+    const userId = req.user.id;
+
+    if (!req.file) {
+        return res.status(400).json({ message: 'Nenhum arquivo de imagem enviado.', code: 'VALIDATION_ERROR' });
+    }
+
+    try {
+        const file = req.file;
+        const filePath = `${userId}/${Date.now()}-${file.originalname}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('banners')
+            .upload(filePath, file.buffer, {
+                contentType: file.mimetype,
+                upsert: true,
+            });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+            .from('banners')
+            .getPublicUrl(uploadData.path);
+
+        const banner_url = urlData.publicUrl;
+
+        const { data: updatedProfile, error: profileError } = await supabase
+            .from('profiles')
+            .update({ banner_url })
+            .eq('id', userId)
+            .select('banner_url')
+            .single();
+
+        if (profileError) throw profileError;
+
+        res.status(200).json({
+            message: 'Banner atualizado com sucesso!',
+            bannerUrl: updatedProfile.banner_url
+        });
+
+    } catch (error) {
+        logger.error(`Erro no upload do banner para o usuário ${userId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao fazer upload do banner.', code: 'UPLOAD_ERROR' });
     }
 };
 
@@ -390,6 +437,7 @@ module.exports = {
     updateProfile,
     getProfileByUsername,
     uploadAvatar,
+    uploadBanner,
     getLeaderboard,
     completeOnboarding,
     getPublicProfile,

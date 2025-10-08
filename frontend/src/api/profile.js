@@ -24,7 +24,7 @@ export const fetchProfile = async () => {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('username, full_name, points, current_streak, bio, avatar_url, has_completed_onboarding') 
+      .select('username, full_name, points, current_streak, bio, avatar_url, banner_url, has_completed_onboarding, interests')
       .eq('id', user.id)
       .single();
 
@@ -33,14 +33,16 @@ export const fetchProfile = async () => {
     }
 
     return {
-      id: user.id, 
+      id: user.id,
       email: user.email,
       username: profile?.username || '',
-      fullName: profile?.full_name || '', 
+      fullName: profile?.full_name || '',
       points: profile?.points || 0,
       current_streak: profile?.current_streak || 0,
       bio: profile?.bio || '',
       avatar_url: profile?.avatar_url || null,
+      banner_url: profile?.banner_url || null,
+      interests: profile?.interests || [],
       has_completed_onboarding: profile?.has_completed_onboarding || false,
     };
 
@@ -90,6 +92,29 @@ export const uploadAvatar = async (file) => {
         return await response.json();
     } catch (error) {
        throw handleApiError(error, 'uploadAvatar');
+    }
+};
+
+export const uploadBanner = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('banner', file);
+
+        const response = await fetch('/api/profile/banner', {
+            method: 'POST',
+            headers: {
+                'Authorization': await getAuthHeader(),
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao enviar o banner.');
+        }
+        return await response.json();
+    } catch (error) {
+       throw handleApiError(error, 'uploadBanner');
     }
 };
 

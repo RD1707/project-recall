@@ -5,6 +5,7 @@ const {
     getProfile,
     updateProfile,
     uploadAvatar,
+    uploadBanner,
     getProfileByUsername,
     getLeaderboard,
     completeOnboarding,
@@ -40,6 +41,7 @@ router.delete('/delete-account', deleteAccount);
 router.get('/recent-activity', getRecentActivity);
 
 router.post('/avatar', upload.single('avatar'), uploadAvatar);
+router.post('/banner', upload.single('banner'), uploadBanner);
 
 router.post('/onboarding-complete', completeOnboarding);
 

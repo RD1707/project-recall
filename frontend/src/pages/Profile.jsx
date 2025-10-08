@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
-import { fetchProfile, updateProfile, uploadAvatar } from '../api/profile';
+import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '../api/profile';
 import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
@@ -296,6 +296,27 @@ const styles = {
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text'
+    },
+    profileInterests: {
+        margin: '1rem 0',
+        paddingTop: '1rem',
+        borderTop: '1px solid var(--color-border-light)'
+    },
+    interestsList: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem'
+    },
+    interestTag: {
+        display: 'inline-block',
+        padding: '0.4rem 0.8rem',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '500',
+        color: 'white',
+        textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        transition: 'all 0.2s ease'
     }
 };
 
@@ -478,13 +499,13 @@ function Profile() {
     const handleBannerChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // For now, we'll just show a preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUserData(prev => ({ ...prev, banner_url: reader.result }));
-            };
-            reader.readAsDataURL(file);
-            toast.info('Funcionalidade de banner em desenvolvimento');
+            try {
+                const result = await uploadBanner(file);
+                setUserData(prev => ({ ...prev, banner_url: result.bannerUrl }));
+                toast.success('Banner atualizado com sucesso!');
+            } catch (error) {
+                toast.error('Erro ao atualizar banner');
+            }
         }
     };
 
@@ -522,6 +543,17 @@ function Profile() {
             return result;
         } catch (error) {
             toast.error('Erro ao atualizar avatar');
+            throw error;
+        }
+    };
+
+    const handleBannerUpload = async (file) => {
+        try {
+            const result = await uploadBanner(file);
+            setUserData(prev => ({ ...prev, banner_url: result.bannerUrl }));
+            return result;
+        } catch (error) {
+            toast.error('Erro ao atualizar banner');
             throw error;
         }
     };
@@ -698,6 +730,25 @@ function Profile() {
                                 <h1 style={styles.profileName}>{userData.fullName || 'Usuário'}</h1>
                                 <p style={styles.profileUsername}>@{userData.username || 'usuario'}</p>
                                 {userData.bio && <p style={styles.profileBio}>{userData.bio}</p>}
+
+                                {/* Seção de Interesses */}
+                                {userData.interests && userData.interests.length > 0 && (
+                                    <div style={styles.profileInterests}>
+                                        <div style={styles.interestsList}>
+                                            {userData.interests.map((interest, index) => (
+                                                <span
+                                                    key={index}
+                                                    style={{
+                                                        ...styles.interestTag,
+                                                        backgroundColor: interest.color
+                                                    }}
+                                                >
+                                                    {interest.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
 
@@ -1138,6 +1189,7 @@ function Profile() {
                 }}
                 onSave={handleProfileSave}
                 onAvatarUpload={handleAvatarUpload}
+                onBannerUpload={handleBannerUpload}
             />
         </>
     );
