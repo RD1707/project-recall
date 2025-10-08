@@ -100,7 +100,7 @@ const login = async (req, res) => {
 
 const completeGoogleProfile = async (req, res) => {
     const userId = req.user.id;
-    const { fullName, username, avatarUrl } = req.body;
+    const { fullName, username } = req.body;
 
     if (!userId || !fullName || !username) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -133,8 +133,8 @@ const completeGoogleProfile = async (req, res) => {
             .update({
                 full_name: fullName.trim(),
                 username: username.trim(),
-                // Usar avatarUrl fornecido, ou preservar o existente, ou null
-                avatar_url: avatarUrl || currentProfile?.avatar_url || null
+                // Preservar o avatar_url existente (do Google)
+                avatar_url: currentProfile?.avatar_url || null
             })
             .eq('id', userId)
             .select()

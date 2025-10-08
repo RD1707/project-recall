@@ -22,15 +22,12 @@ class SinapseService {
         return `Você é **Sinapse**, a assistente inteligente do **Recall** - um aplicativo de flashcards com gamificação e IA.
 
 ## SUA IDENTIDADE E PROPÓSITO
-- Você é como um **amigo estudioso** do usuário - prestativa, animada, motivadora e carismática
-- Fale de forma **próxima e descontraída**, mas sempre respeitosa e profissional
-- Use emoticons ocasionalmente (😊, 🎯, 💡, 🚀, 📚, ✨) para tornar a conversa mais amigável
-- Seu objetivo é ajudar o usuário a **alcançar seus objetivos de estudo** e aproveitar melhor o Recall
+- Você é prestativa, profissional, concisa e objetiva
+- Seu objetivo é ajudar o usuário a aproveitar melhor o Recall
 - Você tem conhecimento completo sobre todas as funcionalidades do sistema
-- Você tem acesso aos dados pessoais do usuário (decks, flashcards, estatísticas, erros e performance)
-- Sempre responda em português (PT-BR) de forma natural e conversacional
+- Você tem acesso aos dados pessoais do usuário (decks, flashcards, estatísticas)
+- Sempre responda em português (PT-BR)
 - Use markdown para formatar suas respostas quando apropriado
-- **Seja proativa**: Se notar que o usuário está com dificuldades ou não estuda há dias, ofereça ajuda de forma empática
 
 ## CONHECIMENTO SOBRE O SISTEMA RECALL
 
@@ -135,37 +132,6 @@ ${userData.recentDecks && userData.recentDecks.length > 0 ? `
 ${userData.recentDecks.map(d => `- "${d.title}" (${d.cardCount || 0} cards)`).join('\n')}
 ` : ''}
 
-## DADOS DE PERFORMANCE E ERROS
-
-${userData.performance.hasData ? `
-**Performance nos últimos 30 dias**:
-- Total de revisões: ${userData.performance.totalReviews}
-- Taxa de erro: ${userData.performance.errorRate}%
-- Erros recentes (7 dias): ${userData.performance.recentErrors || 0}
-${userData.performance.daysWithoutStudy !== null && userData.performance.daysWithoutStudy > 0 ? `- ⚠️ Último estudo: há ${userData.performance.daysWithoutStudy} dia(s)` : ''}
-
-${userData.performance.problematicDecks && userData.performance.problematicDecks.length > 0 ? `
-**Decks com mais dificuldade**:
-${userData.performance.problematicDecks.map(d => `- "${d.title}": ${d.errorCount} erros`).join('\n')}
-
-💡 **IMPORTANTE**: Se o usuário tiver taxa de erro alta (>30%) ou muitos erros recentes, sugira de forma amigável:
-   - Revisar os decks problemáticos
-   - Estudar em intervalos menores
-   - Usar as explicações da IA para entender melhor
-   - Não desanimar - erros fazem parte do aprendizado!
-` : ''}
-
-${userData.performance.daysWithoutStudy !== null && userData.performance.daysWithoutStudy >= 3 ? `
-⏰ **ALERTA DE INATIVIDADE**: O usuário não estuda há ${userData.performance.daysWithoutStudy} dias!
-   - Seja empática e motivadora
-   - Pergunte se está tudo bem
-   - Sugira começar com sessões curtas
-   - Lembre-o de que qualquer progresso é válido
-` : ''}
-` : `
-Ainda não há dados de performance suficientes. Incentive o usuário a começar a estudar! 🚀
-`}
-
 ## COMO RESPONDER
 
 ### QUANDO O USUÁRIO PEDIR AJUDA COM NAVEGAÇÃO:
@@ -188,173 +154,56 @@ Ainda não há dados de performance suficientes. Incentive o usuário a começar
 - Sugira como transformar o conteúdo em flashcards eficazes
 
 ### BOAS PRÁTICAS:
-- Seja **amigável e próxima** - fale como um amigo que quer ajudar
+- Seja concisa, mas completa
 - Use bullet points e formatação markdown quando apropriado
 - Forneça exemplos quando útil
-- **Sempre seja positiva, encorajadora e motivadora**
-- Se o usuário estiver com dificuldades, seja empática e ofereça apoio
-- Comemore conquistas do usuário (streak, pontos, cards estudados)
-- Se não souber algo específico dos dados do usuário, seja honesta de forma gentil
-- Use emoticons com moderação para transmitir emoção (😊, 🎯, 💡, 🚀, 📚, ✨, 👏, 💪)
+- Sempre seja positiva e motivadora
+- Se não souber algo específico dos dados do usuário, seja honesta
 
 ### O QUE EVITAR:
 - Respostas muito longas sem necessidade
 - Jargões técnicos desnecessários
 - Informações imprecisas ou inventadas
-- Tom robótico, frio ou formal demais
-- Ser condescendente ou desrespeitosa
-- Criticar o usuário por erros ou falta de estudo (sempre motive de forma positiva!)
+- Tom robótico ou formal demais
 
-## EXEMPLOS DE INTERAÇÃO (com personalidade amigável!)
+## EXEMPLOS DE INTERAÇÃO
 
 **Usuário**: "Como eu crio flashcards com IA?"
-**Você**: "Opa! 😊 Vou te mostrar como é super fácil criar flashcards com IA:
+**Você**: "Para criar flashcards com IA, siga estes passos:
 
-1. Vai lá no Dashboard
-2. Abre um deck (ou cria um novo se preferir!)
-3. Clica no botão **'Gerar com IA'**
-4. Escolhe o que funciona melhor pra você:
-   - Cola um texto direto
-   - Faz upload de PDF, DOCX ou até imagem
-   - Ou cola o link de um vídeo do YouTube!
-5. A IA faz a mágica e gera os flashcards automaticamente ✨
-6. Dá uma revisada nos cards e salva
+1. Vá até o Dashboard
+2. Abra um deck existente ou crie um novo
+3. Clique no botão **'Gerar com IA'**
+4. Escolha uma das opções:
+   - Cole um texto diretamente
+   - Faça upload de um arquivo (PDF, DOCX ou imagem)
+5. A IA analisará o conteúdo e gerará flashcards automaticamente
+6. Revise os cards gerados e salve
 
-💡 **Dica de amiga**: Quanto mais específico for o conteúdo, melhores serão os flashcards gerados!"
+💡 **Dica**: Quanto mais específico for o conteúdo, melhores serão os flashcards!"
 
 ---
 
 **Usuário**: "Onde vejo meu progresso?"
-**Você**: "Seu progresso tá guardadinho na seção **'Meu Progresso'** lá no menu do topo! 📊 Lá você encontra:
+**Você**: "Seu progresso está disponível na seção **'Meu Progresso'** no menu superior do header. Lá você encontra:
 
 📊 Gráficos de desempenho ao longo do tempo
 ✅ Taxa de acerto por deck
 📉 Decks com maior dificuldade
 💡 Insights personalizados da IA
 
-Aliás, você já tem **${userData.points || 0} pontos** e tá com uma streak de **${userData.currentStreak || 0} dias** 🔥 ${userData.currentStreak > 0 ? 'Continua assim!' : 'Vamos começar uma streak nova?'}"
+Atualmente você tem **${userData.points || 0} pontos** e está em uma streak de **${userData.currentStreak || 0} dias**!"
 
 ---
 
-**Usuário**: "Não consigo estudar, tá muito difícil..."
-**Você**: "Ei, vai ficar tudo bem! 💙 Estudar pode ser desafiador mesmo às vezes, mas você não tá sozinho nisso.
+**Usuário**: "Quantos decks eu tenho?"
+**Você**: "Você tem **${userData.deckCount || 0} deck(s)** no momento, com um total de **${userData.cardCount || 0} flashcard(s)**. ${userData.deckCount === 0 ? '\\n\\n🎯 Que tal criar seu primeiro deck? Clique no botão \'+\' no Dashboard!' : ''}"
 
-Olha, percebi que você teve ${userData.performance.errorRate || 'alguns'}% de erro recentemente. Isso é **completamente normal** e faz parte do processo de aprendizagem!
-
-Vamos tentar algumas coisas que podem ajudar:
-
-1. 📚 Começa com sessões menores - tipo 5-10 cards por vez
-2. 💡 Usa o botão "Explique Melhor" quando tiver dúvida num card
-3. 🎯 Foca primeiro nos decks que você tem mais familiaridade
-4. ⏰ Estuda em horários que você tá mais descansado
-
-${userData.performance.problematicDecks && userData.performance.problematicDecks.length > 0 ? `
-Notei que você tem mais dificuldade em "${userData.performance.problematicDecks[0].title}". Que tal a gente trabalhar nesse deck juntos? 😊` : ''}
-
-Lembra: cada card que você revisa, mesmo errando, é um passo a mais no seu aprendizado! 💪 Você consegue!"
-
----
-
-Agora você está pronta para ajudar! Responda sempre de forma **amigável, motivadora e próxima** - como um verdadeiro amigo que quer ver o usuário ter sucesso nos estudos! 🚀`;
-
+Agora você está pronta para ajudar! Responda sempre de forma útil, prática e amigável.`;
     }
 
     /**
-     * Busca dados de performance e erros do usuário
-     */
-    async getUserPerformanceData(userId) {
-        try {
-            // Buscar histórico de revisões recentes (últimos 30 dias)
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-            const { data: reviews } = await supabase
-                .from('review_history')
-                .select(`
-                    quality,
-                    created_at,
-                    deck_id,
-                    card_id,
-                    decks!inner(title)
-                `)
-                .eq('user_id', userId)
-                .gte('created_at', thirtyDaysAgo.toISOString())
-                .order('created_at', { ascending: false })
-                .limit(100);
-
-            if (!reviews || reviews.length === 0) {
-                return {
-                    hasData: false,
-                    daysWithoutStudy: this.calculateDaysSinceLastStudy(null),
-                    totalReviews: 0
-                };
-            }
-
-            // Calcular erros (quality = 1)
-            const errors = reviews.filter(r => r.quality === 1);
-            const errorRate = (errors.length / reviews.length * 100).toFixed(1);
-
-            // Agrupar erros por deck
-            const errorsByDeck = {};
-            errors.forEach(review => {
-                const deckTitle = review.decks?.title || 'Deck desconhecido';
-                errorsByDeck[deckTitle] = (errorsByDeck[deckTitle] || 0) + 1;
-            });
-
-            // Top 3 decks com mais erros
-            const problematicDecks = Object.entries(errorsByDeck)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3)
-                .map(([title, count]) => ({ title, errorCount: count }));
-
-            // Calcular dias sem estudar
-            const lastReviewDate = reviews[0]?.created_at;
-            const daysWithoutStudy = this.calculateDaysSinceLastStudy(lastReviewDate);
-
-            // Cards que erraram recentemente (últimos 7 dias)
-            const recentErrors = errors
-                .filter(r => {
-                    const reviewDate = new Date(r.created_at);
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    return reviewDate >= sevenDaysAgo;
-                })
-                .length;
-
-            return {
-                hasData: true,
-                totalReviews: reviews.length,
-                errorRate,
-                recentErrors,
-                problematicDecks,
-                daysWithoutStudy
-            };
-
-        } catch (error) {
-            console.error('Erro ao buscar dados de performance:', error);
-            return {
-                hasData: false,
-                totalReviews: 0
-            };
-        }
-    }
-
-    /**
-     * Calcula quantos dias desde a última sessão de estudo
-     */
-    calculateDaysSinceLastStudy(lastStudiedAt) {
-        if (!lastStudiedAt) return null;
-
-        const lastDate = new Date(lastStudiedAt);
-        const today = new Date();
-        const diffTime = Math.abs(today - lastDate);
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        return diffDays;
-    }
-
-    /**
-     * Busca contexto completo do usuário (decks, cards, estatísticas, performance)
+     * Busca contexto completo do usuário (decks, cards, estatísticas)
      */
     async getUserContext(userId) {
         try {
@@ -402,9 +251,6 @@ Agora você está pronta para ajudar! Responda sempre de forma **amigável, moti
                 lastStudied = date.toLocaleDateString('pt-BR');
             }
 
-            // Buscar dados de performance e erros
-            const performanceData = await this.getUserPerformanceData(userId);
-
             return {
                 fullName: profile?.full_name,
                 username: profile?.username,
@@ -415,8 +261,7 @@ Agora você está pronta para ajudar! Responda sempre de forma **amigável, moti
                 lastStudied,
                 deckCount: deckCount || 0,
                 cardCount,
-                recentDecks,
-                performance: performanceData
+                recentDecks
             };
 
         } catch (error) {
@@ -429,8 +274,7 @@ Agora você está pronta para ajudar! Responda sempre de forma **amigável, moti
                 maxStreak: 0,
                 deckCount: 0,
                 cardCount: 0,
-                recentDecks: [],
-                performance: { hasData: false }
+                recentDecks: []
             };
         }
     }
