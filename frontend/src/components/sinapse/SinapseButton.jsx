@@ -13,7 +13,6 @@ function SinapseButton() {
         >
             <i className="fas fa-brain"></i>
             <span className="sinapse-button-text">Sinapse</span>
-            <span className="sinapse-pulse"></span>
         </button>
     );
 }
