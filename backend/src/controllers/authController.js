@@ -121,20 +121,26 @@ const completeGoogleProfile = async (req, res) => {
             return res.status(400).json({ error: 'Este nome de usuário já está em uso.', field: 'username', type: 'FIELD_ERROR' });
         }
 
-        // Buscar o perfil atual para preservar o avatar_url do Google
+        // Buscar o perfil atual para verificar se já tem avatar_url
         const { data: currentProfile } = await supabase
             .from('profiles')
             .select('avatar_url')
             .eq('id', userId)
             .single();
 
+        // Priorizar: avatar_url do perfil atual > avatar_url dos metadados > picture dos metadados
+        const avatarUrl = currentProfile?.avatar_url ||
+                         req.user?.user_metadata?.avatar_url ||
+                         req.user?.user_metadata?.picture ||
+                         null;
+
         const { data, error } = await supabase
             .from('profiles')
             .update({
                 full_name: fullName.trim(),
                 username: username.trim(),
-                // Preservar o avatar_url existente (do Google)
-                avatar_url: currentProfile?.avatar_url || null
+                // Garantir que o avatar_url do Google seja salvo
+                avatar_url: avatarUrl
             })
             .eq('id', userId)
             .select()

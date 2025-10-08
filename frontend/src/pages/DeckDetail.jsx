@@ -5,11 +5,9 @@ import toast from 'react-hot-toast';
 import Header from '../components/common/Header';
 import AIGenerator from '../components/decks/AIGenerator';
 import Modal from '../components/common/Modal';
-import { useSocket } from '../context/SocketContext'; 
 
 import { fetchDeckById, fetchFlashcardsByDeckId, publishDeck } from '../api/decks';
 import { createFlashcard, updateFlashcard, deleteFlashcard } from '../api/flashcards';
-import { fetchProfile } from '../api/profile';
 import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/deck.css';
@@ -22,7 +20,7 @@ const LoadingComponent = () => (
 );
 
 // Componente do cabeçalho atualizado
-const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => ( 
+const DeckHeader = ({ deck, onPublish }) => (
     <section className="deck-hero">
         <div className="hero-content">
             <Link to="/dashboard" className="back-btn"><i className="fas fa-arrow-left"></i> Voltar aos Baralhos</Link>
@@ -35,12 +33,8 @@ const DeckHeader = ({ deck, onPublish, onCreateQuiz, isCreatingQuiz }) => (
                     <i className="fas fa-play-circle"></i>
                     <span><strong>Estudar Sozinho</strong></span>
                 </Link>
-                <button onClick={onCreateQuiz} className="btn btn-secondary btn-large" disabled={isCreatingQuiz}>
-                    <i className={isCreatingQuiz ? "fas fa-spinner fa-spin" : "fas fa-users"}></i>
-                    <span>{isCreatingQuiz ? 'A criar sala...' : 'Jogar Quiz em Grupo'}</span>
-                </button>
                 <button onClick={onPublish} className={`btn ${deck.is_shared ? 'btn-error' : 'btn-secondary'}`}>
-                    <i className={`fas ${deck.is_shared ? 'fa-eye-slash' : 'fa-globe-americas'}`}></i> 
+                    <i className={`fas ${deck.is_shared ? 'fa-eye-slash' : 'fa-globe-americas'}`}></i>
                     {deck.is_shared ? 'Despublicar' : 'Publicar na Comunidade'}
                 </button>
             </div>
@@ -120,19 +114,16 @@ const FlashcardList = ({ flashcards, onEdit, onDelete }) => (
 function DeckDetail() {
     const { deckId } = useParams();
     const navigate = useNavigate();
-    const socket = useSocket();
-    const { triggerAchievementUpdate } = useAchievementActions(); 
+    const { triggerAchievementUpdate } = useAchievementActions();
 
     const [deck, setDeck] = useState(null);
     const [flashcards, setFlashcards] = useState([]);
     const [status, setStatus] = useState('loading');
-    const [isCreatingQuiz, setIsCreatingQuiz] = useState(false); 
-    const [currentUser, setCurrentUser] = useState(null); 
-    
+
     // O modal agora tem um tipo 'publish'
-    const [modalState, setModalState] = useState({ type: null, data: null }); 
+    const [modalState, setModalState] = useState({ type: null, data: null });
     const [formData, setFormData] = useState({ question: '', answer: '' });
-    
+
     const pollingIntervalRef = useRef(null);
 
     useEffect(() => {
@@ -157,20 +148,6 @@ function DeckDetail() {
         return () => clearInterval(pollingIntervalRef.current); 
     }, [deckId, navigate]);
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const profile = await fetchProfile();
-                if (profile) {
-                    setCurrentUser(profile);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar perfil:', error);
-                toast.error("Não foi possível carregar os seus dados de perfil.");
-            }
-        };
-        loadProfile();
-    }, []);
 
     const stats = useMemo(() => {
         const today = new Date();
@@ -318,22 +295,6 @@ function DeckDetail() {
         }
     };
     
-    const handleCreateQuiz = () => {
-        if (!currentUser) {
-            toast.error("Os seus dados de perfil ainda estão a carregar. Tente novamente em um instante.");
-            return;
-        }
-        setIsCreatingQuiz(true);
-        socket.emit('quiz:create', { deckId, user: currentUser }, (response) => {
-            setIsCreatingQuiz(false);
-            if (response.success) {
-                navigate(`/quiz/${response.roomId}`);
-            } else {
-                toast.error(response.message || "Não foi possível criar o quiz.");
-            }
-        });
-    };
-    
     if (status === 'loading') {
         return (
             <>
@@ -360,11 +321,9 @@ function DeckDetail() {
         <>
             <Header />
             <main className="deck-main">
-                <DeckHeader 
-                    deck={deck} 
-                    onPublish={handlePublish} 
-                    onCreateQuiz={handleCreateQuiz} 
-                    isCreatingQuiz={isCreatingQuiz}
+                <DeckHeader
+                    deck={deck}
+                    onPublish={handlePublish}
                 />
                 <DeckStats stats={stats} />
                 <div className="deck-content-grid">

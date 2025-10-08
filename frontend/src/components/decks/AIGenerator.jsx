@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { generateFlashcardsFromText, generateFlashcardsFromFile, generateFlashcardsFromYouTube } from '../../api/flashcards';
+import { generateFlashcardsFromText, generateFlashcardsFromFile } from '../../api/flashcards';
 
 const UploadIcon = () => (
     <svg className="drop-zone-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -51,10 +51,9 @@ function AIGenerator({ deckId, onGenerationStart }) {
     const [formData, setFormData] = useState({
         text: '',
         file: null,
-        url: '',
         count: 5,
         difficulty: 'medio',
-        type: 'Pergunta e Resposta', 
+        type: 'Pergunta e Resposta',
     });
 
     const processFile = useCallback((file) => {
@@ -107,10 +106,10 @@ function AIGenerator({ deckId, onGenerationStart }) {
         setIsLoading(true);
 
         try {
-            const params = { 
-                count: formData.count, 
+            const params = {
+                count: formData.count,
                 difficulty: formData.difficulty,
-                type: formData.type 
+                type: formData.type
             };
             let generationStarted = false;
 
@@ -135,20 +134,12 @@ function AIGenerator({ deckId, onGenerationStart }) {
 
                 await generateFlashcardsFromFile(deckId, fileFormData);
                 generationStarted = true;
-
-            } else if (activeTab === 'youtube') {
-                if (!formData.url.includes('youtube.com') && !formData.url.includes('youtu.be')) {
-                    toast.error("Por favor, insira uma URL válida do YouTube.");
-                    throw new Error("URL inválida");
-                }
-                await generateFlashcardsFromYouTube(deckId, { ...params, youtubeUrl: formData.url });
-                generationStarted = true;
             }
-            
+
             if(generationStarted) {
                 toast.success('Geração iniciada! Os novos cards aparecerão em breve.');
                 onGenerationStart();
-                setFormData({ text: '', file: null, url: '', count: 5, difficulty: 'medio', type: 'Pergunta e Resposta' });
+                setFormData({ text: '', file: null, count: 5, difficulty: 'medio', type: 'Pergunta e Resposta' });
                 setFileName('');
             }
         } catch (error) {
@@ -173,7 +164,6 @@ function AIGenerator({ deckId, onGenerationStart }) {
                     <div className="input-tabs">
                         <button type="button" className={`input-tab ${activeTab === 'text' ? 'active' : ''}`} onClick={() => setActiveTab('text')}><i className="fas fa-font"></i>Texto</button>
                         <button type="button" className={`input-tab ${activeTab === 'file' ? 'active' : ''}`} onClick={() => setActiveTab('file')}><i className="fas fa-file-alt"></i>Arquivo</button>
-                        <button type="button" className={`input-tab ${activeTab === 'youtube' ? 'active' : ''}`} onClick={() => setActiveTab('youtube')}><i className="fab fa-youtube"></i>YouTube</button>
                     </div>
 
                     <div className="tab-content">
@@ -203,14 +193,6 @@ function AIGenerator({ deckId, onGenerationStart }) {
                                         <button type="button" className="remove-file-btn" onClick={handleRemoveFile} title="Remover arquivo"><i className="fas fa-times"></i></button>
                                     </div>
                                 )}
-                            </div>
-                        )}
-                        {activeTab === 'youtube' && (
-                            <div className="tab-pane active">
-                                <label htmlFor="url" className="input-label sr-only">URL do vídeo</label>
-                                <div className="url-input-wrapper">
-                                    <input type="url" id="url" value={formData.url} onChange={handleInputChange} placeholder="https://www.youtube.com/watch?v=..." />
-                                </div>
                             </div>
                         )}
                     </div>

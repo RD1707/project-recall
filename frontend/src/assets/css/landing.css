@@ -654,6 +654,31 @@ section {
     padding: var(--space-20) 0;
     background: var(--color-bg-light);
     position: relative;
+    overflow: hidden;
+}
+
+.features::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top left, var(--color-primary-lighter) 0%, transparent 50%),
+                radial-gradient(circle at bottom right, var(--color-primary-lighter) 0%, transparent 50%);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.features::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg) 100%);
+    pointer-events: none;
 }
 
 .features-grid {
@@ -724,6 +749,19 @@ section {
     background: var(--color-bg);
     padding: var(--space-20) 0;
     position: relative;
+    overflow: hidden;
+}
+
+.how-it-works::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center top, var(--color-primary-lighter) 0%, transparent 60%);
+    opacity: 0.25;
+    pointer-events: none;
 }
 
 .steps-container {
@@ -798,6 +836,20 @@ section {
 .use-cases {
     padding: var(--space-20) 0;
     background: var(--color-bg-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.use-cases::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at bottom left, var(--color-primary-lighter) 0%, transparent 50%);
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .tabs {
@@ -882,6 +934,20 @@ section {
 .testimonials {
     background: var(--color-bg);
     padding: var(--space-20) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonials::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, var(--color-primary-lighter) 0%, transparent 50%);
+    opacity: 0.2;
+    pointer-events: none;
 }
 
 .testimonials-grid {
@@ -949,6 +1015,20 @@ section {
 .pricing {
     padding: var(--space-20) 0;
     background: var(--color-bg-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.pricing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, var(--color-primary-lighter) 0%, transparent 60%);
+    opacity: 0.25;
+    pointer-events: none;
 }
 
 .pricing-grid {
@@ -1055,6 +1135,20 @@ section {
 .faq {
     background: var(--color-bg);
     padding: var(--space-20) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at bottom center, var(--color-primary-lighter) 0%, transparent 60%);
+    opacity: 0.2;
+    pointer-events: none;
 }
 
 .faq-grid {
