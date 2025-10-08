@@ -78,6 +78,7 @@ function Dashboard() {
     const [status, setStatus] = useState('loading');
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
+    const [userStats, setUserStats] = useState(null);
     
     const [modalState, setModalState] = useState({
         isOpen: false,
@@ -91,7 +92,7 @@ function Dashboard() {
         const loadInitialData = async () => {
             try {
                 setStatus('loading');
-                
+
                 const decksData = await fetchDecks();
                 setDecks(decksData);
 
@@ -99,14 +100,35 @@ function Dashboard() {
                 if (user) {
                     const { data: profile, error } = await supabase
                         .from('profiles')
-                        .select('has_completed_onboarding')
+                        .select('has_completed_onboarding, points, current_streak')
                         .eq('id', user.id)
                         .single();
 
                     if (error && error.code !== 'PGRST116') throw error;
-                    
-                    if (profile && !profile.has_completed_onboarding) {
-                        setTimeout(() => setShowTour(true), 500);
+
+                    if (profile) {
+                        setUserStats({
+                            points: profile.points || 0,
+                            currentStreak: profile.current_streak || 0
+                        });
+
+                        if (!profile.has_completed_onboarding) {
+                            setTimeout(() => setShowTour(true), 500);
+                        }
+                    }
+
+                    // Contar cards para revisar hoje
+                    const today = new Date().toISOString();
+                    const { count } = await supabase
+                        .from('flashcards')
+                        .select('id, decks!inner(user_id)', { count: 'exact', head: true })
+                        .eq('decks.user_id', user.id)
+                        .lte('due_date', today);
+
+                    if (userStats) {
+                        setUserStats(prev => ({ ...prev, cardsToReview: count || 0 }));
+                    } else {
+                        setUserStats({ cardsToReview: count || 0 });
                     }
                 }
 
@@ -247,17 +269,59 @@ function Dashboard() {
             {showTour && <OnboardingTour onComplete={handleTourComplete} />}
             <Header />
             <main className="dashboard-main">
+                {/* Quick Stats Section */}
+                {userStats && status === 'success' && (
+                    <div className="quick-stats">
+                        <div className="stat-card stat-primary">
+                            <div className="stat-icon">
+                                <i className="fas fa-layer-group"></i>
+                            </div>
+                            <div className="stat-content">
+                                <span className="stat-value">{decks.length}</span>
+                                <span className="stat-label">Baralhos</span>
+                            </div>
+                        </div>
+                        <div className="stat-card stat-warning">
+                            <div className="stat-icon">
+                                <i className="fas fa-clock"></i>
+                            </div>
+                            <div className="stat-content">
+                                <span className="stat-value">{userStats.cardsToReview || 0}</span>
+                                <span className="stat-label">Para Revisar</span>
+                            </div>
+                        </div>
+                        <div className="stat-card stat-success">
+                            <div className="stat-icon">
+                                <i className="fas fa-fire"></i>
+                            </div>
+                            <div className="stat-content">
+                                <span className="stat-value">{userStats.currentStreak || 0}</span>
+                                <span className="stat-label">Dias de Streak</span>
+                            </div>
+                        </div>
+                        <div className="stat-card stat-info">
+                            <div className="stat-icon">
+                                <i className="fas fa-star"></i>
+                            </div>
+                            <div className="stat-content">
+                                <span className="stat-value">{userStats.points || 0}</span>
+                                <span className="stat-label">Pontos</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="content-header">
                     <h2>Meus Baralhos</h2>
                     <div className="header-actions">
                         <div className="search-box">
                             <i className="fas fa-search"></i>
-                            <input 
-                                type="text" 
-                                id="deck-search" 
-                                placeholder="Buscar baralhos..." 
-                                value={searchTerm} 
-                                onChange={(e) => setSearchTerm(e.target.value)} 
+                            <input
+                                type="text"
+                                id="deck-search"
+                                placeholder="Buscar baralhos..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                         <button onClick={() => openModal('create')} id="create-deck-btn" className="btn btn-primary">

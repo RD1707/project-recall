@@ -1,12 +1,13 @@
 const supabase = require('../config/supabaseClient');
 const { z } = require('zod');
-const logger = require('../config/logger'); 
+const logger = require('../config/logger');
 const pdf = require('pdf-parse');
 const { YoutubeTranscript } = require('youtube-transcript');
 const { flashcardGenerationQueue, isRedisConnected } = require('../config/queue');
 const { processGenerationAndSave } = require('../services/generationService');
 const FileProcessingService = require('../services/fileProcessingService');
 const { updateAchievementProgress } = require('../services/achievementService');
+const { getYouTubeTranscript } = require('../services/youtubeService');
 
 const SUPPORTED_MIME_TYPES = {
     'text/plain': { extension: 'txt', category: 'text' },
@@ -314,40 +315,63 @@ const generateCardsFromYouTube = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado.', code: 'NOT_FOUND' });
         }
 
-        let transcript;
+        // Usar o serviço de YouTube para extrair transcrição
+        let transcriptData;
         try {
-            const transcriptArray = await YoutubeTranscript.fetchTranscript(youtubeUrl, { lang: 'pt' });
-            transcript = transcriptArray.map(item => item.text).join(' ');
+            transcriptData = await getYouTubeTranscript(youtubeUrl);
         } catch (error) {
-            return res.status(400).json({ 
-                message: 'Não foi possível obter a transcrição do vídeo.', 
-                code: 'YOUTUBE_TRANSCRIPT_ERROR' 
+            logger.warn(`Erro ao extrair transcrição: ${error.message}`);
+            return res.status(400).json({
+                message: error.message || 'Não foi possível obter a transcrição do vídeo.',
+                code: 'YOUTUBE_TRANSCRIPT_ERROR'
             });
         }
+
+        const transcript = transcriptData.text;
 
         if (!transcript || transcript.trim().length < 30) {
-            return res.status(400).json({ 
-                message: 'Transcrição muito curta para gerar flashcards.', 
-                code: 'INSUFFICIENT_TRANSCRIPT_CONTENT' 
+            return res.status(400).json({
+                message: 'Transcrição muito curta para gerar flashcards. O vídeo deve ter pelo menos 30 caracteres de conteúdo.',
+                code: 'INSUFFICIENT_TRANSCRIPT_CONTENT'
             });
         }
 
-        const jobData = { deckId, textContent: transcript, count, type, difficulty, source: 'youtube', sourceUrl: youtubeUrl };
+        const jobData = {
+            deckId,
+            textContent: transcript,
+            count,
+            type,
+            difficulty,
+            source: 'youtube',
+            sourceUrl: youtubeUrl,
+            videoId: transcriptData.videoId
+        };
 
         if (isRedisConnected) {
             await flashcardGenerationQueue.add('generate-youtube', jobData);
-            res.status(202).json({ processing: true, message: 'Transcrição obtida! Gerando flashcards...' });
+            res.status(202).json({
+                processing: true,
+                message: 'Transcrição obtida! Gerando flashcards...',
+                videoId: transcriptData.videoId
+            });
         } else {
             const savedFlashcards = await processGenerationAndSave(jobData);
-            res.status(201).json({ message: 'Flashcards gerados!', flashcards: savedFlashcards });
+            res.status(201).json({
+                message: 'Flashcards gerados com sucesso!',
+                flashcards: savedFlashcards,
+                videoId: transcriptData.videoId
+            });
         }
 
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: error.errors[0].message, code: 'VALIDATION_ERROR' });
         }
-        logger.error(`Erro YouTube: ${error.message}`);
-        res.status(500).json({ message: 'Erro ao gerar do YouTube.', code: 'GENERATION_ERROR' });
+        logger.error(`Erro ao gerar flashcards do YouTube: ${error.message}`);
+        res.status(500).json({
+            message: 'Erro ao gerar flashcards do YouTube. Verifique se o vídeo possui legendas.',
+            code: 'GENERATION_ERROR'
+        });
     }
 };
 

@@ -379,7 +379,7 @@ section {
 .hero {
     padding-top: calc(var(--header-height) + var(--space-16));
     padding-bottom: var(--space-24);
-    background: var(--color-bg-light);
+    background: linear-gradient(180deg, var(--color-bg-light) 0%, var(--color-bg) 100%);
     position: relative;
     overflow: hidden;
 }
@@ -652,8 +652,30 @@ section {
 
 .features {
     padding: var(--space-20) 0;
-    background: var(--color-bg-light);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-light) 50%, var(--color-bg) 100%);
     position: relative;
+}
+
+.features::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, var(--color-bg) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.features::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg) 100%);
+    pointer-events: none;
 }
 
 .features-grid {
@@ -721,9 +743,20 @@ section {
 }
 
 .how-it-works {
-    background: var(--color-bg);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-lighter) 100%);
     padding: var(--space-20) 0;
     position: relative;
+}
+
+.how-it-works::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-light) 100%);
+    pointer-events: none;
 }
 
 .steps-container {
@@ -797,7 +830,19 @@ section {
 
 .use-cases {
     padding: var(--space-20) 0;
-    background: var(--color-bg-light);
+    background: linear-gradient(180deg, var(--color-bg-light) 0%, var(--color-bg) 100%);
+    position: relative;
+}
+
+.use-cases::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, var(--color-bg-light) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .tabs {
@@ -880,8 +925,20 @@ section {
 }
 
 .testimonials {
-    background: var(--color-bg);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-light) 100%);
     padding: var(--space-20) 0;
+    position: relative;
+}
+
+.testimonials::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-light) 100%);
+    pointer-events: none;
 }
 
 .testimonials-grid {
@@ -948,7 +1005,19 @@ section {
 
 .pricing {
     padding: var(--space-20) 0;
-    background: var(--color-bg-light);
+    background: linear-gradient(180deg, var(--color-bg-light) 0%, var(--color-bg) 100%);
+    position: relative;
+}
+
+.pricing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(180deg, var(--color-bg-light) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .pricing-grid {
@@ -1053,8 +1122,9 @@ section {
 }
 
 .faq {
-    background: var(--color-bg);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-lighter) 100%);
     padding: var(--space-20) 0;
+    position: relative;
 }
 
 .faq-grid {

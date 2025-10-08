@@ -92,10 +92,18 @@ function CompleteProfile() {
         setErrors({});
         
         try {
-            await completeUserProfile({
+            const profilePayload = {
                 fullName: formData.fullName,
                 username: formData.username
-            });
+            };
+
+            // Se houver foto do Google, incluir no payload
+            const googleAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+            if (googleAvatar) {
+                profilePayload.avatarUrl = googleAvatar;
+            }
+
+            await completeUserProfile(profilePayload);
             toast.success('Perfil completo! Bem-vindo ao Recall.');
             navigate('/dashboard');
         } catch (err) {
