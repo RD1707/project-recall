@@ -11,21 +11,7 @@ function MessageBubble({ message, user, isTyping = false }) {
 
     return (
         <div className={`sinapse-message ${isUser ? 'user-message' : 'assistant-message'}`}>
-            <div className="message-avatar">
-                {isUser ? (
-                    user?.avatar_url ? (
-                        <img src={user.avatar_url} alt={user.fullName || 'Usuário'} className="avatar-image" />
-                    ) : (
-                        <div className="avatar-placeholder">
-                            {user?.initial || user?.fullName?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                    )
-                ) : (
-                    <div className="sinapse-ai-avatar">
-                        <i className="fas fa-brain"></i>
-                    </div>
-                )}
-            </div>
+
             <div className="message-content-wrapper">
                 <div className="message-header">
                     <span className="message-author">
