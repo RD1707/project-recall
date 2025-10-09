@@ -291,6 +291,13 @@ const getPublicProfile = async (req, res) => {
     }
 
     try {
+        const isProblematicUser = ['werkzin', 'homofobilson'].includes(username.toLowerCase());
+
+        if (isProblematicUser) {
+            logger.warn(`🔍 DEBUG: Investigando usuário problemático: ${username}`);
+            console.log(`🔍 DEBUG: Investigando usuário problemático: ${username}`);
+        }
+
         logger.info(`Buscando perfil público para username: ${username}`);
 
         const { data: profile, error: profileError } = await supabase
@@ -302,6 +309,10 @@ const getPublicProfile = async (req, res) => {
         if (profileError) {
             logger.warn(`Erro ao buscar perfil para ${username}: ${profileError.message} (código: ${profileError.code})`);
 
+            if (isProblematicUser) {
+                console.log(`🔍 DEBUG: ProfileError para ${username}:`, profileError);
+            }
+
             if (profileError.code === 'PGRST116') {
                 return res.status(404).json({ message: 'Perfil não encontrado.', code: 'USER_NOT_FOUND' });
             }
@@ -311,7 +322,16 @@ const getPublicProfile = async (req, res) => {
 
         if (!profile) {
             logger.warn(`Perfil não encontrado para username: ${username}`);
+
+            if (isProblematicUser) {
+                console.log(`🔍 DEBUG: Profile null/undefined para ${username}`);
+            }
+
             return res.status(404).json({ message: 'Perfil não encontrado.', code: 'USER_NOT_FOUND' });
+        }
+
+        if (isProblematicUser) {
+            console.log(`🔍 DEBUG: Profile encontrado para ${username}:`, JSON.stringify(profile, null, 2));
         }
         
         logger.info(`Buscando decks públicos para o usuário ${profile.id} (username: ${username})`);
@@ -332,7 +352,16 @@ const getPublicProfile = async (req, res) => {
 
         if (decksError) {
             logger.error(`Erro ao buscar decks públicos para ${username} (${profile.id}): ${decksError.message}`);
+
+            if (isProblematicUser) {
+                console.log(`🔍 DEBUG: DecksError para ${username}:`, decksError);
+            }
+
             throw decksError;
+        }
+
+        if (isProblematicUser) {
+            console.log(`🔍 DEBUG: Decks encontrados para ${username}:`, publicDecks?.length || 0);
         }
 
         const formattedDecks = (publicDecks || []).map(deck => ({
@@ -359,6 +388,11 @@ const getPublicProfile = async (req, res) => {
         };
 
         logger.info(`Perfil público retornado com sucesso para ${username}: ${formattedDecks.length} decks encontrados`);
+
+        if (isProblematicUser) {
+            console.log(`🔍 DEBUG: ResponsePayload completo para ${username}:`, JSON.stringify(responsePayload, null, 2));
+        }
+
         res.status(200).json(responsePayload);
 
     } catch (error) {
