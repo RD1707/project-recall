@@ -288,7 +288,7 @@ const getPublicProfile = async (req, res) => {
     try {
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('id, username, full_name, bio, avatar_url')
+            .select('id, username, full_name, bio, avatar_url, banner_url, points, current_streak, interests')
             .eq('username', username)
             .single();
 
@@ -324,7 +324,13 @@ const getPublicProfile = async (req, res) => {
                 username: profile.username,
                 fullName: profile.full_name,
                 bio: profile.bio,
-                avatarUrl: profile.avatar_url
+                avatarUrl: profile.avatar_url,
+                bannerUrl: profile.banner_url,
+                points: profile.points || 0,
+                currentStreak: profile.current_streak || 0,
+                interests: profile.interests || [],
+                totalPublicDecks: formattedDecks.length,
+                totalPublicCards: formattedDecks.reduce((sum, deck) => sum + deck.card_count, 0)
             },
             decks: formattedDecks
         };

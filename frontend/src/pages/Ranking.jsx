@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import { fetchLeaderboard } from '../api/profile';
 import toast from 'react-hot-toast';
@@ -10,14 +11,38 @@ const RankingRow = ({ user, rank }) => (
             <span className={`rank-badge rank-${rank}`}>{rank}</span>
         </div>
         <div className="user-cell">
-            <div className="user-avatar">
-                {user.avatar_url ? (
-                    <img src={user.avatar_url} alt={user.username || 'Avatar do usuário'} />
-                ) : (
-                    <span>{(user.username || '?').charAt(0).toUpperCase()}</span>
-                )}
-            </div>
-            <span className="username">{user.username || 'Usuário Anônimo'}</span>
+            <Link
+                to={`/profile/${user.username}`}
+                className="user-profile-link"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    transition: 'all 0.2s ease',
+                    borderRadius: '8px',
+                    padding: '0.25rem',
+                    margin: '-0.25rem'
+                }}
+                onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'var(--color-hover)';
+                    e.target.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'transparent';
+                    e.target.style.transform = 'translateY(0)';
+                }}
+            >
+                <div className="user-avatar">
+                    {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.username || 'Avatar do usuário'} />
+                    ) : (
+                        <span>{(user.username || '?').charAt(0).toUpperCase()}</span>
+                    )}
+                </div>
+                <span className="username">{user.username || 'Usuário Anônimo'}</span>
+            </Link>
         </div>
         <div className="points-cell">
             <span className="points-value">{(user.points || 0).toLocaleString('pt-BR')}</span>
