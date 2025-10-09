@@ -1,8 +1,8 @@
 const supabase = require('../config/supabaseClient');
 const { calculateSm2 } = require('../services/srsService');
 const { z } = require('zod');
-const logger = require('../config/logger');
-const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService');
+const logger = require('../config/logger'); 
+const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService'); 
 const { updateAchievementProgress } = require('../services/achievementService');
 
 
@@ -196,10 +196,9 @@ const reviewFlashcard = async (req, res) => {
 
         if (quality >= 3) {
             try {
-                // MODIFICAÇÃO 1: Adicionar 'max_streak' ao select
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('points, weekly_points, current_streak, last_studied_at, max_streak') 
+                    .select('points, weekly_points, current_streak, last_studied_at') 
                     .eq('id', userId)
                     .single();
 
@@ -227,33 +226,25 @@ const reviewFlashcard = async (req, res) => {
                 } else {
                     newStreak = 1;
                 }
-                
-                // MODIFICAÇÃO 2: Preparar os dados para atualização
-                const dataToUpdate = {
-                    points: newPoints,
-                    weekly_points: newWeeklyPoints,
-                    current_streak: newStreak,
-                    last_studied_at: new Date().toISOString()
-                };
-
-                // MODIFICAÇÃO 3: Verificar e atualizar a maior sequência (max_streak)
-                if (newStreak > (profile.max_streak || 0)) {
-                    dataToUpdate.max_streak = newStreak;
-                }
 
                 await supabase
                     .from('profiles')
-                    .update(dataToUpdate) // Usar o objeto com os dados preparados
+                    .update({
+                        points: newPoints,
+                        weekly_points: newWeeklyPoints,
+                        current_streak: newStreak,
+                        last_studied_at: new Date().toISOString()
+                    })
                     .eq('id', userId);
                 
                 try {
-                    logger.info(`[ACHIEVEMENTS] Iniciando atualização de conquistas após revisão - userId: ${userId}`);
+                    logger.info(`[ACHIEVEMENTS] Iniciando atualização incremental após revisão - userId: ${userId}`);
+
+                    // ATUALIZAÇÃO INCREMENTAL - MUITO MAIS RÁPIDO!
+                    await updateAchievementProgress(userId, 'reviews_total', { increment: 1 });
+
+                    // A atualização de streak e mastered cards continua como antes, pois já são eficientes
                     await updateAchievementProgress(userId, 'streak_days', newStreak);
-                    
-                    const { count: totalReviews } = await supabase.from('review_history').select('*', { count: 'exact', head: true }).eq('user_id', userId);
-                    if (totalReviews !== null) {
-                        await updateAchievementProgress(userId, 'reviews_total', totalReviews);
-                    }
                     
                     const { count: masteredCards } = await supabase.from('flashcards').select('id, decks!inner(user_id)', { count: 'exact', head: true }).eq('decks.user_id', userId).gt('interval', 21);
                     if (masteredCards !== null) {

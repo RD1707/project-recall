@@ -4,8 +4,6 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import Header from '../components/common/Header';
 import { fetchAnalyticsSummary, fetchReviewsOverTime, fetchPerformanceInsights } from '../api/analytics';
-// --- NOSSA NOVA IMPORTAÇÃO ---
-import { fetchAchievements, recalculateAchievements } from '../api/achievements';
 import { useAchievements } from '../context/AchievementsContext';
 import toast from 'react-hot-toast';
 
@@ -176,13 +174,14 @@ const InsightsSection = () => {
     );
 };
 
-// --- COMPONENTE DE CONQUISTAS ATUALIZADO ---
-
 const Achievements = () => {
-    const { achievements, loading } = useAchievements();
+    const { achievements, loading, loadAchievements } = useAchievements();
     
+    // ATUALIZA AS CONQUISTAS QUANDO A PÁGINA É CARREGADA
+    useEffect(() => {
+        loadAchievements();
+    }, [loadAchievements]);
     
-    // Define a cor com base no ícone para manter a consistência visual
     const getColorFromIcon = (icon) => {
         if (icon.includes('fire')) return 'warning';
         if (icon.includes('book')) return 'info';
@@ -194,9 +193,6 @@ const Achievements = () => {
         <div className="card-custom">
             <div className="card-header">
                 <h2>Conquistas</h2>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                    Atualização automática
-                </div>
             </div>
             {loading ? (
                 <div className="skeleton-list">
@@ -206,7 +202,7 @@ const Achievements = () => {
                  <ul className="achievements-list">
                     {achievements.map((ach) => {
                         const isUnlocked = !!ach.unlocked_at;
-                        const progress = Math.min(ach.progress, ach.goal); // Garante que a barra não passe de 100%
+                        const progress = Math.min(ach.progress, ach.goal);
                         const progressPercent = ach.goal > 0 ? (progress / ach.goal) * 100 : 0;
                         const color = getColorFromIcon(ach.icon);
 

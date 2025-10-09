@@ -7,7 +7,7 @@ const updateAchievementProgress = async (userId, metric, value) => {
         return;
     }
 
-    logger.info(`[ACHIEVEMENTS] Iniciando updateAchievementProgress - userId: ${userId}, metric: ${metric}, value: ${value}`);
+    logger.info(`[ACHIEVEMENTS] Iniciando update - userId: ${userId}, metric: ${metric}, value:`, value);
 
     try {
         const { data: achievements, error: achievementsError } = await supabase
@@ -22,7 +22,6 @@ const updateAchievementProgress = async (userId, metric, value) => {
                 )
             `)
             .eq('metric', metric);
-
 
         if (achievementsError) {
             logger.error(`[ACHIEVEMENTS] Erro ao buscar achievements para metric ${metric}:`, achievementsError);
@@ -39,25 +38,34 @@ const updateAchievementProgress = async (userId, metric, value) => {
             const userAchievement = achievement.user_achievements.find(ua => ua.user_id === userId);
             const currentProgress = userAchievement?.progress || 0;
             
-            if (userAchievement?.unlocked_at || value < currentProgress) {
-                logger.info(`[ACHIEVEMENTS] Pulando achievement ${achievement.id} - unlocked: ${!!userAchievement?.unlocked_at}, progress: ${currentProgress} vs ${value}`);
+            if (userAchievement?.unlocked_at) {
+                logger.info(`[ACHIEVEMENTS] Pulando conquista ${achievement.id} (já desbloqueada)`);
                 continue;
             }
 
-            if (value === currentProgress && currentProgress === 0) {
-                logger.info(`[ACHIEVEMENTS] Inicializando achievement ${achievement.id} com progresso 0`);
-            }
+            let newProgress;
+            const isIncremental = typeof value === 'object' && value.increment;
 
-            logger.info(`[ACHIEVEMENTS] Processando achievement ${achievement.id}, progresso: ${currentProgress} -> ${value}`);
+            if (isIncremental) {
+                newProgress = currentProgress + value.increment;
+                logger.info(`[ACHIEVEMENTS] Atualização incremental para ${achievement.id}. Progresso: ${currentProgress} -> ${newProgress}`);
+            } else {
+                newProgress = value;
+                if (newProgress < currentProgress) {
+                    logger.info(`[ACHIEVEMENTS] Pulando conquista ${achievement.id} (novo valor é menor que o progresso atual)`);
+                    continue;
+                }
+                logger.info(`[ACHIEVEMENTS] Atualização absoluta para ${achievement.id}. Progresso: ${currentProgress} -> ${newProgress}`);
+            }
 
             const dataToUpsert = {
                 user_id: userId,
                 achievement_id: achievement.id,
-                progress: value,
+                progress: newProgress,
                 updated_at: new Date().toISOString(),
             };
 
-            if (value >= achievement.goal) {
+            if (newProgress >= achievement.goal) {
                 dataToUpsert.unlocked_at = new Date().toISOString();
                 logger.info(` Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
             }
@@ -72,7 +80,7 @@ const updateAchievementProgress = async (userId, metric, value) => {
             if (upsertError) {
                 logger.error(`[ACHIEVEMENTS]  Erro ao atualizar progresso da conquista ${achievement.id} para o usuário ${userId}:`, upsertError);
             } else {
-                logger.info(`[ACHIEVEMENTS]  Progresso da conquista ${achievement.id} atualizado para ${value} para o usuário ${userId}.`);
+                logger.info(`[ACHIEVEMENTS]  Progresso da conquista ${achievement.id} atualizado para ${newProgress} para o usuário ${userId}.`);
                 logger.info(`[ACHIEVEMENTS]  Dados salvos no banco:`, upsertResult);
             }
         }
