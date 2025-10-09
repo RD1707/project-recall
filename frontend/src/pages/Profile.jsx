@@ -735,7 +735,7 @@ function Profile() {
                                 <p style={styles.profileUsername}>@{userData.username || 'usuario'}</p>
                                 {userData.bio && <p style={styles.profileBio}>{userData.bio}</p>}
 
-                                {/* Seção de Interesses */}
+                                {/* Seção de Áreas de Interesse */}
                                 {userData.interests && userData.interests.length > 0 && (
                                     <div style={styles.profileInterests}>
                                         {userData.interests.map((interest, index) => (

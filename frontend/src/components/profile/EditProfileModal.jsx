@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from '../common/Modal';
+import { STUDY_AREAS, searchAreas, getCategories } from '../../constants/studyAreas';
 import './EditProfileModal.css';
 
 const EditProfileModal = ({
@@ -23,23 +24,17 @@ const EditProfileModal = ({
   const [bannerPreview, setBannerPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
-  const [newInterest, setNewInterest] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#6366f1');
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAreaSelection, setShowAreaSelection] = useState(false);
+  const [filteredAreas, setFilteredAreas] = useState(STUDY_AREAS);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const fileInputRef = useRef(null);
   const bannerInputRef = useRef(null);
 
-  const MAX_INTERESTS = 8;
+  const MAX_INTERESTS = 6;
   const MAX_BIO_LENGTH = 160;
-
-  const colorPalette = [
-    '#6366f1', '#8b5cf6', '#ec4899', '#ef4444',
-    '#f59e0b', '#84cc16', '#10b981', '#06b6d4',
-    '#0ea5e9', '#3b82f6', '#6d28d9', '#a855f7'
-  ];
 
   useEffect(() => {
     if (isOpen && user) {
@@ -56,8 +51,9 @@ const EditProfileModal = ({
     return () => {
       setAvatarFile(null);
       setBannerFile(null);
-      setNewInterest('');
-      setShowColorPicker(false);
+      setSearchTerm('');
+      setShowAreaSelection(false);
+      setFilteredAreas(STUDY_AREAS);
       setErrors({});
     };
   }, [isOpen, user]);
@@ -113,33 +109,33 @@ const EditProfileModal = ({
     if (bannerInputRef.current) bannerInputRef.current.value = '';
   };
 
-  const addInterest = (e) => {
-    e.preventDefault();
-    const interestText = newInterest.trim();
-
-    if (!interestText || formData.interests.length >= MAX_INTERESTS) return;
-
-    // Check if interest already exists (case insensitive)
-    const exists = formData.interests.some(
-      interest => interest.name.toLowerCase() === interestText.toLowerCase()
-    );
-
-    if (exists) {
-      setErrors(prev => ({
-        ...prev,
-        interest: 'Este interesse já foi adicionado.'
-      }));
-      return;
-    }
-
-    const interest = { name: interestText, color: selectedColor };
-    setFormData(prev => ({ ...prev, interests: [...prev.interests, interest] }));
-    setNewInterest('');
-    setSelectedColor('#6366f1'); // Reset to default color
-    setErrors(prev => ({ ...prev, interest: null })); // Clear any error
+  // Função para filtrar áreas baseada na busca
+  const handleSearchChange = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    setFilteredAreas(searchAreas(term));
   };
 
-  const removeInterest = (index) => {
+  // Função para adicionar área de interesse
+  const addArea = (area) => {
+    if (formData.interests.length >= MAX_INTERESTS) return;
+
+    // Verificar se a área já foi selecionada
+    const exists = formData.interests.some(
+      interest => interest.name === area.name
+    );
+
+    if (exists) return;
+
+    const newArea = { name: area.name, color: area.color };
+    setFormData(prev => ({ ...prev, interests: [...prev.interests, newArea] }));
+    setShowAreaSelection(false);
+    setSearchTerm('');
+    setFilteredAreas(STUDY_AREAS);
+  };
+
+  // Função para remover área de interesse
+  const removeArea = (index) => {
     setFormData(prev => ({ ...prev, interests: prev.interests.filter((_, i) => i !== index) }));
   };
 
@@ -228,11 +224,12 @@ const EditProfileModal = ({
             <div className="char-count">{formData.bio.length}/{MAX_BIO_LENGTH}</div>
           </div>
           <div className="interests-section">
-            <label className="form-label">Interesses</label>
+            <label className="form-label">Áreas de Interesse</label>
             <p className="interests-description">
-              Adicione até {MAX_INTERESTS} interesses para personalizar seu perfil
+              Selecione até {MAX_INTERESTS} áreas de estudo do seu interesse
             </p>
 
+            {/* Áreas Selecionadas */}
             <div className="interests-list">
               {formData.interests.map((interest, index) => (
                 <div key={index} className="interest-tag" style={{ backgroundColor: interest.color }}>
@@ -240,7 +237,7 @@ const EditProfileModal = ({
                   <button
                     type="button"
                     className="interest-remove"
-                    onClick={() => removeInterest(index)}
+                    onClick={() => removeArea(index)}
                     disabled={loading}
                     aria-label={`Remover ${interest.name}`}
                   >
@@ -250,69 +247,85 @@ const EditProfileModal = ({
               ))}
             </div>
 
+            {/* Botão para adicionar nova área */}
             {formData.interests.length < MAX_INTERESTS && (
-              <form onSubmit={addInterest} className="add-interest-form">
-                <div className="form-input-group">
-                  <input
-                    type="text"
-                    className="add-interest-input"
-                    value={newInterest}
-                    onChange={(e) => setNewInterest(e.target.value)}
-                    placeholder="Ex: Programação, Design, Música..."
-                    disabled={loading}
-                    maxLength={30}
-                  />
+              <div className="add-area-section">
+                <button
+                  type="button"
+                  className="add-area-btn"
+                  onClick={() => setShowAreaSelection(true)}
+                  disabled={loading}
+                >
+                  <i className="fas fa-plus"></i>
+                  Adicionar área de interesse
+                </button>
+              </div>
+            )}
 
-                  <div className="color-picker-container">
-                    <button
-                      type="button"
-                      className="color-preview"
-                      style={{ backgroundColor: selectedColor }}
-                      onClick={() => setShowColorPicker(!showColorPicker)}
-                      aria-label="Selecionar cor"
-                    >
-                      {showColorPicker && (
-                        <div className="color-palette">
-                          {colorPalette.map(color => (
-                            <button
-                              key={color}
-                              type="button"
-                              className="color-option"
-                              style={{ backgroundColor: color }}
-                              onClick={() => {
-                                setSelectedColor(color);
-                                setShowColorPicker(false);
-                              }}
-                              aria-label={`Selecionar cor ${color}`}
-                            >
-                              {selectedColor === color && (
-                                <i className="fas fa-check check-icon"></i>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </button>
-                  </div>
-
+            {/* Modal de seleção de áreas */}
+            {showAreaSelection && (
+              <div className="area-selection-modal">
+                <div className="area-selection-header">
+                  <h3>Selecionar Área de Interesse</h3>
                   <button
-                    type="submit"
-                    className="add-interest-btn"
-                    disabled={!newInterest.trim() || loading}
-                    aria-label="Adicionar interesse"
+                    type="button"
+                    className="close-area-selection"
+                    onClick={() => {
+                      setShowAreaSelection(false);
+                      setSearchTerm('');
+                      setFilteredAreas(STUDY_AREAS);
+                    }}
                   >
-                    <i className="fas fa-plus"></i>
+                    <i className="fas fa-times"></i>
                   </button>
                 </div>
 
-                {errors.interest && (
-                  <div className="error-message">{errors.interest}</div>
+                {/* Campo de busca */}
+                <div className="area-search-container">
+                  <input
+                    type="text"
+                    className="area-search-input"
+                    placeholder="Buscar área de interesse..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    autoFocus
+                  />
+                  <i className="fas fa-search search-icon"></i>
+                </div>
+
+                {/* Lista de áreas */}
+                <div className="areas-list">
+                  {filteredAreas.map((area, index) => {
+                    const isSelected = formData.interests.some(interest => interest.name === area.name);
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        className={`area-option ${isSelected ? 'selected' : ''}`}
+                        onClick={() => addArea(area)}
+                        disabled={isSelected || formData.interests.length >= MAX_INTERESTS}
+                      >
+                        <span className="area-name">{area.name}</span>
+                        <span className="area-category" style={{ color: area.color }}>
+                          {area.category}
+                        </span>
+                        {isSelected && <i className="fas fa-check selected-icon"></i>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {filteredAreas.length === 0 && (
+                  <div className="no-areas-found">
+                    <i className="fas fa-search"></i>
+                    <p>Nenhuma área encontrada</p>
+                  </div>
                 )}
-              </form>
+              </div>
             )}
 
             <div className={`interests-limit ${formData.interests.length >= MAX_INTERESTS ? 'error' : formData.interests.length >= MAX_INTERESTS - 2 ? 'warning' : ''}`}>
-              {formData.interests.length} de {MAX_INTERESTS} interesses adicionados
+              {formData.interests.length} de {MAX_INTERESTS} áreas selecionadas
             </div>
           </div>
         </div>
