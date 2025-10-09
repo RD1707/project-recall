@@ -137,14 +137,40 @@ function PublicProfile() {
     const { username } = useParams();
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const loadProfile = async () => {
+            if (!username || username.trim() === '') {
+                setError('Nome de usuário inválido');
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
+                setError(null);
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
                 const data = await fetchPublicProfile(username);
+                clearTimeout(timeoutId);
+
+                if (!data || !data.profile) {
+                    throw new Error('Dados do perfil não encontrados');
+                }
+
                 setProfileData(data);
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    setError('Tempo limite excedido ao carregar o perfil');
+                } else if (error.message.includes('não encontrado') || error.message.includes('USER_NOT_FOUND')) {
+                    setError('Perfil não encontrado');
+                } else {
+                    setError(error.message || "Não foi possível carregar este perfil.");
+                }
+                console.error('Erro ao carregar perfil público:', error);
                 toast.error(error.message || "Não foi possível carregar este perfil.");
             } finally {
                 setLoading(false);
@@ -175,6 +201,40 @@ function PublicProfile() {
                             }}>
                                 <div className="loading-spinner" style={{margin: '0 auto'}}></div>
                                 <p style={{marginTop: '1rem', color: 'var(--color-text-muted)'}}>Carregando perfil...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    if (error) {
+        return (
+            <>
+                <Header />
+                <div style={styles.profilePage}>
+                    <div style={styles.profileContainer}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: '80vh',
+                            flexDirection: 'column',
+                            textAlign: 'center'
+                        }}>
+                            <h3 style={{color: 'var(--color-text-default)', marginBottom: '1rem'}}>
+                                {error === 'Perfil não encontrado' ? 'Perfil não encontrado' : 'Erro ao carregar perfil'}
+                            </h3>
+                            <p style={{color: 'var(--color-text-muted)', marginBottom: '2rem'}}>
+                                {error === 'Perfil não encontrado'
+                                    ? 'O usuário que você procura não existe ou não tem um perfil público.'
+                                    : error
+                                }
+                            </p>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <Link to="/community" className="btn btn-primary">Voltar à Comunidade</Link>
+                                <Link to="/ranking" className="btn btn-secondary">Ver Ranking</Link>
                             </div>
                         </div>
                     </div>

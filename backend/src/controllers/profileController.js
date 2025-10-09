@@ -284,18 +284,38 @@ const completeOnboarding = async (req, res) => {
 
 const getPublicProfile = async (req, res) => {
     const { username } = req.params;
-    
+
+    if (!username || username.trim() === '') {
+        logger.warn('Tentativa de acesso a perfil público sem username');
+        return res.status(400).json({ message: 'Nome de usuário é obrigatório.', code: 'MISSING_USERNAME' });
+    }
+
     try {
+        logger.info(`Buscando perfil público para username: ${username}`);
+
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('id, username, full_name, bio, avatar_url, banner_url, points, current_streak, interests')
             .eq('username', username)
             .single();
 
-        if (profileError || !profile) {
-            return res.status(404).json({ message: 'Utilizador não encontrado.', code: 'USER_NOT_FOUND' });
+        if (profileError) {
+            logger.warn(`Erro ao buscar perfil para ${username}: ${profileError.message} (código: ${profileError.code})`);
+
+            if (profileError.code === 'PGRST116') {
+                return res.status(404).json({ message: 'Perfil não encontrado.', code: 'USER_NOT_FOUND' });
+            }
+
+            throw profileError;
+        }
+
+        if (!profile) {
+            logger.warn(`Perfil não encontrado para username: ${username}`);
+            return res.status(404).json({ message: 'Perfil não encontrado.', code: 'USER_NOT_FOUND' });
         }
         
+        logger.info(`Buscando decks públicos para o usuário ${profile.id} (username: ${username})`);
+
         const { data: publicDecks, error: decksError } = await supabase
             .from('decks')
             .select(`
@@ -310,31 +330,35 @@ const getPublicProfile = async (req, res) => {
             .eq('is_shared', true)
             .order('created_at', { ascending: false });
 
-        if (decksError) throw decksError;
+        if (decksError) {
+            logger.error(`Erro ao buscar decks públicos para ${username} (${profile.id}): ${decksError.message}`);
+            throw decksError;
+        }
 
-        const formattedDecks = publicDecks.map(deck => ({
+        const formattedDecks = (publicDecks || []).map(deck => ({
             ...deck,
-            card_count: deck.flashcards[0]?.count || 0,
-            average_rating: 0, 
-            rating_count: 0    
+            card_count: deck.flashcards?.[0]?.count || 0,
+            average_rating: 0,
+            rating_count: 0
         }));
 
         const responsePayload = {
             profile: {
-                username: profile.username,
-                fullName: profile.full_name,
-                bio: profile.bio,
-                avatarUrl: profile.avatar_url,
-                bannerUrl: profile.banner_url,
+                username: profile.username || '',
+                fullName: profile.full_name || '',
+                bio: profile.bio || '',
+                avatarUrl: profile.avatar_url || null,
+                bannerUrl: profile.banner_url || null,
                 points: profile.points || 0,
                 currentStreak: profile.current_streak || 0,
                 interests: profile.interests || [],
                 totalPublicDecks: formattedDecks.length,
-                totalPublicCards: formattedDecks.reduce((sum, deck) => sum + deck.card_count, 0)
+                totalPublicCards: formattedDecks.reduce((sum, deck) => sum + (deck.card_count || 0), 0)
             },
             decks: formattedDecks
         };
-        
+
+        logger.info(`Perfil público retornado com sucesso para ${username}: ${formattedDecks.length} decks encontrados`);
         res.status(200).json(responsePayload);
 
     } catch (error) {

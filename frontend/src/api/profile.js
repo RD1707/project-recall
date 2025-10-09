@@ -170,12 +170,9 @@ export const markOnboardingAsComplete = async () => {
 
 export const fetchPublicProfile = async (username) => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("Utilizador não autenticado");
-
     const response = await fetch(`/api/profile/public/${username}`, {
       headers: {
-        'Authorization': `Bearer ${session.access_token}`
+        'Content-Type': 'application/json'
       }
     });
 
