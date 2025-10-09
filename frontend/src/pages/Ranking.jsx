@@ -5,15 +5,22 @@ import { fetchLeaderboard } from '../api/profile';
 import toast from 'react-hot-toast';
 import '../assets/css/ranking.css';
 
-const RankingRow = ({ user, rank }) => (
-    <div className="ranking-row">
-        <div className="rank-cell">
-            <span className={`rank-badge rank-${rank}`}>{rank}</span>
-        </div>
-        <div className="user-cell">
-            <Link
-                to={`/profile/${user.username}`}
-                className="user-profile-link"
+const RankingRow = ({ user, rank }) => {
+    // Verificar se o usuário tem username válido antes de criar o link
+    const hasValidUsername = user.username && user.username.trim() !== '';
+    const profileUrl = hasValidUsername ? `/profile/${user.username}` : '#';
+
+    const LinkComponent = hasValidUsername ? Link : 'div';
+
+    return (
+        <div className="ranking-row">
+            <div className="rank-cell">
+                <span className={`rank-badge rank-${rank}`}>{rank}</span>
+            </div>
+            <div className="user-cell">
+                <LinkComponent
+                    {...(hasValidUsername ? { to: profileUrl } : {})}
+                    className="user-profile-link"
                 style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -42,14 +49,15 @@ const RankingRow = ({ user, rank }) => (
                     )}
                 </div>
                 <span className="username">{user.username || 'Usuário Anônimo'}</span>
-            </Link>
+            </LinkComponent>
         </div>
         <div className="points-cell">
             <span className="points-value">{(user.points || 0).toLocaleString('pt-BR')}</span>
             <span className="points-label">pontos</span>
         </div>
     </div>
-);
+    );
+};
 
 
 function Ranking() {
@@ -88,7 +96,7 @@ function Ranking() {
             return <div className="empty-state">Ainda não há dados para este ranking. Comece a estudar!</div>;
         }
         return leaderboard.map((user, index) => (
-            <RankingRow key={user.username} user={user} rank={index + 1} />
+            <RankingRow key={user.username || `user-${index}`} user={user} rank={index + 1} />
         ));
     };
 

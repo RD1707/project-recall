@@ -56,15 +56,15 @@ function CommunityDeckCard({ deck }) {
     return (
         <>
             <div className="community-deck-card" style={{ '--deck-color': deckColor }}>
-                <Link to={`/profile/${deck.author.username}`} className="deck-card__author" onClick={handleAuthorClick}>
+                <Link to={`/profile/${deck.author?.username || 'unknown'}`} className="deck-card__author" onClick={handleAuthorClick}>
                     <div className="author-avatar">
-                        {deck.author.avatar_url ? (
-                            <img src={deck.author.avatar_url} alt={deck.author.username} />
+                        {deck.author?.avatar_url ? (
+                            <img src={deck.author?.avatar_url} alt={deck.author?.username || 'Autor'} />
                         ) : (
-                            <span>{deck.author.username.charAt(0).toUpperCase()}</span>
+                            <span>{(deck.author?.username || 'A').charAt(0).toUpperCase()}</span>
                         )}
                     </div>
-                    <span className="author-name">{deck.author.username}</span>
+                    <span className="author-name">{deck.author?.username || 'Autor Desconhecido'}</span>
                 </Link>
                 <div className="deck-card__header">
                     <h3>{deck.title}</h3>

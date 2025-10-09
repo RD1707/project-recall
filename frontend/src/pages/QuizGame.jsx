@@ -21,7 +21,7 @@ const QuizCompletionScreen = ({ players, currentUser, roomId }) => {
                     <>
                         <div className="trophy-icon"><i className="fas fa-award"></i></div>
                         <h1>Quiz Finalizado!</h1>
-                        <p>Ótimo jogo! O vencedor foi <strong>{winner.username}</strong>.</p>
+                        <p>Ótimo jogo! O vencedor foi <strong>{winner.username || 'Jogador'}</strong>.</p>
                     </>
                 )}
             </div>
@@ -35,9 +35,9 @@ const QuizCompletionScreen = ({ players, currentUser, roomId }) => {
                         </div>
                         <div className="user-cell">
                             <div className="user-avatar">
-                                {player.avatar_url ? <img src={player.avatar_url} alt={player.username} /> : <span>{player.username.charAt(0).toUpperCase()}</span>}
+                                {player.avatar_url ? <img src={player.avatar_url} alt={player.username || 'Jogador'} /> : <span>{(player.username || 'J').charAt(0).toUpperCase()}</span>}
                             </div>
-                            <span className="username">{player.username}</span>
+                            <span className="username">{player.username || 'Jogador'}</span>
                         </div>
                         <div className="points-cell">
                             <span className="points-value">{player.score.toLocaleString('pt-BR')}</span>

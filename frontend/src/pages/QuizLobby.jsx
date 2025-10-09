@@ -117,12 +117,12 @@ function QuizLobby() {
                             {players.map(player => (
                                 <div key={player.id} className="player-card">
                                     <div className="player-avatar">
-                                        {player.avatar_url ? 
-                                            <img src={player.avatar_url} alt={player.username} /> :
-                                            <span>{player.username.charAt(0).toUpperCase()}</span>
+                                        {player.avatar_url ?
+                                            <img src={player.avatar_url} alt={player.username || 'Jogador'} /> :
+                                            <span>{(player.username || 'J').charAt(0).toUpperCase()}</span>
                                         }
                                     </div>
-                                    <span className="player-name">{player.username} {player.id === hostId ? '(Anfitrião)' : ''}</span>
+                                    <span className="player-name">{player.username || 'Jogador'} {player.id === hostId ? '(Anfitrião)' : ''}</span>
                                 </div>
                             ))}
                         </div>
