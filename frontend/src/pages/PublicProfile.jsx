@@ -141,39 +141,85 @@ function PublicProfile() {
 
     useEffect(() => {
         const loadProfile = async () => {
+            const isProblematicUser = ['werkzin', 'homofobilson'].includes(username?.toLowerCase());
+
+            if (isProblematicUser) {
+                console.log(`🔍 FRONTEND DEBUG: Iniciando carregamento para usuário problemático: ${username}`);
+            }
+
             if (!username || username.trim() === '') {
+                console.log('🔍 FRONTEND DEBUG: Username inválido ou vazio');
                 setError('Nome de usuário inválido');
                 setLoading(false);
                 return;
             }
 
+            console.log(`🔍 FRONTEND DEBUG: Carregando perfil para: ${username}`);
+
             try {
                 setLoading(true);
                 setError(null);
 
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                if (isProblematicUser) {
+                    console.log(`🔍 FRONTEND DEBUG: Definindo loading=true e error=null para ${username}`);
+                }
 
-                const data = await fetchPublicProfile(username);
-                clearTimeout(timeoutId);
+                console.log(`🔍 FRONTEND DEBUG: Chamando fetchPublicProfile para ${username}`);
+                const startTime = Date.now();
+
+                // Criar um timeout manual sem AbortController para evitar interferências
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => {
+                        console.log(`🔍 FRONTEND DEBUG: Timeout de 15s atingido para ${username}`);
+                        reject(new Error('FRONTEND_TIMEOUT'));
+                    }, 15000); // Aumentado para 15s
+                });
+
+                const fetchPromise = fetchPublicProfile(username);
+
+                // Race entre fetch e timeout
+                const data = await Promise.race([fetchPromise, timeoutPromise]);
+
+                const endTime = Date.now();
+                console.log(`🔍 FRONTEND DEBUG: fetchPublicProfile retornou em ${endTime - startTime}ms para ${username}`);
+                console.log(`🔍 FRONTEND DEBUG: Dados recebidos para ${username}:`, data);
 
                 if (!data || !data.profile) {
+                    console.log(`🔍 FRONTEND DEBUG: Dados inválidos recebidos para ${username}:`, data);
                     throw new Error('Dados do perfil não encontrados');
                 }
 
+                console.log(`🔍 FRONTEND DEBUG: Definindo profileData para ${username}`);
                 setProfileData(data);
+
+                if (isProblematicUser) {
+                    console.log(`🔍 FRONTEND DEBUG: ProfileData definido com sucesso para ${username}`, data);
+                }
             } catch (error) {
-                if (error.name === 'AbortError') {
+                console.log(`🔍 FRONTEND DEBUG: Erro capturado para ${username}:`, error);
+
+                if (error.message === 'FRONTEND_TIMEOUT') {
+                    console.log(`🔍 FRONTEND DEBUG: Frontend timeout detectado para ${username}`);
+                    setError('Tempo limite excedido ao carregar o perfil (15s)');
+                } else if (error.name === 'AbortError') {
+                    console.log(`🔍 FRONTEND DEBUG: AbortError detectado para ${username}`);
                     setError('Tempo limite excedido ao carregar o perfil');
                 } else if (error.message.includes('não encontrado') || error.message.includes('USER_NOT_FOUND')) {
+                    console.log(`🔍 FRONTEND DEBUG: User not found error para ${username}`);
                     setError('Perfil não encontrado');
                 } else {
+                    console.log(`🔍 FRONTEND DEBUG: Erro genérico para ${username}:`, error.message);
                     setError(error.message || "Não foi possível carregar este perfil.");
                 }
                 console.error('Erro ao carregar perfil público:', error);
                 toast.error(error.message || "Não foi possível carregar este perfil.");
             } finally {
+                console.log(`🔍 FRONTEND DEBUG: Definindo loading=false para ${username}`);
                 setLoading(false);
+
+                if (isProblematicUser) {
+                    console.log(`🔍 FRONTEND DEBUG: Estado final para ${username} - loading: false, error:`, error, 'profileData:', profileData);
+                }
             }
         };
         loadProfile();

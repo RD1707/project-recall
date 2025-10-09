@@ -169,20 +169,48 @@ export const markOnboardingAsComplete = async () => {
 };
 
 export const fetchPublicProfile = async (username) => {
+  const isProblematicUser = ['werkzin', 'homofobilson'].includes(username?.toLowerCase());
+
   try {
-    const response = await fetch(`/api/profile/public/${username}`, {
+    if (isProblematicUser) {
+      console.log(`🔍 API DEBUG: Iniciando fetchPublicProfile para ${username}`);
+    }
+
+    console.log(`🔍 API DEBUG: Fazendo requisição para /api/profile/public/${username}`);
+
+    // Adicionar cache busting e headers para evitar cache
+    const cacheBuster = Date.now();
+    const url = `/api/profile/public/${username}?t=${cacheBuster}`;
+
+    console.log(`🔍 API DEBUG: URL com cache buster: ${url}`);
+
+    const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
+    console.log(`🔍 API DEBUG: Resposta recebida - Status: ${response.status}, OK: ${response.ok}`);
+
     if (!response.ok) {
         const errorData = await response.json();
+        console.log(`🔍 API DEBUG: Erro na resposta para ${username}:`, errorData);
         throw new Error(errorData.message || 'Erro ao buscar perfil público');
     }
 
-    return await response.json();
+    const jsonData = await response.json();
+    console.log(`🔍 API DEBUG: JSON parseado com sucesso para ${username}:`, jsonData);
+
+    if (isProblematicUser) {
+      console.log(`🔍 API DEBUG: Retornando dados para usuário problemático ${username}:`, jsonData);
+    }
+
+    return jsonData;
   } catch (error) {
+    console.log(`🔍 API DEBUG: Erro capturado em fetchPublicProfile para ${username}:`, error);
     throw handleApiError(error, 'fetchPublicProfile');
   }
 };
