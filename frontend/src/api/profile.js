@@ -169,7 +169,13 @@ export const markOnboardingAsComplete = async () => {
 };
 
 export const fetchPublicProfile = async (username) => {
-  const isProblematicUser = ['werkzin', 'homofobilson'].includes(username?.toLowerCase());
+  // Verificação de segurança para username
+  if (!username) {
+    console.log('🔍 API DEBUG: Username é undefined/null');
+    throw new Error('Username é obrigatório');
+  }
+
+  const isProblematicUser = ['werkzin', 'homofobilson'].includes(username.toLowerCase());
 
   try {
     if (isProblematicUser) {

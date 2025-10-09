@@ -141,84 +141,88 @@ function PublicProfile() {
 
     useEffect(() => {
         const loadProfile = async () => {
-            const isProblematicUser = ['werkzin', 'homofobilson'].includes(username?.toLowerCase());
+            console.log(`🔍 FRONTEND DEBUG: useEffect disparado, username:`, username);
 
-            if (isProblematicUser) {
-                console.log(`🔍 FRONTEND DEBUG: Iniciando carregamento para usuário problemático: ${username}`);
-            }
-
-            if (!username || username.trim() === '') {
-                console.log('🔍 FRONTEND DEBUG: Username inválido ou vazio');
+            // Verificação mais robusta do username
+            if (!username || typeof username !== 'string' || username.trim() === '') {
+                console.log('🔍 FRONTEND DEBUG: Username inválido, vazio ou não é string:', username);
                 setError('Nome de usuário inválido');
                 setLoading(false);
                 return;
             }
 
-            console.log(`🔍 FRONTEND DEBUG: Carregando perfil para: ${username}`);
+            const cleanUsername = username.trim();
+            const isProblematicUser = ['werkzin', 'homofobilson'].includes(cleanUsername.toLowerCase());
+
+            if (isProblematicUser) {
+                console.log(`🔍 FRONTEND DEBUG: Iniciando carregamento para usuário problemático: ${cleanUsername}`);
+            }
+
+            console.log(`🔍 FRONTEND DEBUG: Carregando perfil para: ${cleanUsername}`);
 
             try {
                 setLoading(true);
                 setError(null);
 
                 if (isProblematicUser) {
-                    console.log(`🔍 FRONTEND DEBUG: Definindo loading=true e error=null para ${username}`);
+                    console.log(`🔍 FRONTEND DEBUG: Definindo loading=true e error=null para ${cleanUsername}`);
                 }
 
-                console.log(`🔍 FRONTEND DEBUG: Chamando fetchPublicProfile para ${username}`);
+                console.log(`🔍 FRONTEND DEBUG: Chamando fetchPublicProfile para ${cleanUsername}`);
                 const startTime = Date.now();
 
                 // Criar um timeout manual sem AbortController para evitar interferências
                 const timeoutPromise = new Promise((_, reject) => {
                     setTimeout(() => {
-                        console.log(`🔍 FRONTEND DEBUG: Timeout de 15s atingido para ${username}`);
+                        console.log(`🔍 FRONTEND DEBUG: Timeout de 15s atingido para ${cleanUsername}`);
                         reject(new Error('FRONTEND_TIMEOUT'));
                     }, 15000); // Aumentado para 15s
                 });
 
-                const fetchPromise = fetchPublicProfile(username);
+                const fetchPromise = fetchPublicProfile(cleanUsername);
 
                 // Race entre fetch e timeout
                 const data = await Promise.race([fetchPromise, timeoutPromise]);
 
                 const endTime = Date.now();
-                console.log(`🔍 FRONTEND DEBUG: fetchPublicProfile retornou em ${endTime - startTime}ms para ${username}`);
-                console.log(`🔍 FRONTEND DEBUG: Dados recebidos para ${username}:`, data);
+                console.log(`🔍 FRONTEND DEBUG: fetchPublicProfile retornou em ${endTime - startTime}ms para ${cleanUsername}`);
+                console.log(`🔍 FRONTEND DEBUG: Dados recebidos para ${cleanUsername}:`, data);
 
                 if (!data || !data.profile) {
-                    console.log(`🔍 FRONTEND DEBUG: Dados inválidos recebidos para ${username}:`, data);
+                    console.log(`🔍 FRONTEND DEBUG: Dados inválidos recebidos para ${cleanUsername}:`, data);
                     throw new Error('Dados do perfil não encontrados');
                 }
 
-                console.log(`🔍 FRONTEND DEBUG: Definindo profileData para ${username}`);
+                console.log(`🔍 FRONTEND DEBUG: Definindo profileData para ${cleanUsername}`);
                 setProfileData(data);
 
                 if (isProblematicUser) {
-                    console.log(`🔍 FRONTEND DEBUG: ProfileData definido com sucesso para ${username}`, data);
+                    console.log(`🔍 FRONTEND DEBUG: ProfileData definido com sucesso para ${cleanUsername}`, data);
                 }
             } catch (error) {
-                console.log(`🔍 FRONTEND DEBUG: Erro capturado para ${username}:`, error);
+                console.log(`🔍 FRONTEND DEBUG: Erro capturado para ${cleanUsername}:`, error);
 
                 if (error.message === 'FRONTEND_TIMEOUT') {
-                    console.log(`🔍 FRONTEND DEBUG: Frontend timeout detectado para ${username}`);
+                    console.log(`🔍 FRONTEND DEBUG: Frontend timeout detectado para ${cleanUsername}`);
                     setError('Tempo limite excedido ao carregar o perfil (15s)');
                 } else if (error.name === 'AbortError') {
-                    console.log(`🔍 FRONTEND DEBUG: AbortError detectado para ${username}`);
+                    console.log(`🔍 FRONTEND DEBUG: AbortError detectado para ${cleanUsername}`);
                     setError('Tempo limite excedido ao carregar o perfil');
                 } else if (error.message.includes('não encontrado') || error.message.includes('USER_NOT_FOUND')) {
-                    console.log(`🔍 FRONTEND DEBUG: User not found error para ${username}`);
+                    console.log(`🔍 FRONTEND DEBUG: User not found error para ${cleanUsername}`);
                     setError('Perfil não encontrado');
                 } else {
-                    console.log(`🔍 FRONTEND DEBUG: Erro genérico para ${username}:`, error.message);
+                    console.log(`🔍 FRONTEND DEBUG: Erro genérico para ${cleanUsername}:`, error.message);
                     setError(error.message || "Não foi possível carregar este perfil.");
                 }
                 console.error('Erro ao carregar perfil público:', error);
                 toast.error(error.message || "Não foi possível carregar este perfil.");
             } finally {
-                console.log(`🔍 FRONTEND DEBUG: Definindo loading=false para ${username}`);
+                console.log(`🔍 FRONTEND DEBUG: Definindo loading=false para ${cleanUsername}`);
                 setLoading(false);
 
                 if (isProblematicUser) {
-                    console.log(`🔍 FRONTEND DEBUG: Estado final para ${username} - loading: false, error:`, error, 'profileData:', profileData);
+                    console.log(`🔍 FRONTEND DEBUG: Estado final para ${cleanUsername} - loading: false, error:`, error, 'profileData:', profileData);
                 }
             }
         };
