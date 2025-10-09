@@ -139,6 +139,40 @@ const EditProfileModal = ({
     setFormData(prev => ({ ...prev, interests: prev.interests.filter((_, i) => i !== index) }));
   };
 
+  // Função para fechar o modal de seleção de áreas
+  const closeAreaSelection = () => {
+    setShowAreaSelection(false);
+    setSearchTerm('');
+    setFilteredAreas(STUDY_AREAS);
+  };
+
+  // Função para lidar com clique no backdrop
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      closeAreaSelection();
+    }
+  };
+
+  // Adicionar suporte à tecla ESC
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showAreaSelection) {
+        closeAreaSelection();
+      }
+    };
+
+    if (showAreaSelection) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Prevenir scroll do body quando modal está aberto
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'auto';
+    };
+  }, [showAreaSelection]);
+
   const customHeader = (
     <div className="edit-profile-header">
       <div className="header-left">
@@ -264,63 +298,61 @@ const EditProfileModal = ({
 
             {/* Modal de seleção de áreas */}
             {showAreaSelection && (
-              <div className="area-selection-modal">
-                <div className="area-selection-header">
-                  <h3>Selecionar Área de Interesse</h3>
-                  <button
-                    type="button"
-                    className="close-area-selection"
-                    onClick={() => {
-                      setShowAreaSelection(false);
-                      setSearchTerm('');
-                      setFilteredAreas(STUDY_AREAS);
-                    }}
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
-
-                {/* Campo de busca */}
-                <div className="area-search-container">
-                  <input
-                    type="text"
-                    className="area-search-input"
-                    placeholder="Buscar área de interesse..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    autoFocus
-                  />
-                  <i className="fas fa-search search-icon"></i>
-                </div>
-
-                {/* Lista de áreas */}
-                <div className="areas-list">
-                  {filteredAreas.map((area, index) => {
-                    const isSelected = formData.interests.some(interest => interest.name === area.name);
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`area-option ${isSelected ? 'selected' : ''}`}
-                        onClick={() => addArea(area)}
-                        disabled={isSelected || formData.interests.length >= MAX_INTERESTS}
-                      >
-                        <span className="area-name">{area.name}</span>
-                        <span className="area-category" style={{ color: area.color }}>
-                          {area.category}
-                        </span>
-                        {isSelected && <i className="fas fa-check selected-icon"></i>}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {filteredAreas.length === 0 && (
-                  <div className="no-areas-found">
-                    <i className="fas fa-search"></i>
-                    <p>Nenhuma área encontrada</p>
+              <div className="area-selection-backdrop" onClick={handleBackdropClick}>
+                <div className="area-selection-modal">
+                  <div className="area-selection-header">
+                    <h3>Selecionar Área de Interesse</h3>
+                    <button
+                      type="button"
+                      className="close-area-selection"
+                      onClick={closeAreaSelection}
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
                   </div>
-                )}
+
+                  {/* Campo de busca */}
+                  <div className="area-search-container">
+                    <input
+                      type="text"
+                      className="area-search-input"
+                      placeholder="Buscar área de interesse..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      autoFocus
+                    />
+                    <i className="fas fa-search search-icon"></i>
+                  </div>
+
+                  {/* Lista de áreas */}
+                  <div className="areas-list">
+                    {filteredAreas.map((area, index) => {
+                      const isSelected = formData.interests.some(interest => interest.name === area.name);
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          className={`area-option ${isSelected ? 'selected' : ''}`}
+                          onClick={() => addArea(area)}
+                          disabled={isSelected || formData.interests.length >= MAX_INTERESTS}
+                        >
+                          <span className="area-name">{area.name}</span>
+                          <span className="area-category" style={{ color: area.color }}>
+                            {area.category}
+                          </span>
+                          {isSelected && <i className="fas fa-check selected-icon"></i>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {filteredAreas.length === 0 && (
+                    <div className="no-areas-found">
+                      <i className="fas fa-search"></i>
+                      <p>Nenhuma área encontrada</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
