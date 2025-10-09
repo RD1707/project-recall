@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
-import { fetchProfile, updateProfile, uploadAvatar } from '../api/profile';
+import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '../api/profile';
 import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
@@ -296,6 +296,29 @@ const styles = {
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text'
+    },
+    profileInterests: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        marginTop: '1rem',
+        marginBottom: '1rem'
+    },
+    interestTag: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '0.5rem 1rem',
+        borderRadius: '20px',
+        fontSize: '0.875rem',
+        fontWeight: '500',
+        color: 'white',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        transition: 'transform 0.2s ease',
+        cursor: 'default'
+    },
+    interestTagHover: {
+        transform: 'translateY(-1px)',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)'
     }
 };
 
@@ -528,6 +551,17 @@ function Profile() {
         }
     };
 
+    const handleBannerUpload = async (file) => {
+        try {
+            const result = await uploadBanner(file);
+            setUserData(prev => ({ ...prev, banner_url: result.bannerUrl }));
+            return result;
+        } catch (error) {
+            toast.error('Erro ao atualizar banner');
+            throw error;
+        }
+    };
+
     const formatStudyTime = (minutes) => {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
@@ -700,6 +734,31 @@ function Profile() {
                                 <h1 style={styles.profileName}>{userData.fullName || 'Usuário'}</h1>
                                 <p style={styles.profileUsername}>@{userData.username || 'usuario'}</p>
                                 {userData.bio && <p style={styles.profileBio}>{userData.bio}</p>}
+
+                                {/* Seção de Interesses */}
+                                {userData.interests && userData.interests.length > 0 && (
+                                    <div style={styles.profileInterests}>
+                                        {userData.interests.map((interest, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    ...styles.interestTag,
+                                                    backgroundColor: interest.color || '#6366f1'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.target.style.transform = 'translateY(-1px)';
+                                                    e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.target.style.transform = 'translateY(0px)';
+                                                    e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                                                }}
+                                            >
+                                                {interest.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </>
                         )}
 
@@ -1140,6 +1199,7 @@ function Profile() {
                 }}
                 onSave={handleProfileSave}
                 onAvatarUpload={handleAvatarUpload}
+                onBannerUpload={handleBannerUpload}
             />
         </>
     );

@@ -199,6 +199,7 @@ function ProfileModal({ isOpen, onClose, user, onProfileUpdate }) {
       onClose();
       
     } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
       toast.error("Erro ao atualizar perfil.");
     } finally {
       setLoading(false);
