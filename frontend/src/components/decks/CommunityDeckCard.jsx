@@ -124,8 +124,8 @@ function CommunityDeckCard({ deck }) {
                         disabled={isSubmittingRating}
                         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}
                     >
-                        <div style={{ display: 'flex', gap: '0.25rem' }}>
-                            <StarRating rating={averageRating} ratingCount={0} />
+                        <div style={{ display: 'flex', gap: '0.25rem', fontSize: '0.9rem' }}>
+                            <StarRating rating={averageRating} />
                         </div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                             {ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'}
@@ -133,14 +133,14 @@ function CommunityDeckCard({ deck }) {
                         {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{fontSize: '0.8rem'}}></i>}
                     </button>
                     <div className="deck-card__actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
+                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning} style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', minWidth: '90px' }}>
                             {isCloning ? (
                                 <><i className="fas fa-spinner fa-spin"></i> A clonar...</>
                             ) : (
                                 <><i className="fas fa-clone"></i> Clonar</>
                             )}
                         </button>
-                        <button onClick={handleViewClick} className="btn btn-primary btn-small">
+                        <button onClick={handleViewClick} className="btn btn-primary btn-small" style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', minWidth: '90px' }}>
                             <i className="fas fa-eye"></i> Ver Baralho
                         </button>
                     </div>
