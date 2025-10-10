@@ -364,12 +364,50 @@ const getPublicProfile = async (req, res) => {
             console.log(`🔍 DEBUG: Decks encontrados para ${username}:`, publicDecks?.length || 0);
         }
 
-        const formattedDecks = (publicDecks || []).map(deck => ({
-            ...deck,
-            card_count: deck.flashcards?.[0]?.count || 0,
-            average_rating: 0,
-            rating_count: 0
-        }));
+        // Buscar avaliações dos decks públicos
+        const deckIds = (publicDecks || []).map(deck => deck.id);
+        let ratingsData = [];
+
+        if (deckIds.length > 0) {
+            const { data: ratings, error: ratingsError } = await supabase
+                .from('deck_ratings')
+                .select('deck_id, rating')
+                .in('deck_id', deckIds);
+
+            if (ratingsError) {
+                logger.warn(`Error fetching ratings for public profile ${username}: ${ratingsError.message}`);
+            } else {
+                ratingsData = ratings || [];
+            }
+        }
+
+        // Mapear avaliações por deck_id
+        const ratingsMap = ratingsData.reduce((acc, rating) => {
+            if (!acc[rating.deck_id]) {
+                acc[rating.deck_id] = [];
+            }
+            acc[rating.deck_id].push(rating.rating);
+            return acc;
+        }, {});
+
+        const formattedDecks = (publicDecks || []).map(deck => {
+            const ratings = ratingsMap[deck.id] || [];
+            const average_rating = ratings.length > 0
+                ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+                : 0;
+            const rating_count = ratings.length;
+
+            return {
+                ...deck,
+                card_count: deck.flashcards?.[0]?.count || 0,
+                average_rating: Math.round(average_rating * 10) / 10,
+                rating_count,
+                author: {
+                    username: profile.username,
+                    avatar_url: profile.avatar_url
+                }
+            };
+        });
 
         const responsePayload = {
             profile: {

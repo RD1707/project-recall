@@ -8,6 +8,9 @@ import StarRating from '../community/StarRating';
 function CommunityDeckCard({ deck }) {
     const [isCloning, setIsCloning] = useState(false);
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+    const [averageRating, setAverageRating] = useState(deck.average_rating || 0);
+    const [ratingCount, setRatingCount] = useState(deck.rating_count || 0);
+    const [isSubmittingRating, setIsSubmittingRating] = useState(false);
     const navigate = useNavigate();
     const deckColor = deck.color || '#6366f1';
 
@@ -40,13 +43,30 @@ function CommunityDeckCard({ deck }) {
 
     const handleRateDeck = async (rating) => {
         setIsRatingModalOpen(false);
-        const promise = rateDeck(deck.id, rating);
+        setIsSubmittingRating(true);
 
-        toast.promise(promise, {
-            loading: 'A submeter avaliação...',
-            success: 'Obrigado pela sua avaliação!',
-            error: (err) => err.message || 'Não foi possível avaliar.',
-        });
+        // Atualização otimista - calcular nova média imediatamente
+        const oldAverageRating = averageRating;
+        const oldRatingCount = ratingCount;
+
+        const newRatingCount = ratingCount + 1;
+        const newAverageRating = ((averageRating * ratingCount) + rating) / newRatingCount;
+
+        // Atualizar UI imediatamente
+        setAverageRating(newAverageRating);
+        setRatingCount(newRatingCount);
+
+        try {
+            await rateDeck(deck.id, rating);
+            toast.success('Obrigado pela sua avaliação!');
+        } catch (err) {
+            // Reverter em caso de erro
+            setAverageRating(oldAverageRating);
+            setRatingCount(oldRatingCount);
+            toast.error(err.message || 'Não foi possível avaliar.');
+        } finally {
+            setIsSubmittingRating(false);
+        }
     };
 
     const handleAuthorClick = (e) => {
@@ -73,8 +93,9 @@ function CommunityDeckCard({ deck }) {
                     <p>{deck.description || 'Sem descrição'}</p>
                 </div>
                 <div className="deck-card__footer">
-                    <button className="rating-button" onClick={openRatingModal}>
-                        <StarRating rating={deck.average_rating || 0} ratingCount={deck.rating_count || 0} />
+                    <button className="rating-button" onClick={openRatingModal} disabled={isSubmittingRating}>
+                        <StarRating rating={averageRating} ratingCount={ratingCount} />
+                        {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{marginLeft: '8px'}}></i>}
                     </button>
                     <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
                         {isCloning ? (
