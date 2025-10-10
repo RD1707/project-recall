@@ -230,3 +230,40 @@ export const chatWithTutor = async (cardId, chatHistory) => {
         throw error;
     }
 };
+
+export const getCommunityExplanation = async (deckId, cardId) => {
+    try {
+        const response = await fetch(`/api/community/decks/${deckId}/flashcards/${cardId}/explain`, {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            }
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'getCommunityExplanation');
+        }
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const chatWithCommunityTutor = async (deckId, cardId, chatHistory) => {
+    try {
+        const response = await fetch(`/api/community/decks/${deckId}/flashcards/${cardId}/chat`, {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': await getAuthHeader()
+            },
+            body: JSON.stringify({ chatHistory })
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'chatWithCommunityTutor');
+        }
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};

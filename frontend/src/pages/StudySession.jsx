@@ -5,7 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { fetchDeckById, fetchCommunityDeckById } from '../api/decks';
 import Modal from '../components/common/Modal';
-import { fetchReviewCards, fetchCommunityReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
+import { fetchReviewCards, fetchCommunityReviewCards, submitReview, getExplanation, chatWithTutor, getCommunityExplanation, chatWithCommunityTutor } from '../api/flashcards';
 import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/study.css';
@@ -73,7 +73,7 @@ const LoadingScreen = () => (
     </div>
 );
 
-const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
+const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes, communityMode = false }) => {
     const chartData = {
         labels: ['Fácil', 'Bom', 'Difícil', 'Errei'],
         datasets: [{
@@ -126,7 +126,7 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
                     <button onClick={onRestart} className="btn btn-primary">
                         <i className="fas fa-play"></i> Estudar Novamente
                     </button>
-                    <Link to={`/deck/${deckId}`} className="btn btn-secondary">
+                    <Link to={communityMode ? `/community/deck/${deckId}` : `/deck/${deckId}`} className="btn btn-secondary">
                         <i className="fas fa-home"></i> Voltar ao Baralho
                     </Link>
                 </div>
@@ -446,7 +446,9 @@ function StudySession({ communityMode = false }) {
         setExplanation({ text: '', isLoading: true });
         setExplanationModalOpen(true);
         try {
-            const data = await getExplanation(currentCard.id);
+            const data = communityMode
+                ? await getCommunityExplanation(deckId, currentCard.id)
+                : await getExplanation(currentCard.id);
             setExplanation({ text: data.explanation, isLoading: false });
         } catch (error) {
             toast.error("Não foi possível carregar a explicação.");
@@ -477,12 +479,14 @@ function StudySession({ communityMode = false }) {
         setChatLoading(true);
 
         try {
-            const data = await chatWithTutor(currentCard.id, updatedMessages);
+            const data = communityMode
+                ? await chatWithCommunityTutor(deckId, currentCard.id, updatedMessages)
+                : await chatWithTutor(currentCard.id, updatedMessages);
             const aiResponseMessage = { role: 'CHATBOT', message: data.reply };
             setMessages(prev => [...prev, aiResponseMessage]);
         } catch (error) {
             toast.error("A IA não conseguiu responder. Tente novamente.");
-            setMessages(messages); 
+            setMessages(messages);
         } finally {
             setChatLoading(false);
         }
@@ -518,6 +522,7 @@ function StudySession({ communityMode = false }) {
                     const mistakeCards = allCards.filter(card => sessionStats.mistakes.has(card.id));
                     resetSession(mistakeCards);
                 }}
+                communityMode={communityMode}
             />
         );
     }

@@ -1,5 +1,14 @@
 const supabase = require('../config/supabaseClient');
 const logger = require('../config/logger');
+const { getExplanationForFlashcard, getChatResponse } = require('../services/cohereService');
+const { z } = require('zod');
+
+const chatSchema = z.object({
+    chatHistory: z.array(z.object({
+        role: z.enum(['USER', 'CHATBOT']),
+        message: z.string(),
+    })).min(1, 'O histórico do chat não pode estar vazio.'),
+});
 
 const getPublicDecks = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
@@ -410,10 +419,103 @@ const getReviewCardsForCommunityDeck = async (req, res) => {
     }
 };
 
+const getCommunityCardExplanation = async (req, res) => {
+    const { deckId, cardId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        // Verificar se o deck é público
+        const { data: deck, error: deckError } = await supabase
+            .from('decks')
+            .select('id, is_shared')
+            .eq('id', deckId)
+            .eq('is_shared', true)
+            .single();
+
+        if (deckError || !deck) {
+            return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        // Verificar se o card pertence ao deck
+        const { data: card, error: cardError } = await supabase
+            .from('flashcards')
+            .select('id, question, answer, deck_id')
+            .eq('id', cardId)
+            .eq('deck_id', deckId)
+            .single();
+
+        if (cardError || !card) {
+            return res.status(404).json({ message: 'Flashcard não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        const explanation = await getExplanationForFlashcard(card.question, card.answer);
+
+        if (!explanation) {
+            return res.status(500).json({ message: 'Não foi possível gerar a explicação no momento.', code: 'IA_SERVICE_ERROR' });
+        }
+
+        res.status(200).json({ explanation });
+
+    } catch (error) {
+        logger.error(`Error getting explanation for community card ${cardId} in deck ${deckId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro interno do servidor.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
+const chatWithCommunityTutor = async (req, res) => {
+    const { deckId, cardId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const { chatHistory } = chatSchema.parse(req.body);
+
+        // Verificar se o deck é público
+        const { data: deck, error: deckError } = await supabase
+            .from('decks')
+            .select('id, is_shared')
+            .eq('id', deckId)
+            .eq('is_shared', true)
+            .single();
+
+        if (deckError || !deck) {
+            return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        // Verificar se o card pertence ao deck
+        const { data: card, error: cardError } = await supabase
+            .from('flashcards')
+            .select('id, question, answer, deck_id')
+            .eq('id', cardId)
+            .eq('deck_id', deckId)
+            .single();
+
+        if (cardError || !card) {
+            return res.status(404).json({ message: 'Flashcard não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        const responseMessage = await getChatResponse(card.question, card.answer, chatHistory);
+
+        if (!responseMessage) {
+            return res.status(500).json({ message: 'Não foi possível gerar a resposta no momento.', code: 'IA_SERVICE_ERROR' });
+        }
+
+        res.status(200).json({ reply: responseMessage });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: 'Dados de entrada inválidos.', code: 'VALIDATION_ERROR' });
+        }
+        logger.error(`Error in community chat for card ${cardId} in deck ${deckId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro interno do servidor.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = {
     getPublicDecks,
     cloneDeck,
     rateDeck,
     getDeckForView,
-    getReviewCardsForCommunityDeck
+    getReviewCardsForCommunityDeck,
+    getCommunityCardExplanation,
+    chatWithCommunityTutor
 };

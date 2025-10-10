@@ -5956,3 +5956,4 @@
 >>>>>>> Stashed changes
 {"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:34:41"}
 {"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:34:46"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:54:47"}
