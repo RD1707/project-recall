@@ -6,6 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.use(authMiddleware.authenticateToken);
 
 router.get('/decks', communityController.getPublicDecks);
+router.get('/decks/:deckId/view', communityController.getDeckForView);
 router.post('/decks/:deckId/clone', communityController.cloneDeck);
 router.post('/decks/:deckId/rate', communityController.rateDeck);
 

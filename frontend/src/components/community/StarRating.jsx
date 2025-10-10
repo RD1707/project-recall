@@ -46,6 +46,7 @@ const StarRating = ({ rating, ratingCount, onRate }) => {
       </div>
       {ratingCount !== undefined && (
         <span className="rating-count">
+          {rating > 0 && <span className="rating-value">{rating.toFixed(1)}</span>}
           ({ratingCount})
         </span>
       )}

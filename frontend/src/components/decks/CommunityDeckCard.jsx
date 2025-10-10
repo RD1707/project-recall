@@ -45,20 +45,35 @@ function CommunityDeckCard({ deck }) {
         setIsRatingModalOpen(false);
         setIsSubmittingRating(true);
 
-        // Atualização otimista - calcular nova média imediatamente
+        // Backup dos valores atuais
         const oldAverageRating = averageRating;
         const oldRatingCount = ratingCount;
 
-        const newRatingCount = ratingCount + 1;
-        const newAverageRating = ((averageRating * ratingCount) + rating) / newRatingCount;
-
-        // Atualizar UI imediatamente
-        setAverageRating(newAverageRating);
-        setRatingCount(newRatingCount);
-
         try {
-            await rateDeck(deck.id, rating);
-            toast.success('Obrigado pela sua avaliação!');
+            const response = await rateDeck(deck.id, rating);
+
+            // Verificar se é atualização ou nova avaliação
+            const isUpdate = response.isUpdate;
+            const previousRating = response.previousRating;
+
+            let newAverageRating, newRatingCount;
+
+            if (isUpdate) {
+                // Atualização: remover avaliação anterior e adicionar nova
+                newRatingCount = ratingCount; // Mantém o mesmo número de avaliações
+                newAverageRating = ((averageRating * ratingCount) - previousRating + rating) / ratingCount;
+                toast.success('Avaliação atualizada com sucesso!');
+            } else {
+                // Nova avaliação: incrementar contador
+                newRatingCount = ratingCount + 1;
+                newAverageRating = ((averageRating * ratingCount) + rating) / newRatingCount;
+                toast.success('Obrigado pela sua avaliação!');
+            }
+
+            // Atualizar UI com valores corretos
+            setAverageRating(newAverageRating);
+            setRatingCount(newRatingCount);
+
         } catch (err) {
             // Reverter em caso de erro
             setAverageRating(oldAverageRating);
@@ -73,9 +88,19 @@ function CommunityDeckCard({ deck }) {
         e.stopPropagation();
     };
 
+    const handleCardClick = () => {
+        navigate(`/community/deck/${deck.id}`);
+    };
+
+    const handleViewClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate(`/community/deck/${deck.id}`);
+    };
+
     return (
         <>
-            <div className="community-deck-card" style={{ '--deck-color': deckColor }}>
+            <div className="community-deck-card" style={{ '--deck-color': deckColor }} onClick={handleCardClick}>
                 <Link to={`/profile/${deck.author?.username || 'unknown'}`} className="deck-card__author" onClick={handleAuthorClick}>
                     <div className="author-avatar">
                         {deck.author?.avatar_url ? (
@@ -97,13 +122,18 @@ function CommunityDeckCard({ deck }) {
                         <StarRating rating={averageRating} ratingCount={ratingCount} />
                         {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{marginLeft: '8px'}}></i>}
                     </button>
-                    <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
-                        {isCloning ? (
-                            <><i className="fas fa-spinner fa-spin"></i> A clonar...</>
-                        ) : (
-                            <><i className="fas fa-clone"></i> Clonar</>
-                        )}
-                    </button>
+                    <div className="deck-card__actions">
+                        <button onClick={handleViewClick} className="btn btn-primary btn-small">
+                            <i className="fas fa-eye"></i> Ver Baralho
+                        </button>
+                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
+                            {isCloning ? (
+                                <><i className="fas fa-spinner fa-spin"></i> A clonar...</>
+                            ) : (
+                                <><i className="fas fa-clone"></i> Clonar</>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
 

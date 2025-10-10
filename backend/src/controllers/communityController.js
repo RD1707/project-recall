@@ -245,21 +245,39 @@ const rateDeck = async (req, res) => {
 
     try {
         const { rating } = req.body;
-        
+
         if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) {
             return res.status(400).json({ message: "A avaliação deve ser um número inteiro de 1 a 5.", code: 'VALIDATION_ERROR' });
         }
+
+        // Verificar se já existe uma avaliação deste usuário para este deck
+        const { data: existingRating, error: checkError } = await supabase
+            .from('deck_ratings')
+            .select('rating')
+            .eq('deck_id', deckId)
+            .eq('user_id', userId)
+            .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+            throw checkError;
+        }
+
+        const isUpdate = !!existingRating;
 
         const { error } = await supabase
             .from('deck_ratings')
             .upsert(
                 { deck_id: deckId, user_id: userId, rating: rating },
-                { onConflict: 'deck_id, user_id' } 
+                { onConflict: 'deck_id, user_id' }
             );
 
         if (error) throw error;
 
-        res.status(201).json({ message: 'Avaliação registrada com sucesso!' });
+        res.status(201).json({
+            message: isUpdate ? 'Avaliação atualizada com sucesso!' : 'Avaliação registrada com sucesso!',
+            isUpdate: isUpdate,
+            previousRating: existingRating?.rating || null
+        });
 
     } catch (error) {
         logger.error(`Error rating deck ${deckId} for user ${userId}: ${error.message}`);
@@ -268,8 +286,87 @@ const rateDeck = async (req, res) => {
 };
 
 
+const getDeckForView = async (req, res) => {
+    const { deckId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        // Buscar o deck público
+        const { data: deck, error: deckError } = await supabase
+            .from('decks')
+            .select(`
+                id,
+                title,
+                description,
+                color,
+                created_at,
+                user_id,
+                flashcards(count),
+                profiles (
+                    username,
+                    avatar_url
+                )
+            `)
+            .eq('id', deckId)
+            .eq('is_shared', true)
+            .single();
+
+        if (deckError || !deck) {
+            return res.status(404).json({ message: 'Baralho não encontrado ou não é público.', code: 'DECK_NOT_FOUND' });
+        }
+
+        // Buscar flashcards do deck
+        const { data: flashcards, error: flashcardsError } = await supabase
+            .from('flashcards')
+            .select('id, question, answer, card_type, options')
+            .eq('deck_id', deckId)
+            .order('created_at', { ascending: true });
+
+        if (flashcardsError) {
+            logger.error(`Error fetching flashcards for deck ${deckId}: ${flashcardsError.message}`);
+            throw flashcardsError;
+        }
+
+        // Buscar avaliações do deck
+        const { data: ratings, error: ratingsError } = await supabase
+            .from('deck_ratings')
+            .select('rating')
+            .eq('deck_id', deckId);
+
+        if (ratingsError) {
+            logger.warn(`Error fetching ratings for deck ${deckId}: ${ratingsError.message}`);
+        }
+
+        const ratingsData = ratings || [];
+        const average_rating = ratingsData.length > 0
+            ? ratingsData.reduce((sum, r) => sum + r.rating, 0) / ratingsData.length
+            : 0;
+
+        const responseData = {
+            id: deck.id,
+            title: deck.title,
+            description: deck.description,
+            color: deck.color,
+            created_at: deck.created_at,
+            user_id: deck.user_id,
+            card_count: deck.flashcards[0]?.count || 0,
+            average_rating: Math.round(average_rating * 10) / 10,
+            rating_count: ratingsData.length,
+            author: deck.profiles || { username: 'Anônimo', avatar_url: null },
+            flashcards: flashcards || []
+        };
+
+        res.status(200).json(responseData);
+
+    } catch (error) {
+        logger.error(`Error fetching deck ${deckId} for view: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao buscar o baralho.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = {
     getPublicDecks,
     cloneDeck,
-    rateDeck
+    rateDeck,
+    getDeckForView
 };

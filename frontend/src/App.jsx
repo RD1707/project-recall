@@ -31,6 +31,7 @@ import Ranking from './pages/Ranking';
 import QuizLobby from './pages/QuizLobby';
 import QuizGame from './pages/QuizGame';
 import Community from './pages/Community';
+import CommunityDeckView from './pages/CommunityDeckView';
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -81,6 +82,7 @@ function App() {
             <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />
             <Route path="/quiz/game/:roomId" element={<ProtectedRoute><QuizGame /></ProtectedRoute>} />
             <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+            <Route path="/community/deck/:deckId" element={<ProtectedRoute><CommunityDeckView /></ProtectedRoute>} />
             <Route path="/my-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
             <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfile /></ProtectedRoute>} />
