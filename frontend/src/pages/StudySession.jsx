@@ -3,9 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { fetchDeckById } from '../api/decks';
+import { fetchDeckById, fetchCommunityDeckById } from '../api/decks';
 import Modal from '../components/common/Modal';
-import { fetchReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
+import { fetchReviewCards, fetchCommunityReviewCards, submitReview, getExplanation, chatWithTutor } from '../api/flashcards';
 import { useAchievementActions } from '../hooks/useAchievementActions';
 
 import '../assets/css/study.css';
@@ -135,7 +135,7 @@ const CompletionScreen = ({ stats, deckId, onRestart, onReviewMistakes }) => {
     );
 };
 
-const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats }) => {
+const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats, communityMode = false }) => {
     const { deckId } = useParams();
     const progress = totalCards > 0 ? ((currentIndex + 1) / totalCards) * 100 : 0;
 
@@ -143,7 +143,7 @@ const StudyHeader = ({ deckTitle, timer, currentIndex, totalCards, sessionStats 
         <header className="study-header">
             <div className="header-container">
                 <div className="header-left">
-                    <Link to={`/deck/${deckId}`} className="icon-btn ghost" aria-label="Voltar ao baralho">
+                    <Link to={communityMode ? `/community/deck/${deckId}` : `/deck/${deckId}`} className="icon-btn ghost" aria-label="Voltar ao baralho">
                         <i className="fas fa-arrow-left"></i>
                     </Link>
                     <div className="deck-info">
@@ -257,7 +257,7 @@ const ResponseControls = ({ isFlipped, onFlip, onQualitySelect, card, onOptionSe
     );
 };
 
-function StudySession() {
+function StudySession({ communityMode = false }) {
     const { deckId } = useParams();
     const navigate = useNavigate();
     const { triggerAchievementUpdate } = useAchievementActions();
@@ -310,13 +310,13 @@ function StudySession() {
             setStatus('loading');
             try {
                 const [reviewCards, deckData] = await Promise.all([
-                    fetchReviewCards(deckId),
-                    fetchDeckById(deckId)
+                    communityMode ? fetchCommunityReviewCards(deckId) : fetchReviewCards(deckId),
+                    communityMode ? fetchCommunityDeckById(deckId) : fetchDeckById(deckId)
                 ]);
 
                 if (reviewCards.length === 0) {
                     toast.success("Tudo em dia! Não há cards para revisar agora.");
-                    navigate(`/deck/${deckId}`);
+                    navigate(communityMode ? `/community/deck/${deckId}` : `/deck/${deckId}`);
                     return;
                 }
                 
@@ -333,11 +333,11 @@ function StudySession() {
                 setStatus('studying');
             } catch (error) {
                 toast.error("Não foi possível carregar a sessão de estudo.");
-                navigate(`/deck/${deckId}`);
+                navigate(communityMode ? `/community/deck/${deckId}` : `/deck/${deckId}`);
             }
         };
         loadData();
-    }, [deckId, navigate]);
+    }, [deckId, navigate, communityMode]);
     
      useEffect(() => {
         if (status === 'studying') {
@@ -412,15 +412,20 @@ function StudySession() {
             return statsUpdate;
         });
 
-        submitReview(currentCard.id, quality)
-            .then(() => {
-                triggerAchievementUpdate('review');
-            })
-            .catch(() => toast.error("Não foi possível salvar sua resposta."))
-            .finally(() => {
-                setTimeout(handleNextCard, 300);
-            });
-    }, [isFlipped, isSubmitting, currentCard, handleNextCard, triggerAchievementUpdate]); // <<-- Adicione isSubmitting aqui
+        // Para baralhos da comunidade, não salvamos o review na base de dados
+        if (communityMode) {
+            setTimeout(handleNextCard, 300);
+        } else {
+            submitReview(currentCard.id, quality)
+                .then(() => {
+                    triggerAchievementUpdate('review');
+                })
+                .catch(() => toast.error("Não foi possível salvar sua resposta."))
+                .finally(() => {
+                    setTimeout(handleNextCard, 300);
+                });
+        }
+    }, [isFlipped, isSubmitting, currentCard, handleNextCard, triggerAchievementUpdate, communityMode]);
 
     const handleOptionSelect = (selectedOption) => {
         if (answerStatus) return;
@@ -525,6 +530,7 @@ function StudySession() {
                 currentIndex={currentIndex}
                 totalCards={cardsToStudy.length}
                 sessionStats={sessionStats}
+                communityMode={communityMode}
             />
             <main className={`study-main ${isChatOpen ? 'chat-visible' : ''}`}>
                 <div className="study-container">

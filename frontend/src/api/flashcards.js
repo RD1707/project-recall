@@ -161,6 +161,20 @@ export const fetchReviewCards = async (deckId) => {
     }
 };
 
+export const fetchCommunityReviewCards = async (deckId) => {
+    try {
+        const response = await fetch(`/api/community/decks/${deckId}/review`, {
+            headers: { 'Authorization': await getAuthHeader() }
+        });
+        if (!response.ok) {
+            await handleApiError(response, 'fetchCommunityReviewCards');
+        }
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const submitReview = async (cardId, quality) => {
     try {
         const response = await fetch(`/api/flashcards/${cardId}/review`, {

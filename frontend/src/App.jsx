@@ -77,6 +77,7 @@ function App() {
             <Route path="/sinapse" element={<ProtectedRoute><Sinapse /></ProtectedRoute>} />
             <Route path="/deck/:deckId" element={<ProtectedRoute><DeckDetail /></ProtectedRoute>} />
             <Route path="/study/:deckId" element={<ProtectedRoute><StudySession /></ProtectedRoute>} />
+            <Route path="/study/community/:deckId" element={<ProtectedRoute><StudySession communityMode={true} /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
             <Route path="/ranking" element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
             <Route path="/quiz/:roomId" element={<ProtectedRoute><QuizLobby /></ProtectedRoute>} />

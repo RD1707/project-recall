@@ -364,9 +364,56 @@ const getDeckForView = async (req, res) => {
     }
 };
 
+const getReviewCardsForCommunityDeck = async (req, res) => {
+    const { deckId } = req.params;
+    const userId = req.user.id;
+    const today = new Date().toISOString();
+
+    try {
+        // Verificar se o deck é público
+        const { data: deck, error: deckError } = await supabase
+            .from('decks')
+            .select('id, is_shared')
+            .eq('id', deckId)
+            .eq('is_shared', true)
+            .single();
+
+        if (deckError || !deck) {
+            return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
+        }
+
+        // Buscar flashcards para estudo (todos os cards para baralhos da comunidade)
+        const { data, error } = await supabase
+            .from('flashcards')
+            .select('*')
+            .eq('deck_id', deckId)
+            .limit(20);
+
+        if (error) throw error;
+
+        // Para baralhos da comunidade, inicializar cards com valores padrão de SRS
+        const cardsWithSRS = data.map(card => ({
+            ...card,
+            repetition: 0,
+            interval: 1,
+            ease_factor: 2.5,
+            due_date: today,
+            // Adicionar um identificador para indicar que é um card da comunidade
+            is_community_card: true
+        }));
+
+        res.status(200).json(cardsWithSRS);
+
+    } catch (error) {
+        logger.error(`Error fetching review cards for community deck ${deckId}: ${error.message}`);
+        res.status(500).json({ message: 'Erro ao buscar flashcards para revisão.', code: 'INTERNAL_SERVER_ERROR' });
+    }
+};
+
 module.exports = {
     getPublicDecks,
     cloneDeck,
     rateDeck,
-    getDeckForView
+    getDeckForView,
+    getReviewCardsForCommunityDeck
 };

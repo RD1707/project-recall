@@ -167,7 +167,7 @@ function CommunityDeckView() {
     }, [deck]);
 
     const handleStudy = () => {
-        navigate(`/study/${deckId}`);
+        navigate(`/study/community/${deckId}`);
     };
 
     const handleClone = async () => {

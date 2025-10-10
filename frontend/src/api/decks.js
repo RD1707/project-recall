@@ -249,14 +249,37 @@ export const rateDeck = async (deckId, rating) => {
 export const fetchSharedDeck = async (shareableId) => {
   try {
     const response = await fetch(`/api/shared/${shareableId}`);
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || 'Baralho compartilhado não encontrado');
     }
-    
+
     return await response.json();
   } catch (error) {
     return handleApiError(error, 'fetchSharedDeck');
+  }
+};
+
+export const fetchCommunityDeckById = async (deckId) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Utilizador não autenticado');
+
+    const response = await fetch(`/api/community/decks/${deckId}/view`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Baralho da comunidade não encontrado');
+    }
+
+    return await response.json();
+  } catch (error) {
+    return handleApiError(error, 'fetchCommunityDeckById');
   }
 };
