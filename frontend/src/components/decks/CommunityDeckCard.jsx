@@ -122,32 +122,25 @@ function CommunityDeckCard({ deck }) {
                         className="rating-button" 
                         onClick={openRatingModal} 
                         disabled={isSubmittingRating}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', fontSize: '1.1rem' }}>
-                                <StarRating rating={averageRating} ratingCount={0} />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.15rem' }}>
-                                <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text)' }}>
-                                    {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
-                                </span>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                                    ({ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'})
-                                </span>
-                            </div>
+                        <div style={{ display: 'flex', gap: '0.25rem' }}>
+                            <StarRating rating={averageRating} ratingCount={0} />
                         </div>
-                        {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{marginLeft: '8px'}}></i>}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                            {ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'}
+                        </span>
+                        {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{fontSize: '0.8rem'}}></i>}
                     </button>
-                    <div className="deck-card__actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning} style={{ minWidth: '130px' }}>
+                    <div className="deck-card__actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
                             {isCloning ? (
                                 <><i className="fas fa-spinner fa-spin"></i> A clonar...</>
                             ) : (
                                 <><i className="fas fa-clone"></i> Clonar</>
                             )}
                         </button>
-                        <button onClick={handleViewClick} className="btn btn-primary btn-small" style={{ minWidth: '130px' }}>
+                        <button onClick={handleViewClick} className="btn btn-primary btn-small">
                             <i className="fas fa-eye"></i> Ver Baralho
                         </button>
                     </div>
