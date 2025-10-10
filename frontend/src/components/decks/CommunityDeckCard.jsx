@@ -117,21 +117,38 @@ function CommunityDeckCard({ deck }) {
                 <div className="deck-card__body">
                     <p>{deck.description || 'Sem descrição'}</p>
                 </div>
-                <div className="deck-card__footer">
-                    <button className="rating-button" onClick={openRatingModal} disabled={isSubmittingRating}>
-                        <StarRating rating={averageRating} ratingCount={ratingCount} />
+                <div className="deck-card__footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.5rem', borderTop: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
+                    <button 
+                        className="rating-button" 
+                        onClick={openRatingModal} 
+                        disabled={isSubmittingRating}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', fontSize: '1.1rem' }}>
+                                <StarRating rating={averageRating} ratingCount={0} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.15rem' }}>
+                                <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                                    {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+                                </span>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                                    ({ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'})
+                                </span>
+                            </div>
+                        </div>
                         {isSubmittingRating && <i className="fas fa-spinner fa-spin" style={{marginLeft: '8px'}}></i>}
                     </button>
-                    <div className="deck-card__actions">
-                        <button onClick={handleViewClick} className="btn btn-primary btn-small">
-                            <i className="fas fa-eye"></i> Ver Baralho
-                        </button>
-                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning}>
+                    <div className="deck-card__actions" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <button onClick={handleCloneClick} className="clone-button" disabled={isCloning} style={{ minWidth: '130px' }}>
                             {isCloning ? (
                                 <><i className="fas fa-spinner fa-spin"></i> A clonar...</>
                             ) : (
                                 <><i className="fas fa-clone"></i> Clonar</>
                             )}
+                        </button>
+                        <button onClick={handleViewClick} className="btn btn-primary btn-small" style={{ minWidth: '130px' }}>
+                            <i className="fas fa-eye"></i> Ver Baralho
                         </button>
                     </div>
                 </div>
