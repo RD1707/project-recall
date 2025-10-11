@@ -43,13 +43,25 @@ const CommunityDeckHeader = ({ deck, onStudy, onClone, onRate, averageRating, ra
                         <><i className="fas fa-clone"></i> Clonar Baralho</>
                     )}
                 </button>
-                <div className="deck-rating-section">
-                    <StarRating
-                        rating={averageRating}
-                        ratingCount={ratingCount}
-                        onRate={onRate}
-                        showExactRating={true}
-                    />
+                <div className="deck-rating-container">
+                    <button
+                        className="rating-button"
+                        onClick={onRate}
+                    >
+                        <div className="rating-stars-row">
+                            <StarRating rating={averageRating} />
+                            <div className="rating-score">
+                                {averageRating > 0 ? (
+                                    averageRating % 1 === 0 ?
+                                    averageRating.toFixed(0) :
+                                    averageRating.toFixed(2).replace(/\.?0+$/, '')
+                                ) : '0'}
+                            </div>
+                        </div>
+                        <span className="rating-count-text">
+                            {ratingCount} {ratingCount === 1 ? 'avaliação' : 'avaliações'}
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>

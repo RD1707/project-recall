@@ -5965,3 +5965,13 @@
 {"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:34:41"}
 {"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:34:46"}
 {"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 20:54:47"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:19"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:24"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:29"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:34"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:39"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:44"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:50"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:31:55"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:32:00"}
+{"level":"error","message":"Erro de conexão com o Redis: connect ETIMEDOUT","service":"recall-api","timestamp":"2025-10-10 22:32:06"}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const StarRating = ({ rating, ratingCount, onRate, showExactRating = false }) => {
+const StarRating = ({ rating, ratingCount, onRate }) => {
   const [hoverRating, setHoverRating] = useState(0);
 
   const handleRate = (rate) => {
@@ -46,14 +46,7 @@ const StarRating = ({ rating, ratingCount, onRate, showExactRating = false }) =>
       </div>
       {ratingCount !== undefined && (
         <span className="rating-count">
-          {rating > 0 && (
-            <span className="rating-value">
-              {showExactRating ?
-                (rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(2).replace(/\.?0+$/, '')) :
-                rating.toFixed(1)
-              }
-            </span>
-          )}
+          {rating > 0 && <span className="rating-value">{rating.toFixed(1)}</span>}
           ({ratingCount})
         </span>
       )}
