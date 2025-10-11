@@ -43,9 +43,14 @@ const CommunityDeckHeader = ({ deck, onStudy, onClone, onRate, averageRating, ra
                         <><i className="fas fa-clone"></i> Clonar Baralho</>
                     )}
                 </button>
-                <button onClick={onRate} className="btn btn-outline">
-                    <i className="fas fa-star"></i> Avaliar
-                </button>
+                <div className="deck-rating-section">
+                    <StarRating
+                        rating={averageRating}
+                        ratingCount={ratingCount}
+                        onRate={onRate}
+                        showExactRating={true}
+                    />
+                </div>
             </div>
         </div>
     </section>
