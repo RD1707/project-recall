@@ -26,6 +26,10 @@ const deckSchema = z.object({
   title: z.string({ required_error: 'O título é obrigatório.' }).min(1, 'O título não pode estar vazio.'),
   description: z.string().optional(),
   color: z.string().optional(),
+  tags: z.array(z.object({
+    name: z.string(),
+    color: z.string()
+  })).optional().default([]),
 });
 
 const generateSchema = z.object({
@@ -67,12 +71,12 @@ const createDeck = async (req, res) => {
   console.log(" REQ BODY:", req.body);
   logger.info(`[CREATE DECK] Usuário ${userId} tentando criar deck`);
   try {
-    const { title, description, color } = deckSchema.parse(req.body);
-    console.log(" DADOS DO DECK PARSED:", { title, description, color });
+    const { title, description, color, tags } = deckSchema.parse(req.body);
+    console.log(" DADOS DO DECK PARSED:", { title, description, color, tags });
 
     const { data, error } = await supabase
       .from('decks')
-      .insert([{ title, description, user_id: userId, color }])
+      .insert([{ title, description, user_id: userId, color, tags }])
       .select()
       .single();
 
@@ -113,20 +117,26 @@ const updateDeck = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
     try {
-        const { title, description, color } = deckSchema.parse(req.body);
+        const { title, description, color, tags } = deckSchema.parse(req.body);
 
         const { data, error } = await supabase
             .from('decks')
-            .update({ title, description, color })
+            .update({ title, description, color, tags })
             .eq('id', id)
             .eq('user_id', userId)
-            .select()
+            .select('*, flashcards(count)')
             .single();
 
         if (error) throw error;
         if (!data) return res.status(404).json({ message: 'Baralho não encontrado ou você não tem permissão para editá-lo.', code: 'NOT_FOUND' });
 
-        res.status(200).json({ message: 'Baralho atualizado com sucesso!', deck: data });
+        // Adicionar card_count consistente com outros endpoints
+        const deckWithCount = {
+            ...data,
+            card_count: data.flashcards[0]?.count || 0
+        };
+
+        res.status(200).json({ message: 'Baralho atualizado com sucesso!', deck: deckWithCount });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({ message: error.errors[0].message, code: 'VALIDATION_ERROR' });

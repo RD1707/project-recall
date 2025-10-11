@@ -128,6 +128,7 @@ function Community() {
                         style={{ width: '200px', height: '44px' }}
                     >
                         <option value="">Todos os Baralhos</option>
+                        <option value="recommended">Recomendados</option>
                         <option value="my_decks">Meus Baralhos</option>
                         <option value="others">Outros Baralhos</option>
                     </select>

@@ -44,10 +44,103 @@ const getPublicDecks = async (req, res) => {
 
         if (filterType === 'my_decks') {
             logger.info(`[GET PUBLIC DECKS] Aplicando filtro: apenas baralhos do usuário ${userId}`);
-            query = query.eq('user_id', userId); 
+            query = query.eq('user_id', userId);
         } else if (filterType === 'others') {
             logger.info(`[GET PUBLIC DECKS] Aplicando filtro: apenas baralhos de outros usuários (excluindo ${userId})`);
-            query = query.neq('user_id', userId); 
+            query = query.neq('user_id', userId);
+        } else if (filterType === 'recommended') {
+            logger.info(`[GET PUBLIC DECKS] Aplicando filtro de recomendações para usuário ${userId}`);
+
+            // Buscar interesses do usuário
+            const { data: userProfile, error: profileError } = await supabase
+                .from('profiles')
+                .select('interests')
+                .eq('id', userId)
+                .single();
+
+            if (profileError || !userProfile?.interests || userProfile.interests.length === 0) {
+                logger.info(`[GET PUBLIC DECKS] Usuário não tem interesses definidos, retornando decks vazios`);
+                return res.json({ decks: [], total: 0 });
+            }
+
+            // Extrair apenas os nomes das áreas de interesse
+            const userInterestNames = userProfile.interests.map(interest => interest.name);
+            logger.info(`[GET PUBLIC DECKS] Interesses do usuário: ${userInterestNames.join(', ')}`);
+
+            // Buscar todos os decks públicos com tags
+            let recommendationQuery = supabase
+                .from('decks')
+                .select(`
+                    id,
+                    title,
+                    description,
+                    color,
+                    created_at,
+                    published_at,
+                    user_id,
+                    tags,
+                    flashcards(count),
+                    profiles (
+                        username,
+                        avatar_url
+                    )
+                `)
+                .eq('is_shared', true)
+                .neq('user_id', userId) // Excluir decks do próprio usuário
+                .not('tags', 'is', null) // Apenas decks com tags
+                .range(from, to);
+
+            // Aplicar filtro de busca se existir
+            if (searchTerm) {
+                recommendationQuery = recommendationQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+            }
+
+            // Aplicar ordenação
+            switch (sortBy) {
+                case 'created_at':
+                    recommendationQuery = recommendationQuery.order('published_at', { ascending: false, nullsLast: true })
+                                                            .order('created_at', { ascending: false });
+                    break;
+                case 'created_at_asc':
+                    recommendationQuery = recommendationQuery.order('created_at', { ascending: true });
+                    break;
+                case 'engagement':
+                    recommendationQuery = recommendationQuery.order('created_at', { ascending: false });
+                    break;
+                default:
+                    recommendationQuery = recommendationQuery.order('created_at', { ascending: false });
+            }
+
+            const { data: allDecks, error: recommendedError } = await recommendationQuery;
+
+            if (recommendedError) {
+                logger.error(`[GET PUBLIC DECKS] Erro ao buscar recomendações: ${recommendedError.message}`);
+                throw recommendedError;
+            }
+
+            // Filtrar decks que têm pelo menos uma tag em comum com os interesses do usuário
+            const recommendedDecks = allDecks.filter(deck => {
+                if (!deck.tags || !Array.isArray(deck.tags)) return false;
+
+                const deckTagNames = deck.tags.map(tag => tag.name);
+                const hasCommonTag = userInterestNames.some(interest =>
+                    deckTagNames.includes(interest)
+                );
+
+                return hasCommonTag;
+            });
+
+            // Formatar dados para o frontend
+            const formattedDecks = recommendedDecks.map(deck => {
+                const { flashcards, ...deckData } = deck;
+                return {
+                    ...deckData,
+                    card_count: flashcards?.[0]?.count || 0
+                };
+            });
+
+            logger.info(`[GET PUBLIC DECKS] Encontrados ${formattedDecks.length} decks recomendados`);
+            return res.json(formattedDecks);
         } else {
             logger.info(`[GET PUBLIC DECKS] Sem filtro de usuário: mostrando todos os baralhos públicos`);
         }
