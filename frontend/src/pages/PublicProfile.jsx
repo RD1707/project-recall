@@ -403,7 +403,7 @@ function PublicProfile() {
                     {decks.length > 0 ? (
                         <div className="community-grid">
                             {decks.map(deck => (
-                                <CommunityDeckCard key={deck.id} deck={deck} />
+                                <CommunityDeckCard key={deck.id} deck={deck} fromProfile={profile.username} />
                             ))}
                         </div>
                     ) : (

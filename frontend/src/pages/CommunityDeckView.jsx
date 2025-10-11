@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 import Header from '../components/common/Header';
@@ -17,10 +17,10 @@ const LoadingComponent = () => (
 );
 
 // Componente do cabeçalho para visualização da comunidade
-const CommunityDeckHeader = ({ deck, onStudy, onClone, onRate, averageRating, ratingCount, isCloning }) => (
+const CommunityDeckHeader = ({ deck, onStudy, onClone, onRate, averageRating, ratingCount, isCloning, backUrl, backText }) => (
     <section className="deck-hero">
         <div className="hero-content">
-            <Link to="/community" className="back-btn"><i className="fas fa-arrow-left"></i> Voltar à Comunidade</Link>
+            <Link to={backUrl} className="back-btn"><i className="fas fa-arrow-left"></i> {backText}</Link>
             <div className="deck-info">
                 <h1 id="deck-title-heading">{deck.title}</h1>
                 <p className="deck-description">{deck.description || 'Sem descrição para este baralho.'}</p>
@@ -137,6 +137,7 @@ const FlashcardList = ({ flashcards }) => (
 function CommunityDeckView() {
     const { deckId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const [deck, setDeck] = useState(null);
     const [status, setStatus] = useState('loading');
@@ -144,6 +145,12 @@ function CommunityDeckView() {
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
     const [averageRating, setAverageRating] = useState(0);
     const [ratingCount, setRatingCount] = useState(0);
+
+    // Verificar origem da navegação
+    const fromProfile = searchParams.get('from') === 'profile';
+    const username = searchParams.get('username');
+    const backUrl = fromProfile && username ? `/profile/${username}` : '/community';
+    const backText = fromProfile ? 'Voltar ao Perfil' : 'Voltar à Comunidade';
 
     useEffect(() => {
         const loadDeckData = async () => {
@@ -280,6 +287,8 @@ function CommunityDeckView() {
                     averageRating={averageRating}
                     ratingCount={ratingCount}
                     isCloning={isCloning}
+                    backUrl={backUrl}
+                    backText={backText}
                 />
                 <CommunityDeckStats
                     stats={stats}

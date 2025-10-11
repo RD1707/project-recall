@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import Modal from '../common/Modal';
 import StarRating from '../community/StarRating';
 
-function CommunityDeckCard({ deck }) {
+function CommunityDeckCard({ deck, fromProfile }) {
     const [isCloning, setIsCloning] = useState(false);
     const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
     const [averageRating, setAverageRating] = useState(deck.average_rating || 0);
@@ -89,13 +89,19 @@ function CommunityDeckCard({ deck }) {
     };
 
     const handleCardClick = () => {
-        navigate(`/community/deck/${deck.id}`);
+        const url = fromProfile
+            ? `/community/deck/${deck.id}?from=profile&username=${fromProfile}`
+            : `/community/deck/${deck.id}`;
+        navigate(url);
     };
 
     const handleViewClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        navigate(`/community/deck/${deck.id}`);
+        const url = fromProfile
+            ? `/community/deck/${deck.id}?from=profile&username=${fromProfile}`
+            : `/community/deck/${deck.id}`;
+        navigate(url);
     };
 
     return (
