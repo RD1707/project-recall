@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/common/Header';
-import { fetchProfile, updateProfile, uploadAvatar, uploadBanner } from '../api/profile';
+import { fetchProfile, updateProfile, uploadAvatar } from '../api/profile';
 import { useAchievements } from '../context/AchievementsContext';
 import { fetchAnalyticsSummary } from '../api/analytics';
 import { fetchLeaderboard } from '../api/profile';
 import { fetchRecentActivity } from '../api/activity';
+import { recalculateAchievements } from '../api/achievements'; // Importado aqui
 import EditProfileModal from '../components/profile/EditProfileModal';
 import toast from 'react-hot-toast';
 import '../assets/css/profile.css';
@@ -296,29 +297,6 @@ const styles = {
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text'
-    },
-    profileInterests: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.5rem',
-        marginTop: '1rem',
-        marginBottom: '1rem'
-    },
-    interestTag: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '0.5rem 1rem',
-        borderRadius: '20px',
-        fontSize: '0.875rem',
-        fontWeight: '500',
-        color: 'white',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        transition: 'transform 0.2s ease',
-        cursor: 'default'
-    },
-    interestTagHover: {
-        transform: 'translateY(-1px)',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)'
     }
 };
 
@@ -372,17 +350,24 @@ function Profile() {
     const [userRank, setUserRank] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
 
-    // ATUALIZA AS CONQUISTAS QUANDO A PÁGINA É CARREGADA
+    // CORREÇÃO: Sincroniza conquistas ao carregar a página
     useEffect(() => {
+        const syncAchievements = async () => {
+            try {
+                await recalculateAchievements();
+                loadAchievements(true); // Recarrega os dados silenciosamente
+            } catch (error) {
+                console.error("Falha na sincronização automática de conquistas:", error);
+            }
+        };
+        syncAchievements();
         loadAllData();
-        loadAchievements();
     }, [loadAchievements]);
+
 
     // Processa as conquistas quando elas mudam no contexto
     useEffect(() => {
         if (contextAchievements && contextAchievements.length > 0) {
-            console.log('Conquistas do contexto:', contextAchievements); // Debug
-            // Formatar as conquistas para o formato esperado
             const formattedAchievements = contextAchievements.map(ach => ({
                 ...ach,
                 unlocked: !!ach.unlocked_at,
@@ -392,11 +377,7 @@ function Profile() {
                 progress: ach.progress || 0,
                 goal: ach.goal || 1
             }));
-            console.log('Conquistas formatadas:', formattedAchievements); // Debug
             setAchievements(formattedAchievements);
-            
-            // As atividades recentes agora são carregadas diretamente da API
-            // Não precisamos mais criar atividades falsas baseadas nas conquistas
         }
     }, [contextAchievements]);
 
@@ -413,8 +394,6 @@ function Profile() {
                     bio: profileData.bio || ''
                 });
             }
-
-            // As conquistas agora são carregadas do contexto
 
             // Load statistics
             try {
@@ -451,7 +430,6 @@ function Profile() {
                 setRecentActivity(activityData || []);
             } catch (error) {
                 console.error('Error loading recent activity:', error);
-                // Não mostra toast de erro para atividade recente, pois é opcional
             } finally {
                 setActivityLoading(false);
             }
@@ -547,17 +525,6 @@ function Profile() {
             return result;
         } catch (error) {
             toast.error('Erro ao atualizar avatar');
-            throw error;
-        }
-    };
-
-    const handleBannerUpload = async (file) => {
-        try {
-            const result = await uploadBanner(file);
-            setUserData(prev => ({ ...prev, banner_url: result.bannerUrl }));
-            return result;
-        } catch (error) {
-            toast.error('Erro ao atualizar banner');
             throw error;
         }
     };
@@ -734,31 +701,6 @@ function Profile() {
                                 <h1 style={styles.profileName}>{userData.fullName || 'Usuário'}</h1>
                                 <p style={styles.profileUsername}>@{userData.username || 'usuario'}</p>
                                 {userData.bio && <p style={styles.profileBio}>{userData.bio}</p>}
-
-                                {/* Seção de Áreas de Interesse */}
-                                {userData.interests && userData.interests.length > 0 && (
-                                    <div style={styles.profileInterests}>
-                                        {userData.interests.map((interest, index) => (
-                                            <div
-                                                key={index}
-                                                style={{
-                                                    ...styles.interestTag,
-                                                    backgroundColor: interest.color || '#6366f1'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.target.style.transform = 'translateY(-1px)';
-                                                    e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.target.style.transform = 'translateY(0px)';
-                                                    e.target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                                                }}
-                                            >
-                                                {interest.name}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </>
                         )}
 
@@ -1199,7 +1141,6 @@ function Profile() {
                 }}
                 onSave={handleProfileSave}
                 onAvatarUpload={handleAvatarUpload}
-                onBannerUpload={handleBannerUpload}
             />
         </>
     );

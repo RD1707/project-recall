@@ -7,7 +7,10 @@ const updateAchievementProgress = async (userId, metric, value) => {
         return;
     }
 
-    logger.info(`[ACHIEVEMENTS] Iniciando update - userId: ${userId}, metric: ${metric}, value:`, value);
+    logger.info(`[ACHIEVEMENTS] Iniciando updateAchievementProgress - userId: ${userId}, metric: ${metric}, value: ${value}`);
+
+    // CORREÇÃO: Define quais métricas podem ter seu progresso diminuído.
+    const stoppableMetrics = ['cards_mastered'];
 
     try {
         const { data: achievements, error: achievementsError } = await supabase
@@ -23,6 +26,7 @@ const updateAchievementProgress = async (userId, metric, value) => {
             `)
             .eq('metric', metric);
 
+
         if (achievementsError) {
             logger.error(`[ACHIEVEMENTS] Erro ao buscar achievements para metric ${metric}:`, achievementsError);
             throw achievementsError;
@@ -37,40 +41,36 @@ const updateAchievementProgress = async (userId, metric, value) => {
         for (const achievement of achievements) {
             const userAchievement = achievement.user_achievements.find(ua => ua.user_id === userId);
             const currentProgress = userAchievement?.progress || 0;
-            
-            if (userAchievement?.unlocked_at) {
-                logger.info(`[ACHIEVEMENTS] Pulando conquista ${achievement.id} (já desbloqueada)`);
+            const canDecrease = stoppableMetrics.includes(metric);
+
+            // CORREÇÃO: Lógica para pular a atualização
+            // Se a métrica não pode diminuir, pulamos se já estiver desbloqueada ou se o novo valor for menor.
+            if (!canDecrease && (userAchievement?.unlocked_at || value < currentProgress)) {
+                logger.info(`[ACHIEVEMENTS] Pulando achievement ${achievement.id} - progresso não pode diminuir ou já desbloqueado.`);
                 continue;
             }
 
-            let newProgress;
-            const isIncremental = typeof value === 'object' && value.increment;
-
-            if (isIncremental) {
-                newProgress = currentProgress + value.increment;
-                logger.info(`[ACHIEVEMENTS] Atualização incremental para ${achievement.id}. Progresso: ${currentProgress} -> ${newProgress}`);
-            } else {
-                newProgress = value;
-                if (newProgress < currentProgress) {
-                    logger.info(`[ACHIEVEMENTS] Pulando conquista ${achievement.id} (novo valor é menor que o progresso atual)`);
-                    continue;
-                }
-                logger.info(`[ACHIEVEMENTS] Atualização absoluta para ${achievement.id}. Progresso: ${currentProgress} -> ${newProgress}`);
-            }
+            logger.info(`[ACHIEVEMENTS] Processando achievement ${achievement.id}, progresso: ${currentProgress} -> ${value}`);
 
             const dataToUpsert = {
                 user_id: userId,
                 achievement_id: achievement.id,
-                progress: newProgress,
+                progress: value,
                 updated_at: new Date().toISOString(),
             };
 
-            if (newProgress >= achievement.goal) {
-                dataToUpsert.unlocked_at = new Date().toISOString();
-                logger.info(` Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
+            // CORREÇÃO: Lógica para desbloquear ou revogar a conquista
+            if (value >= achievement.goal) {
+                if (!userAchievement?.unlocked_at) { // Só atualiza se não estiver já desbloqueada
+                    dataToUpsert.unlocked_at = new Date().toISOString();
+                    logger.info(` Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
+                }
+            } else {
+                if (userAchievement?.unlocked_at) { // Revoga se estava desbloqueada
+                    dataToUpsert.unlocked_at = null;
+                    logger.info(` Conquista revogada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
+                }
             }
-
-            logger.info(`[ACHIEVEMENTS] Tentando upsert para achievement ${achievement.id}:`, dataToUpsert);
 
             const { data: upsertResult, error: upsertError } = await supabase
                 .from('user_achievements')
@@ -78,10 +78,9 @@ const updateAchievementProgress = async (userId, metric, value) => {
                 .select();
 
             if (upsertError) {
-                logger.error(`[ACHIEVEMENTS]  Erro ao atualizar progresso da conquista ${achievement.id} para o usuário ${userId}:`, upsertError);
+                logger.error(`[ACHIEVEMENTS] Erro ao atualizar progresso da conquista ${achievement.id} para o usuário ${userId}:`, upsertError);
             } else {
-                logger.info(`[ACHIEVEMENTS]  Progresso da conquista ${achievement.id} atualizado para ${newProgress} para o usuário ${userId}.`);
-                logger.info(`[ACHIEVEMENTS]  Dados salvos no banco:`, upsertResult);
+                logger.info(`[ACHIEVEMENTS] Progresso da conquista ${achievement.id} atualizado para ${value} para o usuário ${userId}.`);
             }
         }
 
@@ -108,12 +107,12 @@ const recalculateAllAchievements = async (userId) => {
 
         const { data: profile } = await supabase
             .from('profiles')
-            .select('current_streak')
+            .select('max_streak')
             .eq('id', userId)
             .single();
             
         if (profile) {
-            await updateAchievementProgress(userId, 'streak_days', profile.current_streak);
+            await updateAchievementProgress(userId, 'streak_days', profile.max_streak);
         }
 
         const { count: masteredCards } = await supabase
@@ -139,11 +138,7 @@ const recalculateAllAchievements = async (userId) => {
         }
             
         if (totalDecks !== null) {
-            if (totalDecks >= 1) {
-                logger.info(`[ACHIEVEMENTS] Atualizando decks_created para 1`);
-                await updateAchievementProgress(userId, 'decks_created', 1);
-            }
-            logger.info(`[ACHIEVEMENTS] Atualizando decks_created_total para ${totalDecks}`);
+            await updateAchievementProgress(userId, 'decks_created', totalDecks);
             await updateAchievementProgress(userId, 'decks_created_total', totalDecks);
         }
 

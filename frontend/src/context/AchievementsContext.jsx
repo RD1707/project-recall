@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { fetchAchievements } from '../api/achievements';
-import { supabase } from '../api/supabaseClient'; // Importamos o supabase
+import { fetchAchievements, recalculateAchievements } from '../api/achievements';
+import { supabase } from '../api/supabaseClient';
 
 const AchievementsContext = createContext();
 
@@ -16,9 +16,8 @@ function AchievementsProvider({ children }) {
     const [achievements, setAchievements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lastRefresh, setLastRefresh] = useState(Date.now());
-    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false); // Novo estado
+    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
-    // Verifica o status da autenticação
     useEffect(() => {
         const checkAuth = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -34,7 +33,6 @@ function AchievementsProvider({ children }) {
     }, []);
 
     const loadAchievements = useCallback(async (silent = false) => {
-        // Só executa se o utilizador estiver autenticado
         if (!isUserAuthenticated) {
             setLoading(false);
             return;
@@ -43,15 +41,17 @@ function AchievementsProvider({ children }) {
         if (!silent) setLoading(true);
         
         try {
-            const data = await fetchAchievements();
+            // SOLUÇÃO FINAL: Faz uma única chamada que recalcula e já retorna os dados frescos.
+            const data = await recalculateAchievements();
             setAchievements(data || []);
             setLastRefresh(Date.now());
         } catch (error) {
-            console.error("Falha ao carregar conquistas", error);
+            console.error("Falha ao carregar/sincronizar conquistas", error);
+            setAchievements([]);
         } finally {
             if (!silent) setLoading(false);
         }
-    }, [isUserAuthenticated]); // Adicionamos a dependência
+    }, [isUserAuthenticated]);
 
     const refreshAchievements = useCallback((delay = 1000) => {
         setTimeout(() => {
@@ -59,16 +59,15 @@ function AchievementsProvider({ children }) {
         }, delay);
     }, [loadAchievements]);
 
-    // Carregamento inicial só acontece se o status de autenticação mudar para true
     useEffect(() => {
         if (isUserAuthenticated) {
             loadAchievements();
         } else {
-            // Limpa os dados se o utilizador fizer logout
             setAchievements([]);
             setLoading(false);
         }
     }, [isUserAuthenticated, loadAchievements]);
+
 
     const value = {
         achievements,

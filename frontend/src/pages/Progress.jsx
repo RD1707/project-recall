@@ -7,7 +7,6 @@ import { fetchAnalyticsSummary, fetchReviewsOverTime, fetchPerformanceInsights }
 import { useAchievements } from '../context/AchievementsContext';
 import toast from 'react-hot-toast';
 
-
 import '../assets/css/progress.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -61,7 +60,6 @@ const ActivityChart = () => {
 
     useEffect(() => {
         setStatus('loading');
-        // A API de analytics foi atualizada para usar RPC, então o fetch foi ajustado
         fetchReviewsOverTime(timeRange)
             .then(reviewsData => {
                 if (!reviewsData || reviewsData.length === 0) {
@@ -175,12 +173,7 @@ const InsightsSection = () => {
 };
 
 const Achievements = () => {
-    const { achievements, loading, loadAchievements } = useAchievements();
-    
-    // ATUALIZA AS CONQUISTAS QUANDO A PÁGINA É CARREGADA
-    useEffect(() => {
-        loadAchievements();
-    }, [loadAchievements]);
+    const { achievements, loading } = useAchievements();
     
     const getColorFromIcon = (icon) => {
         if (icon.includes('fire')) return 'warning';
@@ -193,10 +186,15 @@ const Achievements = () => {
         <div className="card-custom">
             <div className="card-header">
                 <h2>Conquistas</h2>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    Sincronização automática
+                </div>
             </div>
+            {/* CORREÇÃO APLICADA AQUI */}
             {loading ? (
-                <div className="skeleton-list">
-                    {[...Array(4)].map((_, i) => <div key={i} className="skeleton-list-item" style={{height: '80px'}}></div>)}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', gap: '1rem' }}>
+                    <div className="spinner" style={{ borderTopColor: 'var(--color-primary-500)', width: '40px', height: '40px' }}></div>
+                    <p style={{ color: 'var(--color-text-muted)', fontWeight: '500' }}>Sincronizando conquistas...</p>
                 </div>
             ) : achievements && achievements.length > 0 ? (
                  <ul className="achievements-list">
@@ -240,6 +238,12 @@ const Achievements = () => {
 
 
 function Progress() {
+    const { loadAchievements } = useAchievements();
+
+    useEffect(() => {
+        loadAchievements();
+    }, [loadAchievements]);
+
     return (
         <>
             <Header />

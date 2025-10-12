@@ -198,7 +198,7 @@ const reviewFlashcard = async (req, res) => {
             try {
                 const { data: profile, error: profileError } = await supabase
                     .from('profiles')
-                    .select('points, weekly_points, current_streak, last_studied_at') 
+                    .select('points, weekly_points, current_streak, last_studied_at, max_streak') 
                     .eq('id', userId)
                     .single();
 
@@ -226,6 +226,12 @@ const reviewFlashcard = async (req, res) => {
                 } else {
                     newStreak = 1;
                 }
+                
+                let newMaxStreak = profile.max_streak || 0;
+                if (newStreak > newMaxStreak) {
+                    newMaxStreak = newStreak;
+                }
+
 
                 await supabase
                     .from('profiles')
@@ -233,18 +239,19 @@ const reviewFlashcard = async (req, res) => {
                         points: newPoints,
                         weekly_points: newWeeklyPoints,
                         current_streak: newStreak,
-                        last_studied_at: new Date().toISOString()
+                        last_studied_at: new Date().toISOString(),
+                        max_streak: newMaxStreak
                     })
                     .eq('id', userId);
                 
                 try {
-                    logger.info(`[ACHIEVEMENTS] Iniciando atualização incremental após revisão - userId: ${userId}`);
-
-                    // ATUALIZAÇÃO INCREMENTAL - MUITO MAIS RÁPIDO!
-                    await updateAchievementProgress(userId, 'reviews_total', { increment: 1 });
-
-                    // A atualização de streak e mastered cards continua como antes, pois já são eficientes
-                    await updateAchievementProgress(userId, 'streak_days', newStreak);
+                    logger.info(`[ACHIEVEMENTS] Iniciando atualização de conquistas após revisão - userId: ${userId}`);
+                    await updateAchievementProgress(userId, 'streak_days', newMaxStreak);
+                    
+                    const { count: totalReviews } = await supabase.from('review_history').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+                    if (totalReviews !== null) {
+                        await updateAchievementProgress(userId, 'reviews_total', totalReviews);
+                    }
                     
                     const { count: masteredCards } = await supabase.from('flashcards').select('id, decks!inner(user_id)', { count: 'exact', head: true }).eq('decks.user_id', userId).gt('interval', 21);
                     if (masteredCards !== null) {
