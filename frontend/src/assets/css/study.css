@@ -276,6 +276,7 @@ body.study-session-active {
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    color: var(--color-dark-800);
     background: var(--color-surface);
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(10px);
@@ -1335,3 +1336,4 @@ body.study-session-active {
     border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
     font-style: italic;
 }
+
