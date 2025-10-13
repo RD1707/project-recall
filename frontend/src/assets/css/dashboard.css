@@ -113,7 +113,7 @@
     transform: translateY(-4px) scale(1.02);
     box-shadow: var(--shadow-lg);
     border-color: var(--deck-color, var(--color-primary-500));
-    background: linear-gradient(135deg, var(--color-surface) 0%, rgba(255, 255, 255, 1) 100%);
+    background: var(--color-surface);
 }
 
 .deck-card:hover::before {

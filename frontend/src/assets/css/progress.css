@@ -383,7 +383,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+    background: linear-gradient(45deg, transparent 40%, rgba(79, 70, 229, 0.3) 50%, transparent 60%);
     animation: progressShine 2s infinite;
     border-radius: 99px;
 }
