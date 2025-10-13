@@ -327,9 +327,43 @@
         font-size: var(--font-size-xs);
     }
 
-    .star-rating {
-        scale: 0.9;
-    }
+/* Star Rating Styles */
+.star-rating {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.star-rating .star {
+    cursor: pointer;
+    transition: color 0.2s ease;
+    color: #ffd700; /* Cor dourada padrão */
+}
+
+.star-rating .star:hover {
+    color: #ffed4e; /* Amarelo mais claro no hover */
+}
+
+.star-rating .star i {
+    font-size: 1rem;
+}
+
+.star-rating.interactive .star {
+    cursor: pointer;
+}
+
+.star-rating.interactive .star:hover {
+    transform: scale(1.1);
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .star-rating .star {
+    color: #ffffff; /* Branco no modo escuro */
+}
+
+[data-theme='dark'] .star-rating .star:hover {
+    color: #f0f0f0; /* Cinza claro no hover no modo escuro */
+}
 }
 
 @media (max-width: 576px) {
