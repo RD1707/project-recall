@@ -327,6 +327,31 @@
         font-size: var(--font-size-xs);
     }
 
+/* Deck Card Header Styles */
+.deck-card__header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--deck-color, var(--color-primary-500)) 0%, var(--color-primary-600) 100%);
+    color: white;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.deck-card__header h3 {
+    font-size: 1.25rem;
+    color: white;
+    margin: 0;
+    word-break: break-word;
+    position: relative;
+    z-index: 1;
+}
+
+/* Dark mode adjustments for deck card header */
+[data-theme='dark'] .deck-card__header h3 {
+    color: white;
+}
+
 /* Star Rating Styles */
 .star-rating {
     display: flex;

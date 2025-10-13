@@ -163,7 +163,7 @@
 
 .deck-card__header h3 {
     font-size: 1.4rem;
-    color: var(--color-surface);
+    color: white;
     margin: 0;
     word-break: break-word;
     position: relative;
@@ -172,6 +172,11 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     letter-spacing: -0.01em;
     line-height: 1.3;
+}
+
+/* Dark mode adjustments for deck card header */
+[data-theme='dark'] .deck-card__header h3 {
+    color: white;
 }
 
 .deck-card__options-btn {
