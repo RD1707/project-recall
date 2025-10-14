@@ -227,16 +227,6 @@ function Landing() {
                                 description="Dashboards em tempo real mostram seu progresso, pontos fracos e previsão de desempenho."
                             />
                             <FeatureCard
-                                icon="fa-file-pdf"
-                                title="Multi-formato"
-                                description="Importe PDFs, PowerPoints ou crie do zero. Suportamos todos os formatos."
-                            />
-                            <FeatureCard
-                                icon="fa-mobile"
-                                title="Estude em Qualquer Lugar"
-                                description="PWA nativo para iOS e Android com sincronização em tempo real. Estude offline quando quiser."
-                            />
-                            <FeatureCard
                                 icon="fa-users"
                                 title="Modo Colaborativo"
                                 description="Compartilhe decks, estude em grupo e compare seu progresso com amigos e colegas."
@@ -534,5 +524,6 @@ function Landing() {
         </>
     );
 }
+
 
 export default Landing;
