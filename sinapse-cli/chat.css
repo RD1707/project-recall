@@ -1,68 +1,172 @@
-/* Estilo geral da tela */
+/* Estilo geral da tela - Terminal minimalista */
 Screen {
-    background: #1e1e1e;
-    color: #dcdcdc;
-    layout: vertical;
+    background: #000000;
+    color: #ffffff;
 }
 
-/* Tela de Boas-vindas (Menu Principal) */
+/* ========== TELA DE BOAS-VINDAS ========== */
 #welcome-screen {
     align: center middle;
-    padding: 2 4;
+    width: 100%;
     height: 100%;
 }
 
+#welcome-border-top,
+#welcome-border-bottom {
+    width: auto;
+    text-align: center;
+    color: #ffffff;
+}
+
 #welcome-title {
-    content-align: center middle;
-    width: 100%;
-    font-size: 200%;
+    color: #ffffff;
     text-style: bold;
 }
 
 #welcome-subtitle {
-    content-align: center middle;
-    width: 100%;
-    color: #888;
+    color: #888888;
 }
 
-#name-input {
-    width: 50%;
+/* Container para os inputs de boas-vindas */
+#welcome-inputs {
+    width: 60;
+    align: center middle;
     margin-top: 2;
 }
 
-#start-button {
-    width: 50%;
-    margin-top: 1;
+#name-input {
+    width: 100%;
+    height: 3;
+    margin: 1 0;
+    background: #000000;
+    border: heavy #ffffff;
+    color: #ffffff;
+    text-align: center;
 }
 
-/* Tela de Chat */
-#chat-screen {
-    display: none; /* Começa escondida */
-    padding: 0 1;
+#name-input:focus {
+    border: double #ffffff;
+    background: #0a0a0a;
+}
+
+#start-button {
     width: 100%;
-    height: 1fr; /* Ocupa o espaço restante */
+    height: 3;
+    margin: 1 0;
+    background: #ffffff;
+    color: #000000;
+    text-style: bold;
+    border: heavy #ffffff;
+}
+
+#start-button:hover {
+    background: #cccccc;
+    border: double #ffffff;
+}
+
+#start-button:focus {
+    background: #eeeeee;
+}
+
+/* ========== TELA DE CHAT ========== */
+#chat-screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    layout: vertical;
+}
+
+#chat-scroll {
+    width: 100%;
+    height: 1fr;
+    border: heavy #ffffff;
+    background: #000000;
 }
 
 #chat-log {
-    background: #252526;
-    border: round #444;
+    background: #000000;
+    color: #ffffff;
+    padding: 1 2;
+    border: none;
 }
 
-/* Barra de Input de Mensagem */
+/* ========== BARRA DE INPUT ========== */
 #input-bar {
-    display: none; /* Começa escondida */
     layout: horizontal;
-    height: 3;
-    padding: 0 1;
+    width: 100%;
+    height: auto;
+    padding: 1;
+    background: #000000;
+    border-top: heavy #ffffff;
 }
 
 #message-input {
     width: 1fr;
-    height: 1;
+    height: 3;
+    background: #000000;
+    border: heavy #ffffff;
+    color: #ffffff;
+    margin-right: 1;
+}
+
+#message-input:focus {
+    border: double #ffffff;
+    background: #0a0a0a;
+}
+
+#message-input:disabled {
+    opacity: 0.4;
+    border: heavy #444444;
+    color: #666666;
 }
 
 #send-button {
-    width: 10;
-    height: 1;
-    margin-left: 1;
+    width: 16;
+    height: 3;
+    background: #ffffff;
+    color: #000000;
+    text-style: bold;
+    border: heavy #ffffff;
+    margin-right: 1;
+}
+
+#send-button:hover {
+    background: #cccccc;
+    border: double #ffffff;
+}
+
+#send-button:disabled {
+    opacity: 0.4;
+    background: #222222;
+    color: #666666;
+    border: heavy #444444;
+}
+
+#loading {
+    display: none;
+    width: 4;
+    height: 3;
+}
+
+/* ========== FOOTER ========== */
+Footer {
+    background: #000000;
+    color: #888888;
+}
+
+/* ========== ESTILOS GERAIS ========== */
+Button {
+    border: heavy #ffffff;
+}
+
+Button:hover {
+    text-style: bold;
+}
+
+Input {
+    padding: 0 2;
+}
+
+LoadingIndicator {
+    color: #ffffff;
 }
