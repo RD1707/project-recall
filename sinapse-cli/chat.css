@@ -1,172 +1,77 @@
-/* Estilo geral da tela - Terminal minimalista */
+/* Layout geral da aplicação */
 Screen {
     background: #000000;
-    color: #ffffff;
-}
-
-/* ========== TELA DE BOAS-VINDAS ========== */
-#welcome-screen {
-    align: center middle;
-    width: 100%;
-    height: 100%;
-}
-
-#welcome-border-top,
-#welcome-border-bottom {
-    width: auto;
-    text-align: center;
-    color: #ffffff;
-}
-
-#welcome-title {
-    color: #ffffff;
-    text-style: bold;
-}
-
-#welcome-subtitle {
-    color: #888888;
-}
-
-/* Container para os inputs de boas-vindas */
-#welcome-inputs {
-    width: 60;
-    align: center middle;
-    margin-top: 2;
-}
-
-#name-input {
-    width: 100%;
-    height: 3;
-    margin: 1 0;
-    background: #000000;
-    border: heavy #ffffff;
-    color: #ffffff;
-    text-align: center;
-}
-
-#name-input:focus {
-    border: double #ffffff;
-    background: #0a0a0a;
-}
-
-#start-button {
-    width: 100%;
-    height: 3;
-    margin: 1 0;
-    background: #ffffff;
-    color: #000000;
-    text-style: bold;
-    border: heavy #ffffff;
-}
-
-#start-button:hover {
-    background: #cccccc;
-    border: double #ffffff;
-}
-
-#start-button:focus {
-    background: #eeeeee;
-}
-
-/* ========== TELA DE CHAT ========== */
-#chat-screen {
-    display: none;
-    width: 100%;
-    height: 100%;
     layout: vertical;
 }
 
-#chat-scroll {
+/* Cabeçalho */
+Header {
+    background: #0a0a0a;
+    border-bottom: heavy white;
+    dock: top;
+    height: 3;
+}
+
+/* Rodapé */
+Footer {
+    background: #0a0a0a;
+    border-top: heavy white;
+    dock: bottom;
+    height: 1;
+}
+
+/* Container principal do chat */
+#chat-container {
     width: 100%;
     height: 1fr;
-    border: heavy #ffffff;
-    background: #000000;
-}
-
-#chat-log {
-    background: #000000;
-    color: #ffffff;
-    padding: 1 2;
-    border: none;
-}
-
-/* ========== BARRA DE INPUT ========== */
-#input-bar {
-    layout: horizontal;
-    width: 100%;
-    height: auto;
     padding: 1;
-    background: #000000;
-    border-top: heavy #ffffff;
 }
 
+/* Área de scroll onde as mensagens aparecem */
+#chat-log {
+    width: 100%;
+}
+
+/* Container para a barra de input */
+#input-container {
+    dock: bottom;
+    height: auto;
+    padding: 0 1 1 1;
+}
+
+/* Barra de input de mensagem */
 #message-input {
-    width: 1fr;
     height: 3;
+    width: 100%;
+    border: heavy white;
     background: #000000;
-    border: heavy #ffffff;
-    color: #ffffff;
-    margin-right: 1;
+    color: white;
+    padding: 0 1;
 }
 
 #message-input:focus {
-    border: double #ffffff;
+    border: double white;
+}
+
+/* Estilo base para todas as bolhas de mensagem */
+.message {
+    width: auto;
+    max-width: 80%;
+    padding: 1 2;
+    margin: 1 0;
+    border: solid white;
     background: #0a0a0a;
+    height: auto;
+    border-radius: 4;
 }
 
-#message-input:disabled {
-    opacity: 0.4;
-    border: heavy #444444;
-    color: #666666;
+/* Bolha para mensagens da IA (alinhada à esquerda) */
+.ai {
+    align-horizontal: left;
 }
 
-#send-button {
-    width: 16;
-    height: 3;
-    background: #ffffff;
-    color: #000000;
-    text-style: bold;
-    border: heavy #ffffff;
-    margin-right: 1;
-}
-
-#send-button:hover {
-    background: #cccccc;
-    border: double #ffffff;
-}
-
-#send-button:disabled {
-    opacity: 0.4;
-    background: #222222;
-    color: #666666;
-    border: heavy #444444;
-}
-
-#loading {
-    display: none;
-    width: 4;
-    height: 3;
-}
-
-/* ========== FOOTER ========== */
-Footer {
-    background: #000000;
-    color: #888888;
-}
-
-/* ========== ESTILOS GERAIS ========== */
-Button {
-    border: heavy #ffffff;
-}
-
-Button:hover {
-    text-style: bold;
-}
-
-Input {
-    padding: 0 2;
-}
-
-LoadingIndicator {
-    color: #ffffff;
+/* Bolha para mensagens do usuário (alinhada à direita) */
+.user {
+    align-horizontal: right;
+    background: #222222; /* Um pouco mais claro para diferenciar */
 }
