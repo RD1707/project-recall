@@ -263,6 +263,8 @@
     transition: right 0.3s ease;
     padding: var(--space-6);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .mobile-menu.active {
@@ -276,18 +278,21 @@
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0; /* Garante que o header não encolha */
 }
 
 .mobile-menu-close {
+    display: block; /* Garante que está visível */
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.5rem; /* Ajuste o tamanho se necessário */
     color: var(--color-text-muted);
     cursor: pointer;
     padding: var(--space-2);
     border-radius: var(--border-radius-sm);
+    transition: var(--transition-fast);
+    line-height: 1; /* Ajuda no alinhamento vertical do ícone */
 }
-
 .mobile-menu-close:hover {
     color: var(--color-text-default);
     background-color: var(--color-background);
@@ -298,6 +303,8 @@
     flex-direction: column;
     gap: var(--space-1);
     margin-bottom: var(--space-6);
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .mobile-nav .nav-link {
@@ -467,3 +474,19 @@
     }
 }
 
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
+}
+
+/* Ajustes para telas menores dentro do mobile (opcional) */
+@media (max-width: 576px) {
+    .mobile-menu {
+        padding: var(--space-4);
+    }
+    .mobile-menu-header {
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-3);
+    }
+}

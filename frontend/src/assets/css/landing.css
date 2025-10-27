@@ -289,10 +289,9 @@ section {
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* Mantém espaço entre logo e a secção direita */
     height: 100%;
 }
-
 .logo a {
     display: flex;
     align-items: center;
@@ -300,6 +299,7 @@ section {
     font-size: var(--text-xl);
     font-weight: 800;
     color: var(--color-text);
+    flex-shrink: 0;
 }
 
 .logo-icon {
@@ -307,18 +307,33 @@ section {
     color: var(--color-primary);
 }
 
+.header-right-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4); /* Espaço inicial entre Nav, Tema, Botões */
+    flex-wrap: nowrap;
+}
+
+.main-nav {
+    flex-shrink: 0;
+}
+
 .main-nav ul {
     display: flex;
     list-style: none;
-    gap: var(--space-8);
+    gap: var(--space-8); /* Espaçamento padrão entre links */
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
 }
-
 .main-nav a {
     font-size: var(--text-sm);
     font-weight: 500;
     color: var(--color-text-light);
     position: relative;
     padding: var(--space-2) 0;
+    white-space: nowrap; /* Garante que o texto do link não quebre */
 }
 
 .main-nav a::after {
@@ -340,18 +355,22 @@ section {
     width: 100%;
 }
 
+
 .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-3); /* Espaçamento padrão entre botões */
+    flex-wrap: nowrap;
+    flex-shrink: 0;
 }
 
 .mobile-nav-toggle {
-    display: none;
+    display: none; /* Escondido por padrão */
     background: none;
     border: none;
     cursor: pointer;
     padding: var(--space-2);
+    order: 3; /* Vai para o final no mobile */
 }
 
 .mobile-nav-toggle span {
@@ -1444,6 +1463,15 @@ section {
 }
 
 @media (max-width: 1024px) {
+    .header-right-section {
+        gap: 0; /* Remove gap para usar space-between */
+        flex-grow: 1; /* Ocupa espaço disponível */
+        justify-content: space-between; /* Espaça Nav | Tema | Actions */
+        margin-left: var(--space-4); /* Adiciona um espaço mínimo do logo */
+    }
+
+
+
     .landing-container {
         padding: 0 var(--space-5);
     }
@@ -1488,7 +1516,7 @@ section {
     }
 
     .main-nav ul {
-        gap: var(--space-6);
+        gap: var(--space-);
     }
 
     .main-nav a {
@@ -1501,7 +1529,24 @@ section {
     }
 }
 
+@media (max-width: 992px) { /* Ajuste este valor se necessário */
+    .main-nav ul {
+        gap: var(--space-4); /* Reduz o espaço entre os links */
+    }
+    .header-actions {
+        gap: var(--space-2); /* Reduz o espaço entre as ações */
+    }
+    .header-actions .btn { /* Reduz um pouco os botões */
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--text-sm);
+    }
+}
+
 @media (max-width: 768px) {
+    .header-logo-section{
+        flex-shrink: 0;
+    }
+
     .landing-container {
         padding: 0 var(--space-4);
     }
@@ -1511,6 +1556,9 @@ section {
     }
 
     .mobile-nav-toggle {
+        position: absolute;
+        left: 0;
+        top: 1rem;
         display: block;
     }
 
@@ -1544,6 +1592,15 @@ section {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .header-actions{
+        position: absolute;
+        right: 0;
+        top: 1rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
     }
 
     .header-actions .btn-secondary {
