@@ -403,6 +403,8 @@
     }
 
     .mobile-menu-toggle {
+        position: absolute;
+        right: 10px;
         display: block;
     }
 
