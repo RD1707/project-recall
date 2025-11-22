@@ -140,6 +140,13 @@
     margin-top: 0.5rem;
 }
 
+.mobile-logo-container {
+    display: none;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
 .strength-bar {
     width: 100%;
     height: 4px;
@@ -423,6 +430,15 @@
         display: flex;
         align-items: center;
     }
+
+    .mobile-logo-container {
+        display: flex;
+    }
+
+    .mobile-logo-container .promo-logo {
+        margin-bottom: 0; /* Remove a margem padrão da classe promo-logo para ajustar o espaçamento */
+        font-size: 2rem; /* Opcional: Ajuste de tamanho para mobile */
+    }   
 
     .auth-form-panel {
         padding: var(--space-6) var(--space-4);

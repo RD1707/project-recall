@@ -105,6 +105,11 @@ const handleLogin = async (e) => {
 
             <div className="auth-form-panel">
                 <div className="form-container">
+                    <div className="mobile-logo-container">
+                        <Link to="/" className="promo-logo">
+                            <i className="fas fa-brain"></i> Recall
+                        </Link>
+                    </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
                         <ThemeToggle />
                     </div>

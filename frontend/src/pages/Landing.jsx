@@ -119,9 +119,16 @@ function Landing() {
                             <li><a href="#pricing" onClick={closeMenu}>Preços</a></li>
                             <li><Link to="/ajuda" onClick={closeMenu}>Ajuda</Link></li>
                         </ul>
+                        <div className="mobile-actions">
+                            <div className="theme-toggle-container">
+                                <ThemeToggle />
+                            </div>
+                            <Link to="/login" className="btn btn-secondary" onClick={closeMenu}>Entrar</Link>
+                            <Link to="/register" className="btn btn-primary" onClick={closeMenu}>Começar Grátis</Link>
+                        </div>
                     </nav>
+
                     <div className="header-actions">
-                        {/* 3. Adicione o ThemeToggle aqui */}
                         <ThemeToggle /> 
                         <Link to="/login" className="btn btn-secondary btn-sm">Entrar</Link>
                         <Link to="/register" className="btn btn-primary">Começar Grátis</Link>

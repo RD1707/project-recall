@@ -1471,7 +1471,16 @@ section {
         margin-left: var(--space-4); /* Adiciona um espaço mínimo do logo */
     }
 
-
+    .main-nav ul{
+        gap: var(--space-1);
+    }
+    .main-nav a{
+        font-size: var(--text-sm);
+        /* Adiciona padding: Vertical (space-2) e Horizontal (space-3) */
+        padding: var(--space-2) var(--space-3); 
+        /* Garante que o clique pegue uma área boa */
+        display: inline-block;
+    }
 
     .landing-container {
         padding: 0 var(--space-5);
@@ -1543,13 +1552,19 @@ section {
     }
 }
 
+@media (min-width: 769px){
+    .mobile-actions {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
     .header-logo-section{
         flex-shrink: 0;
     }
 
     .landing-container {
-        padding: 20px var(--space-4);
+        padding: 0px var(--space-4);
     }
 
     section {
@@ -1562,6 +1577,41 @@ section {
         top: 1rem;
         display: block;
     }
+
+    .mobile-actions{
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        margin-top: var(--space-6);
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--color-border);
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .mobile-actions .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+    }
+
+    .mobile-actions .btn-primary {
+        color: white !important; /* Garante texto branco no botão azul */
+    }
+
+    .theme-toggle-container{
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .mobile-actions .theme-toggle-container {
+        display: flex;
+        align-items: center;
+        color: var(--color-text);
+        font-weight: 600;
+        margin-bottom: var(--space-2);
+    }
+
 
     .main-nav {
         position: fixed;
@@ -1596,12 +1646,7 @@ section {
     }
 
     .header-actions{
-        position: absolute;
-        right: 0;
-        top: 1rem;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
+        display: none;
     }
 
     .header-actions .btn-secondary {
