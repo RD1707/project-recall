@@ -176,6 +176,11 @@
   font-size: var(--font-size-base);
   transition: var(--transition-fast);
   background: var(--color-surface);
+  color: var(--color-text-default);
+}
+
+[data-theme='dark'] .form-control {
+  color: #ffffff;
 }
 
 .form-control:focus {

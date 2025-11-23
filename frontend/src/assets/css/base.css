@@ -241,6 +241,13 @@ select {
     background-color: var(--color-surface);
     font-size: var(--font-size-base);
     transition: var(--transition-fast);
+    color: var(--color-text-default);
+}
+
+[data-theme='dark'] input,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+    color: #ffffff;
 }
 
 input:focus,
