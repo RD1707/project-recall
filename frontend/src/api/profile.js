@@ -169,7 +169,6 @@ export const markOnboardingAsComplete = async () => {
 };
 
 export const fetchPublicProfile = async (username) => {
-  // Verificação de segurança para username
   if (!username) {
     console.log('🔍 API DEBUG: Username é undefined/null');
     throw new Error('Username é obrigatório');
@@ -184,7 +183,6 @@ export const fetchPublicProfile = async (username) => {
 
     console.log(`🔍 API DEBUG: Fazendo requisição para /api/profile/public/${username}`);
 
-    // Adicionar cache busting e headers para evitar cache
     const cacheBuster = Date.now();
     const url = `/api/profile/public/${username}?t=${cacheBuster}`;
 

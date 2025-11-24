@@ -25,23 +25,18 @@ const handleApiError = async (response) => {
 
 export const loginUser = async (credentials) => {
     try {
-        // Chamada direta para o Supabase no cliente
         const { data, error } = await supabase.auth.signInWithPassword({
             email: credentials.email,
             password: credentials.password,
         });
 
         if (error) {
-            // Se houver um erro, lança-o para ser pego na página de Login
             throw error;
         }
 
-        // Se o login for bem-sucedido, a sessão já está gerenciada pelo Supabase.
-        // Apenas retornamos os dados.
         return data;
 
     } catch (error) {
-        // Re-lança o erro para que a página de Login possa exibi-lo.
         console.error("Erro no login direto com Supabase:", error);
         throw new Error(error.message || 'E-mail ou senha inválidos.');
     }
@@ -81,7 +76,6 @@ export const completeUserProfile = async (profileData) => {
 
         const data = await response.json();
         if (!response.ok) {
-            // Se é um erro de campo (username já em uso), lançar com field
             if (data.field) {
                 const error = new Error(data.error);
                 error.field = data.field;
@@ -91,7 +85,6 @@ export const completeUserProfile = async (profileData) => {
         }
         return data;
     } catch (error) {
-        // Não mostrar toast aqui, deixar o componente lidar com isso
         throw error;
     }
 };
@@ -141,7 +134,6 @@ export const resetPassword = async ({ accessToken, refreshToken, newPassword }) 
     }
 };
 
-// Função para garantir que o perfil do usuário existe (especialmente para OAuth)
 export const ensureUserProfile = async () => {
     try {
         const { data: { session } } = await supabase.auth.getSession();

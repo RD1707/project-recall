@@ -130,7 +130,6 @@ const updateDeck = async (req, res) => {
         if (error) throw error;
         if (!data) return res.status(404).json({ message: 'Baralho não encontrado ou você não tem permissão para editá-lo.', code: 'NOT_FOUND' });
 
-        // Adicionar card_count consistente com outros endpoints
         const deckWithCount = {
             ...data,
             card_count: data.flashcards[0]?.count || 0

@@ -2,7 +2,6 @@ const supabase = require('../config/supabaseClient');
 const logger = require('../config/logger');
 const { recalculateAllAchievements } = require('../services/achievementService');
 
-// Função auxiliar para evitar duplicação de código
 const fetchAndFormatAchievements = async (userId) => {
     const { data, error } = await supabase
         .from('achievements')
@@ -54,9 +53,7 @@ const getAchievements = async (req, res) => {
 const recalculateAchievements = async (req, res) => {
     const userId = req.user.id;
     try {
-        // Etapa 1: Recalcula todo o progresso
         await recalculateAllAchievements(userId);
-        // Etapa 2: Busca e retorna os dados já atualizados
         const formattedData = await fetchAndFormatAchievements(userId);
         res.status(200).json(formattedData);
     } catch (error) {

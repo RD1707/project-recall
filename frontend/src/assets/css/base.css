@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
-/* Tema Claro (Padrão) */
 :root {
     --color-primary-50: #f0f4ff;
     --color-primary-100: #eef2ff;
@@ -79,7 +78,6 @@
     --space-20: 5rem;
 }
 
-/* Tema Escuro */
 [data-theme='dark'] {
     --color-header-bg: rgba(31, 41, 55, 0.8); /* Cor de --color-surface com transparência */
     --color-primary-50: #1f2937;

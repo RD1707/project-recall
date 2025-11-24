@@ -364,7 +364,6 @@ const getPublicProfile = async (req, res) => {
             console.log(`🔍 DEBUG: Decks encontrados para ${username}:`, publicDecks?.length || 0);
         }
 
-        // Buscar avaliações dos decks públicos
         const deckIds = (publicDecks || []).map(deck => deck.id);
         let ratingsData = [];
 
@@ -381,7 +380,6 @@ const getPublicProfile = async (req, res) => {
             }
         }
 
-        // Mapear avaliações por deck_id
         const ratingsMap = ratingsData.reduce((acc, rating) => {
             if (!acc[rating.deck_id]) {
                 acc[rating.deck_id] = [];

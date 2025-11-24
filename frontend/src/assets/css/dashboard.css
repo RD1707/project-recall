@@ -174,7 +174,6 @@
     line-height: 1.3;
 }
 
-/* Dark mode adjustments for deck card header */
 [data-theme='dark'] .deck-card__header h3 {
     color: white;
 }

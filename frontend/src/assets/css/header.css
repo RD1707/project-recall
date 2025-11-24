@@ -4,7 +4,7 @@
 }
 
 .app-header {
-    background-color: var(--color-header-bg); /* MUDANÇA AQUI */
+    background-color: var(--color-header-bg); 
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--color-border);
@@ -278,20 +278,20 @@
     margin-bottom: var(--space-6);
     padding-bottom: var(--space-4);
     border-bottom: 1px solid var(--color-border);
-    flex-shrink: 0; /* Garante que o header não encolha */
+    flex-shrink: 0; 
 }
 
 .mobile-menu-close {
-    display: block; /* Garante que está visível */
+    display: block; 
     background: none;
     border: none;
-    font-size: 1.5rem; /* Ajuste o tamanho se necessário */
+    font-size: 1.5rem; 
     color: var(--color-text-muted);
     cursor: pointer;
     padding: var(--space-2);
     border-radius: var(--border-radius-sm);
     transition: var(--transition-fast);
-    line-height: 1; /* Ajuda no alinhamento vertical do ícone */
+    line-height: 1; 
 }
 .mobile-menu-close:hover {
     color: var(--color-text-default);
@@ -416,7 +416,6 @@
         font-size: var(--font-size-lg);
     }
 
-    /* Compact header for mobile */
     .app-header {
         --header-height: 60px;
         min-height: var(--header-height);
@@ -482,7 +481,6 @@
   }
 }
 
-/* Ajustes para telas menores dentro do mobile (opcional) */
 @media (max-width: 576px) {
     .mobile-menu {
         padding: var(--space-4);

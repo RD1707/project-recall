@@ -12,13 +12,11 @@ const {
 } = require('../controllers/sinapseController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Configurar multer para upload de arquivos em memória
 const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        // Aceitar PDFs, DOCX, imagens e texto
         const allowedTypes = [
             'application/pdf',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -36,20 +34,16 @@ const upload = multer({
     }
 });
 
-// Todas as rotas requerem autenticação
 router.use(authMiddleware.authenticateToken);
 
-// Rotas de conversas
 router.post('/conversations', createConversation);
 router.get('/conversations', getConversations);
 router.delete('/conversations/:conversationId', deleteConversation);
 router.put('/conversations/:conversationId/title', updateConversationTitle);
 
-// Rotas de mensagens
 router.get('/conversations/:conversationId/messages', getConversationMessages);
 router.post('/conversations/:conversationId/messages', sendMessage);
 
-// Rota de upload de arquivos
 router.post('/upload', upload.single('file'), uploadAttachment);
 
 module.exports = router;

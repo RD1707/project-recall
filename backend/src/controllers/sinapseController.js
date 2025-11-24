@@ -2,14 +2,6 @@ const supabase = require('../config/supabaseClient');
 const sinapseService = require('../services/sinapseService');
 const fileProcessor = require('../services/fileProcessingService');
 
-/**
- * Controller da IA Sinapse
- * Gerencia conversas e mensagens com a assistente inteligente
- */
-
-/**
- * Criar nova conversa
- */
 const createConversation = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -45,9 +37,6 @@ const createConversation = async (req, res) => {
     }
 };
 
-/**
- * Listar todas as conversas do usuário
- */
 const getConversations = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -80,15 +69,11 @@ const getConversations = async (req, res) => {
     }
 };
 
-/**
- * Buscar mensagens de uma conversa específica
- */
 const getConversationMessages = async (req, res) => {
     try {
         const userId = req.user.id;
         const { conversationId } = req.params;
 
-        // Verificar se a conversa pertence ao usuário
         const { data: conversation, error: convError } = await supabase
             .from('sinapse_conversations')
             .select('id')
@@ -103,7 +88,6 @@ const getConversationMessages = async (req, res) => {
             });
         }
 
-        // Buscar mensagens
         const { data, error } = await supabase
             .from('sinapse_messages')
             .select('*')
@@ -132,9 +116,6 @@ const getConversationMessages = async (req, res) => {
     }
 };
 
-/**
- * Enviar mensagem e receber resposta da IA
- */
 const sendMessage = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -148,7 +129,6 @@ const sendMessage = async (req, res) => {
             });
         }
 
-        // Verificar se a conversa pertence ao usuário
         const { data: conversation, error: convError } = await supabase
             .from('sinapse_conversations')
             .select('*')
@@ -163,7 +143,6 @@ const sendMessage = async (req, res) => {
             });
         }
 
-        // Salvar mensagem do usuário
         const { data: userMessage, error: userMsgError } = await supabase
             .from('sinapse_messages')
             .insert({
@@ -183,7 +162,6 @@ const sendMessage = async (req, res) => {
             });
         }
 
-        // Buscar histórico de mensagens (últimas 20)
         const { data: historyData } = await supabase
             .from('sinapse_messages')
             .select('role, content')
@@ -191,10 +169,8 @@ const sendMessage = async (req, res) => {
             .order('created_at', { ascending: false })
             .limit(20);
 
-        // Inverter para ordem cronológica (mais antiga primeiro)
-        const chatHistory = (historyData || []).reverse().slice(0, -1); // Remove a última (que acabamos de adicionar)
+        const chatHistory = (historyData || []).reverse().slice(0, -1);
 
-        // Gerar resposta da IA
         const aiResponse = await sinapseService.generateResponse(
             userId,
             content,
@@ -202,7 +178,6 @@ const sendMessage = async (req, res) => {
             attachments
         );
 
-        // Salvar resposta da IA
         const { data: assistantMessage, error: assistantMsgError } = await supabase
             .from('sinapse_messages')
             .insert({
@@ -221,7 +196,6 @@ const sendMessage = async (req, res) => {
             });
         }
 
-        // Se for a primeira mensagem, gerar título para a conversa
         if (conversation.title === 'Nova Conversa') {
             const newTitle = await sinapseService.generateConversationTitle(content);
 
@@ -246,15 +220,11 @@ const sendMessage = async (req, res) => {
     }
 };
 
-/**
- * Deletar conversa
- */
 const deleteConversation = async (req, res) => {
     try {
         const userId = req.user.id;
         const { conversationId } = req.params;
 
-        // Verificar se a conversa pertence ao usuário antes de deletar
         const { data: conversation, error: convError } = await supabase
             .from('sinapse_conversations')
             .select('id')
@@ -269,7 +239,6 @@ const deleteConversation = async (req, res) => {
             });
         }
 
-        // Deletar conversa (mensagens serão deletadas em cascata)
         const { error } = await supabase
             .from('sinapse_conversations')
             .delete()
@@ -297,9 +266,6 @@ const deleteConversation = async (req, res) => {
     }
 };
 
-/**
- * Processar arquivo anexado
- */
 const uploadAttachment = async (req, res) => {
     try {
         if (!req.file) {
@@ -311,7 +277,6 @@ const uploadAttachment = async (req, res) => {
 
         const file = req.file;
 
-        // Validar tamanho
         if (file.size > 10 * 1024 * 1024) {
             return res.status(400).json({
                 success: false,
@@ -319,14 +284,12 @@ const uploadAttachment = async (req, res) => {
             });
         }
 
-        // Extrair texto do arquivo
         let extractedText = '';
 
         try {
             if (file.mimetype === 'text/plain') {
                 extractedText = file.buffer.toString('utf-8');
             } else {
-                // Usar o processador de arquivos para PDFs, DOCX, imagens
                 extractedText = await fileProcessor.extractText(file);
             }
         } catch (error) {
@@ -337,14 +300,13 @@ const uploadAttachment = async (req, res) => {
             });
         }
 
-        // Retornar informações do arquivo processado
         res.json({
             success: true,
             attachment: {
                 name: file.originalname,
                 type: file.mimetype,
                 size: file.size,
-                content: extractedText.substring(0, 50000) // Limitar a 50k caracteres
+                content: extractedText.substring(0, 50000) 
             }
         });
 
@@ -357,9 +319,6 @@ const uploadAttachment = async (req, res) => {
     }
 };
 
-/**
- * Atualizar título da conversa manualmente
- */
 const updateConversationTitle = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -373,7 +332,6 @@ const updateConversationTitle = async (req, res) => {
             });
         }
 
-        // Verificar se a conversa pertence ao usuário
         const { data: conversation, error: convError } = await supabase
             .from('sinapse_conversations')
             .select('id')
@@ -388,7 +346,6 @@ const updateConversationTitle = async (req, res) => {
             });
         }
 
-        // Atualizar título
         const { data, error } = await supabase
             .from('sinapse_conversations')
             .update({ title: title.trim() })

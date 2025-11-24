@@ -121,14 +121,12 @@ const completeGoogleProfile = async (req, res) => {
             return res.status(400).json({ error: 'Este nome de usuário já está em uso.', field: 'username', type: 'FIELD_ERROR' });
         }
 
-        // Buscar o perfil atual para verificar se já tem avatar_url
         const { data: currentProfile } = await supabase
             .from('profiles')
             .select('avatar_url')
             .eq('id', userId)
             .single();
 
-        // Priorizar: avatar_url do perfil atual > avatar_url dos metadados > picture dos metadados
         const avatarUrl = currentProfile?.avatar_url ||
                          req.user?.user_metadata?.avatar_url ||
                          req.user?.user_metadata?.picture ||
@@ -139,7 +137,6 @@ const completeGoogleProfile = async (req, res) => {
             .update({
                 full_name: fullName.trim(),
                 username: username.trim(),
-                // Garantir que o avatar_url do Google seja salvo
                 avatar_url: avatarUrl
             })
             .eq('id', userId)
@@ -243,7 +240,6 @@ const resetPassword = async (req, res) => {
     }
 };
 
-// Função para criar perfil automaticamente para usuários OAuth
 const ensureUserProfile = async (req, res) => {
     const userId = req.user?.id;
 
@@ -252,7 +248,6 @@ const ensureUserProfile = async (req, res) => {
     }
 
     try {
-        // Verificar se o perfil já existe
         const { data: existingProfile, error: checkError } = await supabase
             .from('profiles')
             .select('*')
@@ -263,7 +258,6 @@ const ensureUserProfile = async (req, res) => {
             throw checkError;
         }
 
-        // Se o perfil não existe, criar um
         if (!existingProfile) {
             const { data: newProfile, error: createError } = await supabase
                 .from('profiles')
@@ -288,7 +282,6 @@ const ensureUserProfile = async (req, res) => {
             return res.status(201).json({ profile: newProfile, isNew: true });
         }
 
-        // Perfil já existe
         res.status(200).json({ profile: existingProfile, isNew: false });
 
     } catch (err) {

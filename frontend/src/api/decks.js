@@ -34,7 +34,6 @@ export const createDeck = async (deckData) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
     
-    // Usar API do backend para que as conquistas sejam atualizadas
     const response = await fetch('/api/decks', {
       method: 'POST',
       headers: {
@@ -58,7 +57,6 @@ export const updateDeck = async (deckId, deckData) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Utilizador não autenticado');
 
-    // Usar API do backend consistentemente com createDeck
     const response = await fetch(`/api/decks/${deckId}`, {
       method: 'PUT',
       headers: {

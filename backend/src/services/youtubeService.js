@@ -1,10 +1,6 @@
 const { YoutubeTranscript } = require('youtube-transcript');
 
-/**
- * Extrai o ID do vídeo de uma URL do YouTube
- */
 const extractVideoId = (url) => {
-    // Suporta vários formatos de URL do YouTube
     const patterns = [
         /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
         /youtube\.com\/embed\/([^&\n?#]+)/,
@@ -21,15 +17,11 @@ const extractVideoId = (url) => {
     throw new Error('URL do YouTube inválida');
 };
 
-/**
- * Busca a transcrição/legendas de um vídeo do YouTube
- */
 const getYouTubeTranscript = async (youtubeUrl) => {
     try {
         const videoId = extractVideoId(youtubeUrl);
         console.log(` Extraindo transcrição do vídeo: ${videoId}`);
 
-        // Tenta buscar legendas em português primeiro, depois em inglês
         let transcript;
         try {
             transcript = await YoutubeTranscript.fetchTranscript(videoId, {
@@ -47,7 +39,6 @@ const getYouTubeTranscript = async (youtubeUrl) => {
             throw new Error('Nenhuma transcrição disponível para este vídeo');
         }
 
-        // Concatenar todo o texto da transcrição
         const fullText = transcript
             .map(item => item.text)
             .join(' ')

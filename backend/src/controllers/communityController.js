@@ -51,7 +51,6 @@ const getPublicDecks = async (req, res) => {
         } else if (filterType === 'recommended') {
             logger.info(`[GET PUBLIC DECKS] Aplicando filtro de recomendações para usuário ${userId}`);
 
-            // Buscar interesses do usuário
             const { data: userProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('interests')
@@ -63,11 +62,9 @@ const getPublicDecks = async (req, res) => {
                 return res.json({ decks: [], total: 0 });
             }
 
-            // Extrair apenas os nomes das áreas de interesse
             const userInterestNames = userProfile.interests.map(interest => interest.name);
             logger.info(`[GET PUBLIC DECKS] Interesses do usuário: ${userInterestNames.join(', ')}`);
 
-            // Buscar todos os decks públicos com tags
             let recommendationQuery = supabase
                 .from('decks')
                 .select(`
@@ -86,16 +83,14 @@ const getPublicDecks = async (req, res) => {
                     )
                 `)
                 .eq('is_shared', true)
-                .neq('user_id', userId) // Excluir decks do próprio usuário
-                .not('tags', 'is', null) // Apenas decks com tags
+                .neq('user_id', userId) 
+                .not('tags', 'is', null) 
                 .range(from, to);
 
-            // Aplicar filtro de busca se existir
             if (searchTerm) {
                 recommendationQuery = recommendationQuery.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
             }
 
-            // Aplicar ordenação
             switch (sortBy) {
                 case 'created_at':
                     recommendationQuery = recommendationQuery.order('published_at', { ascending: false, nullsLast: true })
@@ -118,7 +113,6 @@ const getPublicDecks = async (req, res) => {
                 throw recommendedError;
             }
 
-            // Filtrar decks que têm pelo menos uma tag em comum com os interesses do usuário
             const recommendedDecks = allDecks.filter(deck => {
                 if (!deck.tags || !Array.isArray(deck.tags)) return false;
 
@@ -130,7 +124,6 @@ const getPublicDecks = async (req, res) => {
                 return hasCommonTag;
             });
 
-            // Formatar dados para o frontend
             const formattedDecks = recommendedDecks.map(deck => {
                 const { flashcards, ...deckData } = deck;
                 return {
@@ -352,7 +345,6 @@ const rateDeck = async (req, res) => {
             return res.status(400).json({ message: "A avaliação deve ser um número inteiro de 1 a 5.", code: 'VALIDATION_ERROR' });
         }
 
-        // Verificar se já existe uma avaliação deste usuário para este deck
         const { data: existingRating, error: checkError } = await supabase
             .from('deck_ratings')
             .select('rating')
@@ -417,7 +409,6 @@ const getDeckForView = async (req, res) => {
             return res.status(404).json({ message: 'Baralho não encontrado ou não é público.', code: 'DECK_NOT_FOUND' });
         }
 
-        // Buscar flashcards do deck
         const { data: flashcards, error: flashcardsError } = await supabase
             .from('flashcards')
             .select('id, question, answer, card_type, options')
@@ -429,7 +420,6 @@ const getDeckForView = async (req, res) => {
             throw flashcardsError;
         }
 
-        // Buscar avaliações do deck
         const { data: ratings, error: ratingsError } = await supabase
             .from('deck_ratings')
             .select('rating')
@@ -472,7 +462,6 @@ const getReviewCardsForCommunityDeck = async (req, res) => {
     const today = new Date().toISOString();
 
     try {
-        // Verificar se o deck é público
         const { data: deck, error: deckError } = await supabase
             .from('decks')
             .select('id, is_shared')
@@ -484,7 +473,6 @@ const getReviewCardsForCommunityDeck = async (req, res) => {
             return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // Buscar flashcards para estudo (todos os cards para baralhos da comunidade)
         const { data, error } = await supabase
             .from('flashcards')
             .select('*')
@@ -493,14 +481,12 @@ const getReviewCardsForCommunityDeck = async (req, res) => {
 
         if (error) throw error;
 
-        // Para baralhos da comunidade, inicializar cards com valores padrão de SRS
         const cardsWithSRS = data.map(card => ({
             ...card,
             repetition: 0,
             interval: 1,
             ease_factor: 2.5,
             due_date: today,
-            // Adicionar um identificador para indicar que é um card da comunidade
             is_community_card: true
         }));
 
@@ -517,7 +503,6 @@ const getCommunityCardExplanation = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        // Verificar se o deck é público
         const { data: deck, error: deckError } = await supabase
             .from('decks')
             .select('id, is_shared')
@@ -529,7 +514,6 @@ const getCommunityCardExplanation = async (req, res) => {
             return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // Verificar se o card pertence ao deck
         const { data: card, error: cardError } = await supabase
             .from('flashcards')
             .select('id, question, answer, deck_id')
@@ -562,7 +546,6 @@ const chatWithCommunityTutor = async (req, res) => {
     try {
         const { chatHistory } = chatSchema.parse(req.body);
 
-        // Verificar se o deck é público
         const { data: deck, error: deckError } = await supabase
             .from('decks')
             .select('id, is_shared')
@@ -574,7 +557,6 @@ const chatWithCommunityTutor = async (req, res) => {
             return res.status(404).json({ message: 'Baralho público não encontrado.', code: 'NOT_FOUND' });
         }
 
-        // Verificar se o card pertence ao deck
         const { data: card, error: cardError } = await supabase
             .from('flashcards')
             .select('id, question, answer, deck_id')

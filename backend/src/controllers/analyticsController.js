@@ -31,7 +31,6 @@ const getAnalyticsSummary = async (req, res) => {
 
         if (error) throw error;
 
-        // Adicionando um fallback para o novo campo
         const summaryData = data[0] || {};
         summaryData.best_streak = summaryData.max_streak || summaryData.best_streak || 0;
 

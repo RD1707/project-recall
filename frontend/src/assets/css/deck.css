@@ -113,7 +113,6 @@
     font-size: 0.9rem;
 }
 
-/* Star Rating Styles */
 .star-rating {
     display: flex;
     gap: 0.25rem;
@@ -123,11 +122,11 @@
 .star-rating .star {
     cursor: pointer;
     transition: color 0.2s ease;
-    color: #ffd700; /* Cor dourada padrão */
+    color: #ffd700; 
 }
 
 .star-rating .star:hover {
-    color: #ffed4e; /* Amarelo mais claro no hover */
+    color: #ffed4e; 
 }
 
 .star-rating .star i {
@@ -142,13 +141,12 @@
     transform: scale(1.1);
 }
 
-/* Dark mode adjustments */
 [data-theme='dark'] .star-rating .star {
-    color: #ffffff; /* Branco no modo escuro */
+    color: #ffffff; 
 }
 
 [data-theme='dark'] .star-rating .star:hover {
-    color: #f0f0f0; /* Cinza claro no hover no modo escuro */
+    color: #f0f0f0; 
 }
 
 .rating-score {

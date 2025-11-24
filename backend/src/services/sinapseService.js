@@ -6,17 +6,9 @@ const cohere = new CohereClient({
     token: process.env.COHERE_API_KEY,
 });
 
-/**
- * Serviço da IA Sinapse - Assistente inteligente do Recall
- * Responsável por processar mensagens, acessar dados do usuário e gerar respostas contextualizadas
- */
 class SinapseService {
 
-    /**
-     * Gera o prompt de sistema com conhecimento sobre o Recall e dados do usuário
-     */
     async generateSystemPrompt(userId) {
-        // Buscar informações do usuário
         const userData = await this.getUserContext(userId);
 
         return `Você é **Sinapse**, a assistente inteligente do **Recall** - um aplicativo de flashcards com gamificação e IA.
@@ -202,22 +194,16 @@ Atualmente você tem **${userData.points || 0} pontos** e está em uma streak de
 Agora você está pronta para ajudar! Responda sempre de forma útil, prática e amigável.`;
     }
 
-    /**
-     * Busca contexto completo do usuário (decks, cards, estatísticas)
-     */
     async getUserContext(userId) {
         try {
-            // Buscar perfil do usuário
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('full_name, username, points, current_streak, max_streak, last_studied_at')
                 .eq('id', userId)
                 .single();
 
-            // Buscar email do auth
             const { data: { user } } = await supabase.auth.admin.getUserById(userId);
 
-            // Buscar decks do usuário
             const { data: decks, count: deckCount } = await supabase
                 .from('decks')
                 .select('id, title, created_at', { count: 'exact' })
@@ -225,7 +211,6 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
                 .order('created_at', { ascending: false })
                 .limit(5);
 
-            // Contar total de flashcards
             let cardCount = 0;
             const recentDecks = [];
 
@@ -244,7 +229,6 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
                 }
             }
 
-            // Formatar última sessão de estudo
             let lastStudied = 'Nunca';
             if (profile?.last_studied_at) {
                 const date = new Date(profile.last_studied_at);
@@ -279,9 +263,6 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
         }
     }
 
-    /**
-     * Processa arquivos anexados pelo usuário e extrai texto
-     */
     async processAttachments(attachments) {
         if (!attachments || attachments.length === 0) {
             return '';
@@ -291,7 +272,6 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
 
         for (const file of attachments) {
             try {
-                // Se o arquivo já tem conteúdo processado
                 if (file.content) {
                     attachmentContext += `\n**Arquivo: ${file.name}**\n\`\`\`\n${file.content}\n\`\`\`\n`;
                 }
@@ -304,29 +284,21 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
         return attachmentContext;
     }
 
-    /**
-     * Gera resposta da Sinapse usando Cohere
-     */
     async generateResponse(userId, userMessage, chatHistory = [], attachments = []) {
         try {
-            // Gerar prompt de sistema com contexto do usuário
             const systemPrompt = await this.generateSystemPrompt(userId);
 
-            // Processar anexos se houver
             const attachmentContext = await this.processAttachments(attachments);
 
-            // Preparar histórico para a API Cohere
             const formattedHistory = chatHistory.map(msg => ({
                 role: msg.role === 'USER' ? 'USER' : 'CHATBOT',
                 message: msg.content
             }));
 
-            // Montar mensagem do usuário com contexto de anexos
             const finalUserMessage = attachmentContext
                 ? `${userMessage}\n${attachmentContext}`
                 : userMessage;
 
-            // Chamar API Cohere
             const response = await cohere.chat({
                 model: 'command-a-03-2025',
                 preamble: systemPrompt,
@@ -344,9 +316,6 @@ Agora você está pronta para ajudar! Responda sempre de forma útil, prática e
         }
     }
 
-    /**
-     * Gera título para conversa baseado na primeira mensagem
-     */
     async generateConversationTitle(firstMessage) {
         try {
             const prompt = `Com base na seguinte pergunta ou mensagem do usuário, gere um título curto e descritivo (máximo 6 palavras) para a conversa.
@@ -366,7 +335,6 @@ Título:`;
 
             let title = response.text.trim();
 
-            // Limpar título (remover aspas, limitar tamanho)
             title = title.replace(/["']/g, '');
             if (title.length > 50) {
                 title = title.substring(0, 50) + '...';

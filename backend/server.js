@@ -59,7 +59,7 @@ app.get('*', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Servidor e WebSocket a rodar na porta ${PORT}`);
+  console.log(`Servidor e WebSocket a rodar na porta ${PORT}`);
 });
 
 module.exports = app;

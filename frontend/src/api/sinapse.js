@@ -17,9 +17,6 @@ const getAuthHeader = async () => {
     return `Bearer ${session.access_token}`;
 };
 
-/**
- * Criar nova conversa
- */
 export const createConversation = async () => {
     try {
         const response = await fetch('/api/sinapse/conversations', {
@@ -41,9 +38,6 @@ export const createConversation = async () => {
     }
 };
 
-/**
- * Listar todas as conversas
- */
 export const getConversations = async () => {
     try {
         const response = await fetch('/api/sinapse/conversations', {
@@ -64,9 +58,6 @@ export const getConversations = async () => {
     }
 };
 
-/**
- * Buscar mensagens de uma conversa
- */
 export const getMessages = async (conversationId) => {
     try {
         const response = await fetch(`/api/sinapse/conversations/${conversationId}/messages`, {
@@ -87,9 +78,6 @@ export const getMessages = async (conversationId) => {
     }
 };
 
-/**
- * Enviar mensagem e receber resposta da IA
- */
 export const sendMessage = async (conversationId, content, attachments = []) => {
     try {
         const response = await fetch(`/api/sinapse/conversations/${conversationId}/messages`, {
@@ -112,9 +100,6 @@ export const sendMessage = async (conversationId, content, attachments = []) => 
     }
 };
 
-/**
- * Deletar conversa
- */
 export const deleteConversation = async (conversationId) => {
     try {
         const response = await fetch(`/api/sinapse/conversations/${conversationId}`, {
@@ -136,9 +121,6 @@ export const deleteConversation = async (conversationId) => {
     }
 };
 
-/**
- * Fazer upload de arquivo
- */
 export const uploadFile = async (file) => {
     try {
         const formData = new FormData();

@@ -9,7 +9,6 @@ const updateAchievementProgress = async (userId, metric, value) => {
 
     logger.info(`[ACHIEVEMENTS] Iniciando updateAchievementProgress - userId: ${userId}, metric: ${metric}, value: ${value}`);
 
-    // CORREÇÃO: Define quais métricas podem ter seu progresso diminuído.
     const stoppableMetrics = ['cards_mastered'];
 
     try {
@@ -43,8 +42,6 @@ const updateAchievementProgress = async (userId, metric, value) => {
             const currentProgress = userAchievement?.progress || 0;
             const canDecrease = stoppableMetrics.includes(metric);
 
-            // CORREÇÃO: Lógica para pular a atualização
-            // Se a métrica não pode diminuir, pulamos se já estiver desbloqueada ou se o novo valor for menor.
             if (!canDecrease && (userAchievement?.unlocked_at || value < currentProgress)) {
                 logger.info(`[ACHIEVEMENTS] Pulando achievement ${achievement.id} - progresso não pode diminuir ou já desbloqueado.`);
                 continue;
@@ -59,14 +56,13 @@ const updateAchievementProgress = async (userId, metric, value) => {
                 updated_at: new Date().toISOString(),
             };
 
-            // CORREÇÃO: Lógica para desbloquear ou revogar a conquista
             if (value >= achievement.goal) {
-                if (!userAchievement?.unlocked_at) { // Só atualiza se não estiver já desbloqueada
+                if (!userAchievement?.unlocked_at) {
                     dataToUpsert.unlocked_at = new Date().toISOString();
                     logger.info(` Conquista desbloqueada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
                 }
             } else {
-                if (userAchievement?.unlocked_at) { // Revoga se estava desbloqueada
+                if (userAchievement?.unlocked_at) { 
                     dataToUpsert.unlocked_at = null;
                     logger.info(` Conquista revogada! Usuário ${userId}, Conquista ID: ${achievement.id}`);
                 }
