@@ -177,7 +177,6 @@ function Landing() {
                                 <div className="floating-card card-1">
                                     <div className="card-header">
                                         <span className="card-badge">Biologia</span>
-                                        <span className="card-progress">85%</span>
                                     </div>
                                     <h4>Mitocôndria</h4>
                                     <p>Organela responsável pela produção de ATP através da respiração celular</p>
@@ -185,7 +184,6 @@ function Landing() {
                                 <div className="floating-card card-2">
                                     <div className="card-header">
                                         <span className="card-badge">História</span>
-                                        <span className="card-progress">92%</span>
                                     </div>
                                     <h4>Revolução Francesa</h4>
                                     <p>1789 - Queda da Bastilha marca o início do movimento revolucionário</p>
@@ -193,7 +191,6 @@ function Landing() {
                                 <div className="floating-card card-3">
                                     <div className="card-header">
                                         <span className="card-badge">Matemática</span>
-                                        <span className="card-progress">78%</span>
                                     </div>
                                     <h4>Teorema de Pitágoras</h4>
                                     <p>a² + b² = c²</p>
