@@ -270,7 +270,7 @@ section {
     left: 0;
     right: 0;
     height: var(--header-height);
-    background: var(--color-bg);
+    background: var(--color-bg-light);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     z-index: 1000;

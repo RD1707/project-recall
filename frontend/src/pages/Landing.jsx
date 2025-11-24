@@ -154,7 +154,7 @@ function Landing() {
                                 Powered by Cohere
                             </div>
                             <h1>
-                                Memorize 10x mais rápido com
+                                Memorize mais rápido com
                                 <span className="text-gradient"> Inteligência Artificial</span>
                             </h1>
                             <p className="hero-subtitle">
@@ -169,10 +169,7 @@ function Landing() {
                                 </Link>
                             </div>
                             <div className="hero-trust">
-                                <p>
-                                    <i className="fas fa-shield-check"></i>
-                                    Mais de <strong>50.000 estudantes</strong> já aprovados
-                                </p>
+                            
                             </div>
                         </div>
                         <div className="hero-visual">
@@ -352,44 +349,6 @@ function Landing() {
                     </div>
                 </section>
 
-                <section id="testimonials" className="testimonials">
-                    <div className="landing-container">
-                        <div className="section-header">
-                            <span className="section-tag">DEPOIMENTOS</span>
-                            <h2>Histórias de sucesso reais</h2>
-                            <p className="section-subtitle">
-                                Veja como o Recall está transformando a forma como pessoas aprendem
-                            </p>
-                        </div>
-                        <div className="testimonials-grid">
-                            <TestimonialCard
-                                name="Marina Silva"
-                                role="Medicina"
-                                institution="USP"
-                                image="https://i.pravatar.cc/150?img=1"
-                                rating={5}
-                                text="Passei em primeiro lugar no vestibular! O Recall foi essencial para memorizar toda a anatomia e fisiologia. Recomendo demais!"
-                            />
-                            <TestimonialCard
-                                name="Carlos Eduardo"
-                                role="Engenheiro de Software"
-                                institution="Google"
-                                image="https://i.pravatar.cc/150?img=3"
-                                rating={5}
-                                text="Uso para estudar para certificações. Já passei em 3 exames este ano. A repetição espaçada é realmente eficaz."
-                            />
-                            <TestimonialCard
-                                name="Ana Beatriz"
-                                role="Concurseira"
-                                institution="TRF aprovada"
-                                image="https://i.pravatar.cc/150?img=5"
-                                rating={5}
-                                text="Depois de 2 anos tentando, finalmente passei! O Recall organizou meus estudos e me fez reter muito mais conteúdo."
-                            />
-                        </div>
-                    </div>
-                </section>
-
                 {/* Preços */}
                 <section id="pricing" className="pricing">
                     <div className="landing-container">
@@ -419,7 +378,6 @@ function Landing() {
                                 period="mês"
                                 features={[
                                     "Flashcards ilimitados",
-                                    "IA avançada (GPT-5",
                                     "Dispositivos ilimitados",
                                     "Analytics completo",
                                     "Modo offline",
@@ -465,10 +423,6 @@ function Landing() {
                             <div className="faq-item">
                                 <h3>Funciona para qualquer matéria?</h3>
                                 <p>Absolutamente! De medicina a idiomas, passando por programação e história. Nossa IA adapta-se a qualquer conteúdo.</p>
-                            </div>
-                            <div className="faq-item">
-                                <h3>E se eu já tiver meus próprios flashcards?</h3>
-                                <p>Perfeito! Você pode importar de Anki, Quizlet e outros. Também pode criar cards manualmente quando quiser.</p>
                             </div>
                         </div>
                     </div>
