@@ -215,7 +215,6 @@ function Landing() {
                                 icon="fa-cloud"
                                 title="Geração Inteligente"
                                 description="IA analisa seu material e cria flashcards focados nos pontos mais importantes, economizando horas de preparação."
-                                badge="Novo"
                             />
                             <FeatureCard
                                 icon="fa-brain"
